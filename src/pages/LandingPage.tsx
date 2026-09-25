@@ -34,7 +34,7 @@ export function LandingPage({ navigate }: LandingPageProps) {
       <SupportedLanguagesSection />
       <FeaturesSection />
       <HowItWorksSection />
-      <WhyCodeForgeSection />
+      <WhyAarByteSection />
       <FaqSection />
       <CtaSection navigate={navigate} />
     </div>
@@ -89,7 +89,7 @@ function CompilerPreviewSection({ navigate }: { navigate: (to: Route) => void })
               <div className="w-3 h-3 rounded-full bg-yellow-500" />
               <div className="w-3 h-3 rounded-full bg-green-500" />
             </div>
-            <span className="text-xs text-gray-400 ml-2">main.py - CodeForge</span>
+            <span className="text-xs text-gray-400 ml-2">main.py - AarByte</span>
             <div className="ml-auto flex items-center gap-2">
               <span className="text-xs text-gray-500">Python</span>
               <span className="text-xs px-2 py-0.5 rounded bg-blue-600 text-white">Run</span>
@@ -98,12 +98,12 @@ function CompilerPreviewSection({ navigate }: { navigate: (to: Route) => void })
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             <div className="p-4 font-mono text-sm text-gray-300 bg-gray-900 min-h-[200px]">
               <div className="text-blue-400">def <span className="text-yellow-300">main</span>():</div>
-              <div className="pl-4">print(<span className="text-green-400">"Hello, CodeForge!"</span>)</div>
+              <div className="pl-4">print(<span className="text-green-400">"Hello, AarByte!"</span>)</div>
               <div className="text-blue-400">main()</div>
             </div>
             <div className="p-4 font-mono text-sm bg-gray-850 border-l border-gray-700 min-h-[200px]">
               <div className="text-green-400 mb-2">--- Execution completed ---</div>
-              <div className="text-gray-300">Hello, CodeForge!</div>
+              <div className="text-gray-300">Hello, AarByte!</div>
               <div className="text-gray-500 text-xs mt-3">Time: 0.42s | Memory: 18 MB</div>
             </div>
           </div>
@@ -247,12 +247,12 @@ function HowItWorksSection() {
 }
 
 const REASONS = [
-  { icon: Layers, title: "Built for everyone", description: "Whether you're a student learning to code, a developer testing a snippet, or an interviewer running a problem -- CodeForge adapts to your workflow." },
+  { icon: Layers, title: "Built for everyone", description: "Whether you're a student learning to code, a developer testing a snippet, or an interviewer running a problem -- AarByte adapts to your workflow." },
   { icon: Cpu, title: "Real execution engine", description: "The architecture supports connecting a real secure sandbox backend. The mock executor is a placeholder for a production-grade execution service." },
   { icon: Shield, title: "Security first", description: "No arbitrary code execution on the client. The execution layer is fully modular and designed to connect to a hardened sandbox." },
 ];
 
-function WhyCodeForgeSection() {
+function WhyAarByteSection() {
   return (
     <section className="py-16 lg:py-20 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -277,12 +277,12 @@ function WhyCodeForgeSection() {
 }
 
 const FAQS = [
-  { q: "What is CodeForge?", a: `${APP_NAME} is an online code compiler and coding playground. You can write, run, and share code in multiple programming languages directly from your browser -- no installation required.` },
+  { q: "What is AarByte?", a: `${APP_NAME} is an online code compiler and coding playground. You can write, run, and share code in multiple programming languages directly from your browser -- no installation required.` },
   { q: "Which languages are supported?", a: `Currently we support Python, JavaScript, TypeScript, Java, C, C++, Go, Rust, and PHP. More languages will be added as the execution backend evolves.` },
   { q: "Is my code executed securely?", a: "Yes. The architecture uses a modular execution layer that connects to a secure sandbox backend. No arbitrary code runs on the client or without isolation." },
   { q: "Do I need an account?", a: "No. You can start coding immediately without signing up. An account system is planned for saving and sharing code across devices." },
   { q: "Can I share my code?", a: "Yes. The Share dialog lets you generate a link and control visibility. Full sharing functionality will be available after account integration." },
-  { q: "Is CodeForge free?", a: "The core compiler is free to use. Premium features and pricing plans will be announced soon." },
+  { q: "Is AarByte free?", a: "The core compiler is free to use. Premium features and pricing plans will be announced soon." },
 ];
 
 function FaqSection() {

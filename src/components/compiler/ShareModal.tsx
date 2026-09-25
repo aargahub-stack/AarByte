@@ -71,7 +71,7 @@ export function ShareModal({ open, onClose, onCopyLink }: ShareModalProps) {
           <div className="flex gap-2">
             <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-500 dark:text-gray-400 truncate">
               <Link2 size={14} className="flex-shrink-0" />
-              <span className="truncate">https://codeforge.io/share/demo-link</span>
+              <span className="truncate">https://aarbyte.dev/share/demo-link</span>
             </div>
             <Button variant="primary" size="sm" onClick={handleCopy}>
               {copied ? <Check size={14} /> : <Copy size={14} />}

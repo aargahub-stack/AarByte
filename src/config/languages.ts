@@ -7,7 +7,7 @@ export const LANGUAGES: LanguageConfig[] = [
     extension: "py",
     monacoLanguage: "python",
     starterCode: `def main():
-    print("Hello, CodeForge!")
+    print("Hello, AarByte!")
 
 main()
 `,
@@ -19,7 +19,7 @@ main()
     extension: "js",
     monacoLanguage: "javascript",
     starterCode: `function main() {
-  console.log("Hello, CodeForge!");
+  console.log("Hello, AarByte!");
 }
 
 main();
@@ -32,7 +32,7 @@ main();
     extension: "ts",
     monacoLanguage: "typescript",
     starterCode: `function main(): void {
-  console.log("Hello, CodeForge!");
+  console.log("Hello, AarByte!");
 }
 
 main();
@@ -46,7 +46,7 @@ main();
     monacoLanguage: "java",
     starterCode: `public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello, CodeForge!");
+        System.out.println("Hello, AarByte!");
     }
 }
 `,
@@ -60,7 +60,7 @@ main();
     starterCode: `#include <stdio.h>
 
 int main() {
-    printf("Hello, CodeForge!\\n");
+    printf("Hello, AarByte!\\n");
     return 0;
 }
 `,
@@ -74,7 +74,7 @@ int main() {
     starterCode: `#include <iostream>
 
 int main() {
-    std::cout << "Hello, CodeForge!" << std::endl;
+    std::cout << "Hello, AarByte!" << std::endl;
     return 0;
 }
 `,
@@ -90,7 +90,7 @@ int main() {
 import "fmt"
 
 func main() {
-    fmt.Println("Hello, CodeForge!")
+    fmt.Println("Hello, AarByte!")
 }
 `,
     enabled: true,
@@ -101,7 +101,7 @@ func main() {
     extension: "rs",
     monacoLanguage: "rust",
     starterCode: `fn main() {
-    println!("Hello, CodeForge!");
+    println!("Hello, AarByte!");
 }
 `,
     enabled: true,
@@ -114,7 +114,7 @@ func main() {
     starterCode: `<?php
 
 function main() {
-    echo "Hello, CodeForge!\\n";
+    echo "Hello, AarByte!\\n";
 }
 
 main();

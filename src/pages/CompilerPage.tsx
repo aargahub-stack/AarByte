@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Play, Save, Share2, Settings as SettingsIcon, Moon, Sun, Terminal, FilePlus, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { APP_NAME } from "@/config/constants";
 import { getLanguageById } from "@/config/languages";
-import { executeCode } from "@/services/execution/mockExecutor";
+import { executeCode } from "@/services/execution/pistonExecutor";
 import type { ExecutionResult, Program, Route, Settings } from "@/types";
 import { usePrograms } from "@/hooks/usePrograms";
 import { useToast } from "@/hooks/useToast";

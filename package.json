@@ -1,7 +1,8 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "aarbyte",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "AarByte - Modern Online Code Compiler, Editor & Playground",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +13,6 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
-    "@supabase/supabase-js": "^2.57.4",
     "lucide-react": "^0.446.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
