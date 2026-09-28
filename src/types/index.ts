@@ -61,9 +61,18 @@ export type Toast = {
 export type Route =
   | "landing"
   | "compiler"
+  | "courses"
+  | "course"
   | "problems"
+  | "task"
+  | "admin"
+  | "leaderboard"
   | "playground"
   | "docs"
   | "pricing"
   | "login"
   | "signup";
+
+
+export * from "./database.types";
+
