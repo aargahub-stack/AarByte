@@ -252,7 +252,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Welcome back,{" "}
                 <span className="bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
                   {studentName}
@@ -305,7 +305,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 <Zap size={18} />
               </div>
             </div>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
               {points} <span className="text-base font-bold text-amber-500">XP</span>
             </div>
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
@@ -322,7 +322,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 <CheckCircle2 size={18} />
               </div>
             </div>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
               {solvedTasksCount}{" "}
               <span className="text-base font-bold text-slate-400">
                 / {totalTasksCount}
@@ -342,7 +342,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 <Target size={18} />
               </div>
             </div>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
               {completionPct}%
             </div>
             <div className="mt-2.5 w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
@@ -362,7 +362,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 <Trophy size={18} />
               </div>
             </div>
-            <div className="text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">
               {rankDisplay}
             </div>
             <button
@@ -393,7 +393,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                       Your Learning Roadmaps
                     </h2>
                     <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -472,7 +472,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                       Practice Arena Challenges
                     </h2>
                     <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">

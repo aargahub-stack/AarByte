@@ -95,7 +95,7 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 font-urbanist bg-[#F8FAFC]/85 dark:bg-[#090D16]/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-[#1E293B] transition-colors duration-300">
+    <header className="sticky top-0 z-50 font-urbanist bg-white/90 dark:bg-[#090D16]/90 backdrop-blur-xl transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Left: AarCode Logo + bold "AarCode" text */}
@@ -104,20 +104,20 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
             className="flex items-center gap-3 group focus:outline-none"
             aria-label="AarCode home"
           >
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/20 p-1.5 group-hover:scale-105 group-hover:border-indigo-500/40 transition-all duration-200">
+            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-50/80 dark:bg-indigo-500/15 border border-indigo-200/70 dark:border-indigo-500/20 p-1.5 group-hover:scale-105 group-hover:border-indigo-500/40 transition-all duration-200">
               <img
                 src="/AarCode.png"
                 alt="AarCode Logo"
                 className="w-full h-full object-contain drop-shadow-sm"
               />
             </div>
-            <span className="font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">
+            <span className="font-semibold text-2xl tracking-tight text-slate-900 dark:text-white">
               AarCode
             </span>
           </button>
 
           {/* Center: Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2 bg-white/70 dark:bg-[#0F172A]/80 px-3 py-1.5 rounded-full border border-slate-200/80 dark:border-[#1E293B] shadow-sm">
+          <nav className="hidden md:flex items-center gap-2 lg:gap-4 bg-white dark:bg-[#0F172A]/90 px-5 py-2 rounded-full border border-slate-200/80 dark:border-[#1E293B] shadow-sm shadow-slate-200/50 dark:shadow-none">
             {navItems.map((item) => {
               const isActive =
                 !item.isAnchor &&

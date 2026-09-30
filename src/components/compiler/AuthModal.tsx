@@ -127,7 +127,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-xl font-extrabold tracking-tight text-white">
+              <span className="text-xl font-semibold tracking-tight text-white">
                 AarCode
               </span>
             </button>
@@ -136,7 +136,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
           {/* Center Testimonial Quote + Feature Checklist */}
           <div className="relative z-10 max-w-xl my-auto space-y-8">
             <div className="space-y-4">
-              <blockquote className="text-2xl xl:text-[2rem] font-extrabold leading-[1.28] tracking-tight text-white">
+              <blockquote className="text-2xl xl:text-[2rem] font-semibold leading-[1.28] tracking-tight text-white">
                 “We went from debugging syntax errors for hours to passing hidden test cases in minutes — across 36+ coding cohorts.”
               </blockquote>
               <p className="text-sm xl:text-base font-medium text-slate-300/85">
@@ -177,7 +177,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
           <div className="flex items-center justify-between">
             <div className="flex lg:hidden items-center gap-2">
               <img src="/AarCode.png" alt="AarCode" className="w-7 h-7 object-contain" />
-              <span className="font-extrabold text-lg text-slate-900 dark:text-white">
+              <span className="font-semibold text-lg text-slate-900 dark:text-white">
                 AarCode
               </span>
             </div>
@@ -197,7 +197,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
           {/* Centered Form Container */}
           <div className="w-full max-w-[420px] mx-auto my-auto py-8">
             <div className="mb-8">
-              <h1 className="text-3xl sm:text-[2rem] font-extrabold tracking-tight text-slate-900 dark:text-white mb-2">
+              <h1 className="text-3xl sm:text-[2rem] font-semibold tracking-tight text-slate-900 dark:text-white mb-2">
                 {isLogin ? "Welcome back" : "Create your workspace"}
               </h1>
               <p className="text-sm sm:text-base font-medium text-slate-500 dark:text-slate-400">
@@ -304,7 +304,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 rounded-xl bg-[#0F766E] hover:bg-[#115E59] dark:bg-gradient-to-r dark:from-[#6366F1] dark:via-[#4F46E5] dark:to-[#7C3AED] text-white font-extrabold text-sm sm:text-base shadow-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60"
+                className="w-full h-12 rounded-xl bg-[#0F766E] hover:bg-[#115E59] dark:bg-gradient-to-r dark:from-[#6366F1] dark:via-[#4F46E5] dark:to-[#7C3AED] text-white font-semibold text-sm sm:text-base shadow-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {loading ? (
                   <>
@@ -365,7 +365,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
               <button
                 type="button"
                 onClick={() => onModeChange(isLogin ? "signup" : "login")}
-                className="font-extrabold text-[#0F766E] dark:text-indigo-400 hover:underline transition-colors"
+                className="font-semibold text-[#0F766E] dark:text-indigo-400 hover:underline transition-colors"
               >
                 {isLogin ? "Create a workspace" : "Sign in"}
               </button>

@@ -142,7 +142,7 @@ export function AuthPage({
                 className="w-full h-full object-contain"
               />
             </div>
-            <span className="text-xl font-extrabold tracking-tight text-white">
+            <span className="text-xl font-semibold tracking-tight text-white">
               AarCode
             </span>
           </button>
@@ -151,7 +151,7 @@ export function AuthPage({
         {/* Center Testimonial Quote + Feature Checklist */}
         <div className="relative z-10 max-w-xl my-auto space-y-8">
           <div className="space-y-4">
-            <blockquote className="text-2xl xl:text-[2rem] font-extrabold leading-[1.28] tracking-tight text-white">
+            <blockquote className="text-2xl xl:text-[2rem] font-semibold leading-[1.28] tracking-tight text-white">
               “We went from debugging syntax errors for hours to passing hidden test cases in minutes — across 36+ coding cohorts.”
             </blockquote>
             <p className="text-sm xl:text-base font-medium text-teal-100/75">
@@ -201,7 +201,7 @@ export function AuthPage({
             {/* Show brand on mobile */}
             <div className="flex lg:hidden items-center gap-2">
               <img src="/AarCode.png" alt="AarCode" className="w-6 h-6 object-contain" />
-              <span className="font-extrabold text-base text-slate-900 dark:text-white">
+              <span className="font-semibold text-base text-slate-900 dark:text-white">
                 AarCode
               </span>
             </div>
@@ -219,7 +219,7 @@ export function AuthPage({
         {/* Centered Form Card */}
         <div className="w-full max-w-[420px] mx-auto my-auto py-8">
           <div className="mb-8">
-            <h1 className="text-3xl sm:text-[2rem] font-extrabold tracking-tight text-slate-900 dark:text-white mb-2">
+            <h1 className="text-3xl sm:text-[2rem] font-semibold tracking-tight text-slate-900 dark:text-white mb-2">
               {isLogin ? "Welcome back" : "Create your workspace"}
             </h1>
             <p className="text-sm sm:text-base font-medium text-slate-500 dark:text-slate-400">
@@ -326,7 +326,7 @@ export function AuthPage({
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 rounded-xl bg-[#0B6E69] hover:bg-[#095955] text-white font-extrabold text-sm sm:text-base shadow-lg shadow-teal-900/15 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60"
+              className="w-full h-12 rounded-xl bg-[#0B6E69] hover:bg-[#095955] text-white font-semibold text-sm sm:text-base shadow-lg shadow-teal-900/15 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {loading ? (
                 <>
