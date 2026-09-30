@@ -7,10 +7,8 @@ import {
   ShieldCheck,
   Compass,
   Cpu,
-  CheckCircle2,
   Play,
   Layers,
-  Zap,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import type { Route } from "@/types";
@@ -21,11 +19,12 @@ type LandingPageProps = {
 
 export function LandingPage({ navigate }: LandingPageProps) {
   return (
-    <div className="font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-white transition-colors duration-300 overflow-x-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 space-y-20 lg:space-y-28">
-        {/* B. Hero Section (Top Highlight Card) */}
-        <HeroCardSection navigate={navigate} />
+    <div className="font-sans bg-white dark:bg-[#090D16] text-slate-900 dark:text-white transition-colors duration-300 overflow-x-hidden">
+      {/* B. Hero Section (Full-Bleed, Containerless, Screen-Height Adaptive) */}
+      <HeroCardSection navigate={navigate} />
 
+      {/* Rest of the Landing Page Sections */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 space-y-20 lg:space-y-28">
         {/* C. Language & Tech Stack Strip */}
         <TechStackStrip navigate={navigate} />
 
@@ -43,7 +42,7 @@ export function LandingPage({ navigate }: LandingPageProps) {
 }
 
 /* ============================================================================
-   B. HERO SECTION (TOP HIGHLIGHT CARD)
+   B. HERO SECTION (CONTAINERLESS & SCREEN-HEIGHT ADAPTIVE WITH /hero.png)
 ============================================================================ */
 function HeroCardSection({ navigate }: { navigate: (to: Route | string) => void }) {
   const avatars = [
@@ -54,198 +53,82 @@ function HeroCardSection({ navigate }: { navigate: (to: Route | string) => void 
   ];
 
   return (
-    <section className="relative">
-      {/* Main High-Impact Rounded Card Container */}
-      <div className="relative rounded-[2rem] bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] shadow-2xl shadow-indigo-500/5 dark:shadow-black/50 overflow-hidden p-6 sm:p-10 lg:p-14 xl:p-16 transition-colors duration-300">
-        {/* Ambient Purple Glow Backdrops */}
-        <div className="pointer-events-none absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-gradient-to-br from-[#6366F1]/25 via-[#7C3AED]/20 to-transparent blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-36 -left-24 w-[380px] h-[380px] rounded-full bg-gradient-to-tr from-[#4F46E5]/15 via-[#6366F1]/10 to-transparent blur-3xl" />
-
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+    <section className="relative w-full min-h-[calc(100dvh-5rem)] flex items-center justify-center py-6 sm:py-10 lg:py-6">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
           {/* Left Content */}
-          <div className="lg:col-span-7 space-y-7 text-left">
-            {/* Badge / Pill */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs sm:text-sm font-bold tracking-wide">
-              <Sparkles size={14} className="text-[#6366F1]" />
-              <span>Next-Gen Developer Platform</span>
-            </div>
-
+          <div className="lg:col-span-6 space-y-5 sm:space-y-6 xl:space-y-7 text-left z-10">
             {/* Headline (H1) */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[4rem] font-black tracking-tight leading-[1.08] text-slate-900 dark:text-white">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[3.6rem] xl:text-[4.25rem] font-bold tracking-tight leading-[1.08] text-[#0F172A] dark:text-white">
               <span className="block">Master Logic.</span>
-              <span className="block bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] dark:from-indigo-400 dark:via-[#6366F1] dark:to-purple-400 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-[#6366F1] via-[#5B46F6] to-[#7C3AED] dark:from-indigo-400 dark:via-[#6366F1] dark:to-purple-400 bg-clip-text text-transparent">
                 Scale Your Coding
               </span>
               <span className="block">Skills.</span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-2xl">
+            <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 font-normal leading-relaxed max-w-xl">
               All-in-one interactive platform to practice DSA, solve coding tasks with real-time compilers, and master web development — built for modern developers.
             </p>
 
-            {/* CTA Button */}
-            <div className="pt-1 flex flex-wrap items-center gap-4">
+            {/* CTA Buttons */}
+            <div className="pt-1 flex flex-wrap items-center gap-3.5 sm:gap-4">
               <a
                 href="#signup"
                 onClick={(e) => {
                   e.preventDefault();
                   navigate("signup");
                 }}
-                className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-extrabold text-base sm:text-lg shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                className="group inline-flex items-center gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-[#6366F1] via-[#5B46F6] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-sm sm:text-base lg:text-lg shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/45 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
               >
                 <span>Start Coding Free</span>
                 <ArrowRight
-                  size={20}
+                  size={19}
                   className="group-hover:translate-x-1 transition-transform duration-200"
                 />
               </a>
 
               <button
                 onClick={() => navigate("compiler")}
-                className="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-slate-200 dark:border-[#1E293B] bg-slate-50/80 dark:bg-[#090D16]/70 hover:border-indigo-500/40 text-slate-700 dark:text-slate-200 font-bold text-base transition-all duration-200"
+                className="inline-flex items-center gap-2.5 px-6 sm:px-7 py-3.5 sm:py-4 rounded-full border border-slate-200 dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#0F172A] hover:bg-slate-100/80 dark:hover:bg-slate-800/80 hover:border-indigo-500/40 text-slate-700 dark:text-slate-200 font-semibold text-sm sm:text-base transition-all duration-200"
               >
-                <Play size={16} className="text-[#6366F1] fill-[#6366F1]" />
+                <Play size={15} className="text-[#6366F1] fill-[#6366F1]" />
                 <span>Try Live Compiler</span>
               </button>
             </div>
 
             {/* Social Proof: Avatar Stack + Text */}
-            <div className="pt-3 flex flex-col sm:flex-row sm:items-center gap-3.5">
+            <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-3.5">
               <div className="flex -space-x-2.5">
                 {avatars.map((av, idx) => (
                   <div
                     key={idx}
                     className={cn(
-                      "w-10 h-10 rounded-full bg-gradient-to-br text-white font-extrabold text-xs flex items-center justify-center ring-2 ring-white dark:ring-[#0F172A] shadow-md",
+                      "w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br text-white font-semibold text-xs flex items-center justify-center ring-2 ring-white dark:ring-[#090D16] shadow-sm",
                       av.bg
                     )}
                   >
                     {av.initials}
                   </div>
                 ))}
-                <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-[#090D16] border border-indigo-200 dark:border-[#1E293B] text-[#6366F1] dark:text-indigo-400 font-extrabold text-xs flex items-center justify-center ring-2 ring-white dark:ring-[#0F172A]">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#EEF2FF] dark:bg-[#0F172A] border border-indigo-200 dark:border-[#1E293B] text-[#6366F1] dark:text-indigo-400 font-semibold text-xs flex items-center justify-center ring-2 ring-white dark:ring-[#090D16]">
                   +1k
                 </div>
               </div>
-              <div className="text-sm sm:text-base font-semibold text-slate-600 dark:text-slate-300">
-                Join <span className="text-slate-900 dark:text-white font-extrabold">1,000+</span> passionate student developers
+              <div className="text-xs sm:text-sm font-normal text-slate-600 dark:text-slate-300">
+                Join <span className="text-slate-900 dark:text-white font-semibold">1,000+</span> passionate student developers
               </div>
             </div>
           </div>
 
-          {/* Right Content: Developer / Coding Hero Graphic with Purple Accent Lighting */}
-          <div className="lg:col-span-5 relative flex items-center justify-center">
-            {/* Glowing Purple Halo Behind Graphic */}
-            <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-tr from-[#6366F1]/30 via-[#7C3AED]/25 to-indigo-400/10 blur-2xl scale-95" />
-
-            {/* Interactive Developer Studio Card */}
-            <div className="relative w-full rounded-3xl bg-[#090D16] border border-[#1E293B] shadow-2xl shadow-indigo-950/60 overflow-hidden p-5 sm:p-6">
-              {/* Top Neon Rim Highlight */}
-              <div className="absolute inset-x-10 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#6366F1] to-transparent" />
-
-              {/* Window Top Bar */}
-              <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#1E293B]">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-rose-500/80" />
-                  <span className="w-3 h-3 rounded-full bg-amber-400/80" />
-                  <span className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                  <span className="ml-2 text-xs font-bold text-slate-400 tracking-wide">
-                    solution.py — AarCode Judge
-                  </span>
-                </div>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-[11px] font-bold text-indigo-300">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping" />
-                  Python 3.11
-                </span>
-              </div>
-
-              {/* Developer Graphic + Code Snippet Area */}
-              <div className="space-y-2.5 text-xs sm:text-sm leading-relaxed">
-                <div className="flex items-center gap-3 text-slate-500">
-                  <span className="w-5 text-right select-none">1</span>
-                  <span>
-                    <span className="text-purple-400 font-bold">def</span>{" "}
-                    <span className="text-indigo-300 font-bold">maxSubArray</span>
-                    <span className="text-slate-300">(nums: list[int]) -&gt; int:</span>
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-slate-500">
-                  <span className="w-5 text-right select-none">2</span>
-                  <span className="pl-4 text-slate-300">
-                    best = curr = <span className="text-indigo-400">nums[0]</span>
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-slate-500">
-                  <span className="w-5 text-right select-none">3</span>
-                  <span className="pl-4">
-                    <span className="text-purple-400 font-bold">for</span>{" "}
-                    <span className="text-slate-200">x</span>{" "}
-                    <span className="text-purple-400 font-bold">in</span>{" "}
-                    <span className="text-slate-300">nums[1:]:</span>
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-slate-500">
-                  <span className="w-5 text-right select-none">4</span>
-                  <span className="pl-8 text-slate-300">
-                    curr = <span className="text-indigo-300">max</span>(x, curr + x)
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-slate-500">
-                  <span className="w-5 text-right select-none">5</span>
-                  <span className="pl-8 text-slate-300">
-                    best = <span className="text-indigo-300">max</span>(best, curr)
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 text-slate-500">
-                  <span className="w-5 text-right select-none">6</span>
-                  <span className="pl-4">
-                    <span className="text-purple-400 font-bold">return</span>{" "}
-                    <span className="text-emerald-400 font-bold">best</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Visual Developer Badge & Real-Time Execution Result */}
-              <div className="mt-6 pt-4 border-t border-[#1E293B] space-y-3">
-                <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-[#0F172A] border border-[#1E293B]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                      <CheckCircle2 size={17} />
-                    </div>
-                    <div>
-                      <div className="text-xs font-extrabold text-white">
-                        All 18 Hidden Test Cases Passed
-                      </div>
-                      <div className="text-[11px] font-semibold text-slate-400">
-                        Runtime: <span className="text-indigo-400">0.14s</span> • Memory:{" "}
-                        <span className="text-indigo-400">14.2 MB</span>
-                      </div>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-extrabold">
-                    +50 XP
-                  </span>
-                </div>
-
-                {/* Bottom Mini Developer Card */}
-                <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-[#6366F1]/20 via-[#4F46E5]/15 to-[#7C3AED]/20 border border-indigo-500/30">
-                  <div className="flex items-center gap-2.5">
-                    <img
-                      src="/AarCode.png"
-                      alt="AarCode Engine"
-                      className="w-6 h-6 object-contain"
-                    />
-                    <span className="text-xs font-bold text-indigo-200">
-                      AarCode Sandbox v2.4 Ready
-                    </span>
-                  </div>
-                  <span className="text-[11px] font-extrabold text-indigo-300 uppercase tracking-wider">
-                    99.8% Accuracy
-                  </span>
-                </div>
-              </div>
-            </div>
+          {/* Right Content: /hero.png Illustration scaled dynamically to screen height */}
+          <div className="lg:col-span-6 relative flex items-center justify-center lg:justify-end">
+            <img
+              src="/hero.png"
+              alt="AarCode Developer Coding Illustration"
+              className="w-full max-w-[480px] sm:max-w-[540px] lg:max-w-full max-h-[45vh] sm:max-h-[55vh] lg:max-h-[76dvh] object-contain select-none dark:rounded-3xl"
+            />
           </div>
         </div>
       </div>
@@ -421,10 +304,10 @@ function TechStackStrip({ navigate }: { navigate: (to: Route | string) => void }
                 {tech.svg}
               </div>
               <div className="text-left">
-                <div className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
+                <div className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
                   {tech.name}
                 </div>
-                <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                <div className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
                   {tech.badge}
                 </div>
               </div>
@@ -471,23 +354,23 @@ function TrustMetricsSection({ navigate }: { navigate: (to: Route | string) => v
     <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
       {/* Left Column */}
       <div className="lg:col-span-5 space-y-6">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-bold uppercase tracking-wider">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold uppercase tracking-wider">
           <Cpu size={14} className="text-[#6366F1]" />
           <span>Battle-Tested Judge</span>
         </div>
 
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.12] text-slate-900 dark:text-white">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.12] text-slate-900 dark:text-white">
           10,000+ Submissions Evaluated
         </h2>
 
-        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-normal leading-relaxed">
           From basic syntax to advanced algorithms, we help developers sharpen logic, pass hidden test cases, and crack technical rounds.
         </p>
 
         <div className="pt-2">
           <button
             onClick={() => navigate("problems")}
-            className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-extrabold text-base shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-200"
+            className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-base shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-200"
           >
             <span>Explore Practice Arena</span>
             <ArrowRight
@@ -513,16 +396,16 @@ function TrustMetricsSection({ navigate }: { navigate: (to: Route | string) => v
 
             <div
               className={cn(
-                "text-4xl sm:text-5xl font-black tracking-tight bg-gradient-to-r bg-clip-text text-transparent mb-2",
+                "text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-r bg-clip-text text-transparent mb-2",
                 metric.accent
               )}
             >
               {metric.value}
             </div>
-            <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mb-1">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
               {metric.label}
             </h3>
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-sm font-normal text-slate-500 dark:text-slate-400">
               {metric.detail}
             </p>
           </div>
@@ -547,7 +430,7 @@ interface PricingPlan {
 const PRICING_PLANS: PricingPlan[] = [
   {
     name: "Starter",
-    price: "$0",
+    price: "₹0",
     period: "/ month",
     tagline: "Everything you need to start practicing and running code.",
     features: [
@@ -560,7 +443,7 @@ const PRICING_PLANS: PricingPlan[] = [
   },
   {
     name: "Pro Coder",
-    price: "$9",
+    price: "₹499",
     period: "/ month",
     tagline: "Unlock hidden test cases, full roadmaps, and deep debugging.",
     popular: true,
@@ -575,7 +458,7 @@ const PRICING_PLANS: PricingPlan[] = [
   },
   {
     name: "Campus / Team",
-    price: "$49",
+    price: "₹2,999",
     period: "/ month",
     tagline: "Built for coding clubs, bootcamps, and university cohorts.",
     features: [
@@ -593,15 +476,15 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
     <section id="pricing" className="scroll-mt-24 space-y-12">
       {/* Centered Header */}
       <div className="text-center max-w-2xl mx-auto space-y-4">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-bold uppercase tracking-wider">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold uppercase tracking-wider">
           <Sparkles size={13} className="text-[#6366F1]" />
           <span>Flexible Plans</span>
         </div>
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white">
           Simple, Transparent Learning
         </h2>
-        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-medium">
-          Start free forever and upgrade as you scale your algorithmic & full-stack mastery.
+        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-normal">
+          Start free forever and upgrade as you scale your algorithmic &amp; full-stack mastery.
         </p>
       </div>
 
@@ -621,7 +504,7 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
             {plan.popular && (
               <>
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-32 rounded-t-3xl bg-gradient-to-b from-[#6366F1]/20 to-transparent" />
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white text-xs font-extrabold uppercase tracking-wider shadow-lg shadow-indigo-500/40">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white text-xs font-semibold uppercase tracking-wider shadow-lg shadow-indigo-500/40">
                   Most Popular
                 </div>
               </>
@@ -631,7 +514,7 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
               <div>
                 <h3
                   className={cn(
-                    "text-xl font-extrabold mb-2",
+                    "text-xl font-bold mb-2",
                     plan.popular ? "text-white" : "text-slate-900 dark:text-white"
                   )}
                 >
@@ -639,7 +522,7 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
                 </h3>
                 <p
                   className={cn(
-                    "text-sm font-medium min-h-[40px]",
+                    "text-sm font-normal min-h-[40px]",
                     plan.popular ? "text-slate-300" : "text-slate-500 dark:text-slate-400"
                   )}
                 >
@@ -651,7 +534,7 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
               <div className="flex items-baseline gap-1.5 pt-2 pb-4 border-b border-slate-200/80 dark:border-[#1E293B]">
                 <span
                   className={cn(
-                    "text-4xl sm:text-5xl font-black tracking-tight",
+                    "text-4xl sm:text-5xl font-bold tracking-tight",
                     plan.popular ? "text-white" : "text-slate-900 dark:text-white"
                   )}
                 >
@@ -659,7 +542,7 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
                 </span>
                 <span
                   className={cn(
-                    "text-sm font-bold",
+                    "text-sm font-medium",
                     plan.popular ? "text-indigo-300" : "text-slate-500 dark:text-slate-400"
                   )}
                 >
@@ -670,7 +553,7 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
               {/* Checklist */}
               <ul className="space-y-3.5">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3 text-sm font-semibold">
+                  <li key={feature} className="flex items-start gap-3 text-sm font-medium">
                     <div
                       className={cn(
                         "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
@@ -679,7 +562,7 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
                           : "bg-indigo-500/15 text-[#6366F1] dark:text-indigo-400"
                       )}
                     >
-                      <Check size={13} strokeWidth={3} />
+                      <Check size={13} strokeWidth={2.5} />
                     </div>
                     <span
                       className={cn(
@@ -698,7 +581,7 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
               <button
                 onClick={() => navigate("signup")}
                 className={cn(
-                  "w-full py-3.5 px-6 rounded-full font-extrabold text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-2",
+                  "w-full py-3.5 px-6 rounded-full font-semibold text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-2",
                   plan.popular
                     ? "bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white shadow-lg shadow-indigo-500/35 hover:shadow-indigo-500/50 hover:-translate-y-0.5"
                     : "bg-slate-100 dark:bg-[#090D16] hover:bg-[#6366F1] dark:hover:bg-[#6366F1] text-slate-900 dark:text-white hover:text-white border border-slate-200 dark:border-[#1E293B] hover:border-transparent"
@@ -752,18 +635,18 @@ function CoreServicesSection({ navigate }: { navigate: (to: Route | string) => v
         {/* Left Column */}
         <div className="lg:col-span-5 space-y-6">
           {/* Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs sm:text-sm font-bold">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs sm:text-sm font-semibold">
             <Layers size={14} className="text-[#6366F1]" />
             <span>AarCode Services</span>
           </div>
 
           {/* Title */}
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.12] text-slate-900 dark:text-white">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.12] text-slate-900 dark:text-white">
             Everything You Need to Master Code
           </h2>
 
           {/* Subtitle */}
-          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-normal leading-relaxed">
             Practical tools, interactive editors, and automated test runners to help you learn faster and build real projects.
           </p>
 
@@ -771,7 +654,7 @@ function CoreServicesSection({ navigate }: { navigate: (to: Route | string) => v
           <div className="pt-2">
             <button
               onClick={() => navigate("courses")}
-              className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-extrabold text-base shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-200"
+              className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-base shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-200"
             >
               <span>Explore All Tracks</span>
               <ArrowRight
@@ -798,14 +681,14 @@ function CoreServicesSection({ navigate }: { navigate: (to: Route | string) => v
                   </div>
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2.5">
-                      <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
+                      <h3 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
                         {service.title}
                       </h3>
-                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300 border border-indigo-500/20">
+                      <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300 border border-indigo-500/20">
                         {service.badge}
                       </span>
                     </div>
-                    <p className="text-sm sm:text-base font-medium text-slate-600 dark:text-slate-400">
+                    <p className="text-sm sm:text-base font-normal text-slate-600 dark:text-slate-400">
                       {service.description}
                     </p>
                   </div>

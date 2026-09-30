@@ -23,7 +23,7 @@ export function Footer({ navigate }: FooterProps) {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="font-extrabold text-2xl tracking-tight text-white">
+              <span className="font-bold text-2xl tracking-tight text-white">
                 AarCode
               </span>
             </button>
