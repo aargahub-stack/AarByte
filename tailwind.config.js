@@ -5,6 +5,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        sans: ['Urbanist', 'sans-serif'],
+        urbanist: ['Urbanist', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'SF Mono', 'Menlo', 'Monaco', 'monospace'],
       },
     },

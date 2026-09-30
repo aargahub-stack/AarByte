@@ -66,6 +66,19 @@ export const authService = {
   },
 
   /**
+   * Sign in with Google OAuth via Supabase.
+   */
+  async signInWithGoogle(): Promise<{ error: AuthError | null }> {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+    return { error };
+  },
+
+  /**
    * Sign out the currently authenticated user.
    */
   async signOut(): Promise<{ error: AuthError | null }> {

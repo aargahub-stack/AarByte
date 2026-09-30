@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (signedInUser) {
           setUser(signedInUser);
           await fetchProfile(signedInUser.id);
-          showToast("success", "Welcome back to AarByte!");
+          showToast("success", "Welcome back to AarCode!");
           setIsAuthModalOpen(false);
           return { success: true };
         }
@@ -137,7 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (newUser) {
           setUser(newUser);
           await fetchProfile(newUser.id);
-          showToast("success", "Account created successfully! Welcome to AarByte.");
+          showToast("success", "Account created successfully! Welcome to AarCode.");
           setIsAuthModalOpen(false);
           return { success: true };
         }

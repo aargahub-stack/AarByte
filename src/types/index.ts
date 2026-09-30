@@ -60,6 +60,7 @@ export type Toast = {
 
 export type Route =
   | "landing"
+  | "dashboard"
   | "compiler"
   | "courses"
   | "course"

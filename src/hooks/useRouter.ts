@@ -18,6 +18,7 @@ function parseLocationHash(): RouteState {
 
   const validRoutes: Route[] = [
     "landing",
+    "dashboard",
     "compiler",
     "courses",
     "course",
