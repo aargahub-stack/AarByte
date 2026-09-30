@@ -96,22 +96,22 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
     <div className="fixed inset-0 z-50 font-urbanist overflow-y-auto bg-[#F8FAFC] dark:bg-[#090D16] animate-in">
       <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2">
         {/* ===================================================================
-            LEFT PANEL: Brand Testimonial & Telemetry Showcase (Grid Pattern)
+            LEFT PANEL: Brand Testimonial & Telemetry Showcase (White Based)
         =================================================================== */}
-        <div className="relative hidden lg:flex flex-col justify-between p-12 xl:p-16 overflow-hidden bg-gradient-to-br from-[#0F3D3E] via-[#0B2B2E] to-[#061619] dark:from-[#2E1065] dark:via-[#1E1B4B] dark:to-[#070A12] text-white select-none">
-          {/* Architectural Grid Pattern matching the reference image */}
+        <div className="relative hidden lg:flex flex-col justify-between p-12 xl:p-16 overflow-hidden bg-white dark:bg-[#0B1120] border-r border-slate-200/80 dark:border-[#1E293B] text-slate-900 dark:text-white select-none">
+          {/* Subtle Architectural Grid Overlay */}
           <div
-            className="pointer-events-none absolute inset-0 opacity-25"
+            className="pointer-events-none absolute inset-0 opacity-40 dark:opacity-20"
             style={{
               backgroundImage:
-                "linear-gradient(to right, rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.12) 1px, transparent 1px)",
-              backgroundSize: "52px 52px",
+                "linear-gradient(to right, rgba(99,102,241,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(99,102,241,0.07) 1px, transparent 1px)",
+              backgroundSize: "48px 48px",
             }}
           />
 
-          {/* Soft Radial Glow */}
-          <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#6366F1]/25 blur-3xl" />
-          <div className="pointer-events-none absolute bottom-12 right-12 w-80 h-80 rounded-full bg-indigo-500/20 blur-3xl" />
+          {/* Ambient Soft Indigo/Purple Radial Glows (No green) */}
+          <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-indigo-500/5 dark:bg-indigo-500/10 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-12 right-12 w-80 h-80 rounded-full bg-purple-500/5 dark:bg-purple-500/10 blur-3xl" />
 
           {/* Top Brand Header */}
           <div className="relative z-10 flex items-center gap-3.5">
@@ -120,14 +120,14 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
               onClick={onClose}
               className="flex items-center gap-3.5 group focus:outline-none"
             >
-              <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-center p-2 shadow-lg group-hover:scale-105 transition-transform">
+              <div className="w-11 h-11 rounded-xl bg-slate-50 dark:bg-white/10 border border-slate-200/80 dark:border-white/15 flex items-center justify-center p-2 shadow-sm group-hover:scale-105 transition-transform">
                 <img
                   src="/AarCode.png"
                   alt="AarCode"
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-xl font-semibold tracking-tight text-white">
+              <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                 AarCode
               </span>
             </button>
@@ -136,15 +136,15 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
           {/* Center Testimonial Quote + Feature Checklist */}
           <div className="relative z-10 max-w-xl my-auto space-y-8">
             <div className="space-y-4">
-              <blockquote className="text-2xl xl:text-[2rem] font-semibold leading-[1.28] tracking-tight text-white">
+              <blockquote className="text-2xl xl:text-[2rem] font-semibold leading-[1.3] tracking-tight text-slate-900 dark:text-white">
                 “We went from debugging syntax errors for hours to passing hidden test cases in minutes — across 36+ coding cohorts.”
               </blockquote>
-              <p className="text-sm xl:text-base font-medium text-slate-300/85">
+              <p className="text-sm xl:text-base font-medium text-slate-500 dark:text-slate-400">
                 Operations &amp; Technical Placement Lead, Campus Developer Network
               </p>
             </div>
 
-            <div className="h-px w-full bg-white/15" />
+            <div className="h-px w-full bg-slate-200/80 dark:bg-white/10" />
 
             <ul className="space-y-4">
               {[
@@ -154,9 +154,11 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
               ].map((item) => (
                 <li
                   key={item}
-                  className="flex items-center gap-3.5 text-sm xl:text-base font-semibold text-slate-100"
+                  className="flex items-center gap-3.5 text-sm xl:text-base font-semibold text-slate-700 dark:text-slate-200"
                 >
-                  <Check size={18} className="text-emerald-400 dark:text-indigo-400 shrink-0" strokeWidth={2.8} />
+                  <div className="w-5 h-5 rounded-full bg-indigo-50 dark:bg-indigo-500/20 text-[#6366F1] dark:text-[#818CF8] flex items-center justify-center shrink-0 border border-indigo-200/60 dark:border-indigo-500/30">
+                    <Check size={12} strokeWidth={3} />
+                  </div>
                   <span>{item}</span>
                 </li>
               ))}
@@ -164,7 +166,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
           </div>
 
           {/* Bottom Copyright */}
-          <div className="relative z-10 text-xs font-semibold text-slate-300/60">
+          <div className="relative z-10 text-xs font-semibold text-slate-400 dark:text-slate-500">
             © {new Date().getFullYear()} AarCode. Enterprise Developer Learning SaaS OS.
           </div>
         </div>

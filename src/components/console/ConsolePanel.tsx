@@ -1,153 +1,264 @@
-import { useState } from "react";
-import { Terminal, Play, AlertCircle, CheckCircle2, XCircle, Clock, Cpu } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import {
+  Play,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Cpu,
+  Trash2,
+  Copy,
+  Check,
+  Loader2,
+} from "lucide-react";
 import { cn } from "@/utils/cn";
-import type { ExecutionResult } from "@/types";
 import { formatExecutionTime, formatMemory } from "@/utils/format";
-import { Badge } from "@/components/ui/Badge";
 
-type ConsolePanelProps = {
-  stdin: string;
-  onStdinChange: (value: string) => void;
-  result: ExecutionResult | null;
-  isRunning: boolean;
-  showExecutionTime: boolean;
-  showMemoryUsage: boolean;
+export type TerminalEntry = {
+  id: string;
+  type: "output" | "input" | "error" | "system";
+  text: string;
 };
 
-type Tab = "input" | "output" | "errors";
+type ConsolePanelProps = {
+  entries: TerminalEntry[];
+  isRunning: boolean;
+  isWaitingForInput: boolean;
+  onSendInput: (input: string) => void;
+  onClearOutput: () => void;
+  showExecutionTime: boolean;
+  showMemoryUsage: boolean;
+  executionTime?: number | null;
+  memory?: number | null;
+  exitStatus?: "idle" | "running" | "waiting" | "success" | "error";
+  onRun?: () => void;
+};
 
 export function ConsolePanel({
-  stdin,
-  onStdinChange,
-  result,
+  entries,
   isRunning,
+  isWaitingForInput,
+  onSendInput,
+  onClearOutput,
   showExecutionTime,
   showMemoryUsage,
+  executionTime,
+  memory,
+  exitStatus = "idle",
+  onRun,
 }: ConsolePanelProps) {
-  const [activeTab, setActiveTab] = useState<Tab>("output");
+  const [inlineValue, setInlineValue] = useState("");
+  const [copied, setCopied] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const terminalContainerRef = useRef<HTMLDivElement>(null);
+  const terminalEndRef = useRef<HTMLDivElement>(null);
 
-  const hasError = result?.status === "error" || result?.status === "timeout";
-  const hasOutput = result?.status === "success";
+  // Auto-scroll to bottom whenever new entries arrive or input state changes
+  useEffect(() => {
+    terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [entries, isWaitingForInput, isRunning, inlineValue]);
 
-  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: "input", label: "Input", icon: <Terminal size={14} /> },
-    { id: "output", label: "Output", icon: <Terminal size={14} /> },
-    { id: "errors", label: "Errors", icon: <AlertCircle size={14} /> },
-  ];
+  // Auto-focus input when program is waiting for input
+  useEffect(() => {
+    if (isWaitingForInput) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 30);
+    }
+  }, [isWaitingForInput]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const val = inlineValue;
+      setInlineValue("");
+      onSendInput(val);
+    }
+  };
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const fullText = entries.map((e) => e.text).join("");
+    if (fullText) {
+      navigator.clipboard.writeText(fullText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClearOutput();
+  };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
-      <div className="flex items-center border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-        {tabs.map((tab) => (
+    <div
+      onClick={() => inputRef.current?.focus()}
+      className="flex flex-col h-full font-sans bg-[#0E131F] text-slate-100 border border-slate-200/80 dark:border-[#1E293B] rounded-2xl overflow-hidden shadow-xs cursor-text select-text"
+    >
+      {/* ===================================================================
+          TERMINAL HEADER BAR (Matches user screenshot: "Output")
+      =================================================================== */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[#141A28] border-b border-[#1E293B] shrink-0 select-none">
+        {/* Left: Window Dots & "Output" Title */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 pr-2 border-r border-[#1E293B]">
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+          </div>
+
+          <span className="text-xs font-semibold text-slate-200 tracking-wide font-sans">
+            Output
+          </span>
+
+          {/* Status Badge */}
+          {isRunning ? (
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-500/15 text-[#818CF8] border border-indigo-500/25">
+              <Loader2 size={11} className="animate-spin" />
+              <span>Running</span>
+            </span>
+          ) : isWaitingForInput ? (
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span>Input Required</span>
+            </span>
+          ) : exitStatus === "success" ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <CheckCircle2 size={11} />
+              <span>Exit 0</span>
+            </span>
+          ) : exitStatus === "error" ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+              <XCircle size={11} />
+              <span>Exit 1</span>
+            </span>
+          ) : null}
+        </div>
+
+        {/* Right: Telemetry & Actions */}
+        <div className="flex items-center gap-2">
+          {showExecutionTime && executionTime != null && (
+            <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono bg-[#090D16] text-slate-300 border border-[#1E293B]">
+              <Clock size={11} className="text-[#818CF8]" />
+              <span>{formatExecutionTime(executionTime)}</span>
+            </span>
+          )}
+
+          {showMemoryUsage && memory != null && (
+            <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono bg-[#090D16] text-slate-300 border border-[#1E293B]">
+              <Cpu size={11} className="text-purple-400" />
+              <span>{formatMemory(memory)}</span>
+            </span>
+          )}
+
           <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors border-b-2",
-              activeTab === tab.id
-                ? "text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400"
-                : "text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-800 dark:hover:text-gray-200"
-            )}
+            onClick={handleCopy}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            title="Copy Output"
+            aria-label="Copy"
           >
-            {tab.icon}
-            {tab.label}
-            {tab.id === "output" && hasOutput && (
-              <CheckCircle2 size={12} className="text-green-500" />
-            )}
-            {tab.id === "errors" && hasError && (
-              <XCircle size={12} className="text-red-500" />
-            )}
+            {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
           </button>
-        ))}
+
+          <button
+            onClick={handleClear}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            title="Clear Output"
+            aria-label="Clear"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-auto">
-        {activeTab === "input" && (
-          <textarea
-            value={stdin}
-            onChange={(e) => onStdinChange(e.target.value)}
-            placeholder="Enter standard input here..."
-            className="w-full h-full p-3 text-sm font-mono text-gray-800 dark:text-gray-200 bg-transparent border-none outline-none resize-none placeholder:text-gray-400"
-            aria-label="Standard input"
-          />
-        )}
-
-        {activeTab === "output" && (
-          <div className="p-3 font-mono text-sm">
-            {isRunning && (
-              <div className="flex items-center gap-2 text-blue-500">
-                <Play size={14} className="animate-pulse" />
-                <span>Executing...</span>
-              </div>
-            )}
-            {!isRunning && !result && (
-              <div className="text-gray-400 dark:text-gray-600 flex items-center gap-2">
-                <Terminal size={14} />
-                <span>Run your code to see output here.</span>
-              </div>
-            )}
-            {!isRunning && result && result.status === "success" && (
-              <div>
-                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200 dark:border-gray-800">
-                  <CheckCircle2 size={14} className="text-green-500" />
-                  <Badge variant="success">Execution completed</Badge>
-                  {showExecutionTime && result.executionTime != null && (
-                    <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                      <Clock size={12} />
-                      {formatExecutionTime(result.executionTime)}
-                    </span>
-                  )}
-                  {showMemoryUsage && result.memory != null && (
-                    <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                      <Cpu size={12} />
-                      {formatMemory(result.memory)}
-                    </span>
-                  )}
-                </div>
-                <pre className="whitespace-pre-wrap text-gray-800 dark:text-gray-200">
-                  {result.stdout || "(no output)"}
-                </pre>
-              </div>
-            )}
-            {!isRunning && result && result.status === "timeout" && (
-              <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
-                <AlertCircle size={14} />
-                <span>Execution timed out.</span>
-              </div>
+      {/* ===================================================================
+          TERMINAL BODY (Inline continuous output & typing stream)
+      =================================================================== */}
+      <div
+        ref={terminalContainerRef}
+        className="flex-1 overflow-auto p-4 font-mono text-sm leading-relaxed custom-scrollbar bg-[#0E131F]"
+      >
+        {entries.length === 0 && !isRunning && (
+          <div className="py-12 flex flex-col items-center justify-center text-center space-y-3 text-slate-500 font-sans select-none">
+            <p className="text-xs text-slate-400 max-w-sm">
+              Press <kbd className="px-1.5 py-0.5 rounded bg-slate-800 font-mono text-[10px] text-slate-200">Ctrl+Enter</kbd> or click <strong>Run</strong> to execute.
+            </p>
+            {onRun && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRun();
+                }}
+                className="mt-1 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white text-xs font-bold shadow-md shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all"
+              >
+                <Play size={12} className="fill-white" />
+                <span>Run Program</span>
+              </button>
             )}
           </div>
         )}
 
-        {activeTab === "errors" && (
-          <div className="p-3 font-mono text-sm">
-            {!isRunning && !result && (
-              <div className="text-gray-400 dark:text-gray-600 flex items-center gap-2">
-                <AlertCircle size={14} />
-                <span>No errors to display.</span>
-              </div>
-            )}
-            {!isRunning && result && result.stderr && (
-              <div>
-                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200 dark:border-gray-800">
-                  <XCircle size={14} className="text-red-500" />
-                  <Badge variant="error">
-                    {result.status === "error" ? "Compilation Error" : "Runtime Error"}
-                  </Badge>
-                </div>
-                <pre className="whitespace-pre-wrap text-red-600 dark:text-red-400">
-                  {result.stderr}
-                </pre>
-              </div>
-            )}
-            {!isRunning && result && !result.stderr && result.status === "success" && (
-              <div className="text-green-500 flex items-center gap-2">
-                <CheckCircle2 size={14} />
-                <span>No errors. Execution successful.</span>
-              </div>
-            )}
-          </div>
+        {/* Continuous Monospace Output Stream */}
+        <pre className="whitespace-pre-wrap font-mono text-sm text-slate-100 m-0 p-0 inline select-text">
+          {entries.map((entry) => {
+            if (entry.type === "input") {
+              return (
+                <span key={entry.id} className="text-emerald-400 font-medium">
+                  {entry.text}
+                </span>
+              );
+            }
+
+            if (entry.type === "error") {
+              return (
+                <span key={entry.id} className="text-rose-400">
+                  {entry.text}
+                </span>
+              );
+            }
+
+            if (entry.type === "system") {
+              return (
+                <span key={entry.id} className="text-slate-500 text-xs italic">
+                  {entry.text}
+                </span>
+              );
+            }
+
+            // Standard Output
+            return <span key={entry.id}>{entry.text}</span>;
+          })}
+
+          {/* INLINE USER INPUT (Types directly on the straight prompt line) */}
+          {isWaitingForInput && (
+            <span className="inline-flex items-center align-baseline">
+              <input
+                ref={inputRef}
+                type="text"
+                value={inlineValue}
+                onChange={(e) => setInlineValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="bg-transparent border-none outline-none font-mono text-sm text-white p-0 m-0 caret-white focus:ring-0 focus:outline-none inline-block min-w-[120px]"
+                style={{ width: `${Math.max(6, inlineValue.length + 2)}ch` }}
+                autoFocus
+                spellCheck={false}
+                autoComplete="off"
+              />
+            </span>
+          )}
+        </pre>
+
+        {/* Live spinner if executing a background step */}
+        {isRunning && entries.length > 0 && (
+          <span className="inline-flex items-center gap-1.5 text-xs text-indigo-400 ml-2 font-mono align-baseline">
+            <Loader2 size={11} className="animate-spin" />
+          </span>
         )}
+
+        <div ref={terminalEndRef} />
       </div>
     </div>
   );
 }
+
+export default ConsolePanel;
