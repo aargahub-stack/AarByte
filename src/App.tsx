@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ToastProvider } from "@/hooks/useToast";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { useSettings } from "@/hooks/useSettings";
@@ -11,6 +10,8 @@ import { ToastContainer } from "@/components/ui/ToastContainer";
 import { AuthModal } from "@/components/compiler/AuthModal";
 
 import { LandingPage } from "@/pages/LandingPage";
+import { AuthPage } from "@/pages/AuthPage";
+import { StudentDashboardPage } from "@/pages/StudentDashboardPage";
 import { CompilerPage } from "@/pages/CompilerPage";
 import { CoursesPage } from "@/pages/CoursesPage";
 import { CourseDetailsPage } from "@/pages/CourseDetailsPage";
@@ -25,22 +26,22 @@ function MainApp() {
   const { route, params, navigate } = useRouter();
   const { settings, updateSettings, resetSettings } = useSettings();
   const { theme, toggleTheme } = useTheme(settings.theme);
-  const { isAuthModalOpen, authModalMode, closeAuthModal, openAuthModal } = useAuth();
+  const { user, isAuthModalOpen, authModalMode, closeAuthModal, openAuthModal } = useAuth();
 
   const handleNavigate = (to: Route | string, navParams?: Record<string, string>) => {
-    if (to === "login" || to === "signup") {
-      openAuthModal(to);
-    } else {
-      navigate(to, navParams);
-    }
+    navigate(to, navParams);
   };
 
-  const isFullScreenArena = route === "compiler" || route === "task";
+  const isFullScreenArena =
+    route === "compiler" ||
+    route === "task" ||
+    route === "login" ||
+    route === "signup";
 
   return (
     <div className={theme === "dark" ? "dark" : ""}>
-      <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 flex flex-col justify-between">
-        {/* Main Navbar shown on non-fullscreen IDE pages */}
+      <div className="min-h-screen font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-slate-100 flex flex-col justify-between transition-colors duration-300">
+        {/* Main Navbar shown on non-fullscreen pages */}
         {!isFullScreenArena && (
           <Navbar
             route={route}
@@ -52,7 +53,22 @@ function MainApp() {
 
         {/* Dynamic Route Pages */}
         <main className="flex-1">
-          {route === "landing" && <LandingPage navigate={handleNavigate} />}
+          {/* When student is logged in, landing & dashboard routes show StudentDashboardPage */}
+          {(route === "landing" || route === "dashboard") &&
+            (user ? (
+              <StudentDashboardPage navigate={handleNavigate} />
+            ) : (
+              <LandingPage navigate={handleNavigate} />
+            ))}
+
+          {(route === "login" || route === "signup") && (
+            <AuthPage
+              initialMode={route === "signup" ? "signup" : "login"}
+              navigate={handleNavigate}
+              theme={theme}
+              onToggleTheme={toggleTheme}
+            />
+          )}
 
           {route === "compiler" && (
             <CompilerPage

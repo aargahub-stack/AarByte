@@ -1,4 +1,4 @@
-export const APP_NAME = "AarByte";
+export const APP_NAME = "AarCode";
 
 export const STORAGE_KEYS = {
   SETTINGS: "aarbyte:settings",
