@@ -23,6 +23,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import { enrollmentStorage } from "@/services/storage/enrollmentStorage";
 import { progressStorage } from "@/services/storage/progressStorage";
+import { DEMO_COURSES } from "@/data/demoCourses";
 import { cn } from "@/utils/cn";
 
 interface CourseDetailsPageProps {
@@ -50,7 +51,9 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
         if (courseErr || !data) {
           // Fallback if not found in db yet
           const { data: allCourses } = await courseService.getCourses();
-          const found = (allCourses || []).find((c) => c.slug === slug);
+          const found =
+            (allCourses || []).find((c) => c.slug === slug) ||
+            DEMO_COURSES.find((c) => c.slug === slug);
           if (found) {
             setCourse(found);
             initAccordion(found);
