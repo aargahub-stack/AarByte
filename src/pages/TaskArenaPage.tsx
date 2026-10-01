@@ -1366,7 +1366,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
           </div>
 
           {/* 3. Main Tab Contents */}
-          <div className="flex-1 min-h-0 relative overflow-hidden bg-[#0E131F]">
+          <div className="flex-1 min-h-0 relative overflow-hidden bg-[#F8FAFC] dark:bg-[#070A12]">
             {/* View A: Full-Height Code Editor */}
             <div className={cn("h-full w-full flex flex-col min-h-0", activeTab === "code" ? "flex" : "hidden")}>
               <div className="flex-1 min-h-0 relative">
@@ -1405,8 +1405,8 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
 
             {/* View B: Sample Tests */}
             {activeTab === "samples" && (
-              <div className="h-full w-full overflow-y-auto p-5 space-y-4 custom-scrollbar bg-slate-50/50 dark:bg-[#090D16] select-text">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 dark:border-[#1E293B]">
+              <div className="h-full w-full overflow-y-auto p-5 space-y-4 custom-scrollbar bg-[#F8FAFC] dark:bg-[#070A12] select-text">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#1E293B]">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                       <CheckCircle2 size={16} className="text-[#6366F1]" />
@@ -1415,7 +1415,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                         {publicCases.length} Cases
                       </span>
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
                       Non-editable sample test cases to verify initial problem logic before submission.
                     </p>
                   </div>
@@ -1433,7 +1433,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                   {publicCases.map((tc, idx) => (
                     <div
                       key={tc.id || idx}
-                      className="rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] p-4 space-y-3 text-xs font-mono shadow-xs"
+                      className="rounded-2xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] p-4 space-y-3 text-xs font-mono shadow-sm"
                     >
                       <div className="flex items-center justify-between text-slate-500">
                         <span className="font-bold text-slate-900 dark:text-white text-xs font-sans flex items-center gap-2">
@@ -1444,13 +1444,13 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                         </span>
                         <button
                           onClick={() => handleCopy(tc.input, idx)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors inline-flex items-center gap-1 text-[11px] font-sans"
+                          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors inline-flex items-center gap-1 text-[11px] font-sans"
                           title="Copy input"
                         >
                           {copiedIndex === idx ? (
                             <>
                               <Check size={13} className="text-emerald-500" />
-                              <span className="text-emerald-500">Copied</span>
+                              <span className="text-emerald-600 font-bold">Copied</span>
                             </>
                           ) : (
                             <>
@@ -1462,25 +1462,25 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                       </div>
 
                       <div className="space-y-1">
-                        <span className="text-[11px] font-sans font-semibold text-slate-500 dark:text-slate-400">
+                        <span className="text-[11px] font-sans font-semibold text-slate-700 dark:text-slate-300">
                           Input:
                         </span>
-                        <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 overflow-x-auto whitespace-pre">
+                        <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200 dark:border-[#1E293B] text-slate-900 dark:text-slate-100 overflow-x-auto whitespace-pre">
                           {tc.input || "(empty)"}
                         </div>
                       </div>
 
                       <div className="space-y-1">
-                        <span className="text-[11px] font-sans font-semibold text-slate-500 dark:text-slate-400">
+                        <span className="text-[11px] font-sans font-semibold text-slate-700 dark:text-slate-300">
                           Expected Output:
                         </span>
-                        <div className="p-3 rounded-xl bg-emerald-500/5 dark:bg-emerald-950/20 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold overflow-x-auto whitespace-pre">
+                        <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-bold overflow-x-auto whitespace-pre">
                           {tc.expected_output}
                         </div>
                       </div>
 
                       {tc.explanation && (
-                        <p className="font-sans text-[11px] text-slate-500 dark:text-slate-400 italic pt-1">
+                        <p className="font-sans text-[11px] text-slate-600 dark:text-slate-400 italic pt-1">
                           Explanation: {tc.explanation}
                         </p>
                       )}
@@ -1492,8 +1492,8 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
 
             {/* View C: Hidden Tests */}
             {activeTab === "hidden" && (
-              <div className="h-full w-full overflow-y-auto p-5 space-y-4 custom-scrollbar bg-slate-50/50 dark:bg-[#090D16] select-text">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 dark:border-[#1E293B]">
+              <div className="h-full w-full overflow-y-auto p-5 space-y-4 custom-scrollbar bg-[#F8FAFC] dark:bg-[#070A12] select-text">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#1E293B]">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                       <Lock size={16} className="text-amber-500" />
@@ -1502,7 +1502,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                         Evaluation Suite
                       </span>
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
                       Hidden benchmark test cases evaluate edge cases, boundary values, and time limit constraints.
                     </p>
                   </div>
@@ -1517,7 +1517,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] p-4 space-y-2">
+                  <div className="rounded-2xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] p-4 space-y-2 shadow-sm">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2">
                         <Lock size={14} className="text-slate-400" />
@@ -1527,12 +1527,12 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                         {judgeResult?.status === "passed" ? "Passed" : "Locked"}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
                       Verifies minimum constraint edge cases, empty boundaries, and single-element inputs.
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] p-4 space-y-2">
+                  <div className="rounded-2xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] p-4 space-y-2 shadow-sm">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-2">
                         <Lock size={14} className="text-slate-400" />
@@ -1542,12 +1542,12 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                         {judgeResult?.status === "passed" ? "Passed" : "Locked"}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
                       Stress tests runtime performance against maximal input size to verify asymptotic complexity.
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 dark:bg-amber-950/20 p-4 flex items-center justify-between">
+                  <div className="rounded-2xl border border-amber-500/20 bg-amber-50/50 dark:bg-amber-950/20 p-4 flex items-center justify-between shadow-xs">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
                         <Sparkles size={20} />
@@ -1556,7 +1556,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                         <h4 className="text-xs font-bold text-slate-900 dark:text-white">
                           Submission Completion Reward
                         </h4>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400">
                           Passing all sample and hidden tests unlocks full completion credit.
                         </p>
                       </div>
@@ -1571,14 +1571,14 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
 
             {/* View D: Custom Test Input */}
             {activeTab === "custom" && (
-              <div className="h-full w-full overflow-y-auto p-5 space-y-4 custom-scrollbar bg-slate-50/50 dark:bg-[#090D16] select-text">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 dark:border-[#1E293B]">
+              <div className="h-full w-full overflow-y-auto p-5 space-y-4 custom-scrollbar bg-[#F8FAFC] dark:bg-[#070A12] select-text">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#1E293B]">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                       <Terminal size={16} className="text-[#6366F1]" />
                       <span>Custom Test Input</span>
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
                       Provide custom standard input (stdin) to test your code with specific data.
                     </p>
                   </div>
@@ -1600,7 +1600,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                       </label>
                       <button
                         onClick={() => setCustomStdin("")}
-                        className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        className="text-[11px] text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-semibold"
                       >
                         Clear
                       </button>
@@ -1610,13 +1610,13 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                       onChange={(e) => setCustomStdin(e.target.value)}
                       rows={5}
                       placeholder="Enter custom input lines here..."
-                      className="w-full p-3 rounded-xl bg-white dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1] font-mono text-xs shadow-inner"
+                      className="w-full p-3 rounded-xl bg-white dark:bg-[#070A12] border border-slate-200 dark:border-[#1E293B] text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-[#6366F1] font-mono text-xs shadow-inner"
                     />
                   </div>
 
                   {customRunResult && (
                     <div className="space-y-3 pt-2">
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B]">
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-[#1E293B] shadow-sm">
                         <div className="flex items-center gap-2">
                           {customRunResult.status === "success" ? (
                             <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
@@ -1637,20 +1637,20 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                       </div>
 
                       <div className="space-y-1">
-                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                        <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">
                           Output (stdout):
                         </span>
-                        <pre className="p-3 rounded-xl bg-white dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 font-mono text-xs whitespace-pre overflow-x-auto">
+                        <pre className="p-3 rounded-xl bg-white dark:bg-[#070A12] border border-slate-200 dark:border-[#1E293B] text-slate-900 dark:text-slate-100 font-mono text-xs whitespace-pre overflow-x-auto shadow-xs">
                           {customRunResult.stdout ? customRunResult.stdout.trim() : "(no output)"}
                         </pre>
                       </div>
 
                       {customRunResult.stderr && (
                         <div className="space-y-1">
-                          <span className="text-[11px] font-semibold text-rose-500">
+                          <span className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">
                             Error / Diagnostic Details:
                           </span>
-                          <pre className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 font-mono text-xs whitespace-pre-wrap overflow-x-auto">
+                          <pre className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 text-rose-700 dark:text-rose-300 font-mono text-xs whitespace-pre-wrap overflow-x-auto">
                             {customRunResult.stderr}
                           </pre>
                         </div>
@@ -1663,7 +1663,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
 
             {/* View E: Evaluation Result & Submission Breakdown */}
             {activeTab === "result" && (
-              <div className="h-full w-full overflow-y-auto p-5 space-y-4 custom-scrollbar bg-slate-50/50 dark:bg-[#090D16] select-text">
+              <div className="h-full w-full overflow-y-auto p-5 space-y-4 custom-scrollbar bg-[#F8FAFC] dark:bg-[#070A12] select-text">
                 {/* 1. Executing / Submitting Spinner */}
                 {(isRunning || isSubmitting) && (
                   <div className="flex flex-col items-center justify-center py-16 text-slate-500 space-y-3">
@@ -1674,20 +1674,20 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                   </div>
                 )}
 
-                {/* 2. Compiler & Runtime Error Log */}
+                {/* 2. Compiler & Runtime Error Log (Direct & Clean, No Spoilers/Clues) */}
                 {executionError && !isRunning && !isSubmitting && (
-                  <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 dark:bg-rose-950/40 p-4 space-y-3 animate-in shadow-xs">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-bold text-xs font-sans">
+                  <div className="rounded-2xl border border-rose-500/30 bg-white dark:bg-[#0E1526] p-4 space-y-3 animate-in shadow-sm">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-bold text-xs">
                         <AlertTriangle size={16} />
-                        <span>Compiler & Runtime Error Log</span>
+                        <span>Compilation / Runtime Error</span>
                       </div>
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(executionError);
                           showToast("info", "Error traceback copied to clipboard");
                         }}
-                        className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-700 dark:text-rose-300 text-[11px] font-bold transition-colors inline-flex items-center gap-1.5"
+                        className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[11px] font-bold transition-colors inline-flex items-center gap-1.5 shadow-xs"
                         title="Copy error message"
                       >
                         <Copy size={12} />
@@ -1695,13 +1695,9 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                       </button>
                     </div>
 
-                    <pre className="p-3.5 rounded-xl bg-slate-950 text-rose-300 font-mono text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed border border-rose-500/20 shadow-inner max-h-56 custom-scrollbar select-text">
+                    <pre className="p-4 rounded-xl bg-[#090D16] text-rose-300 font-mono text-xs leading-relaxed border border-rose-500/20 overflow-x-auto whitespace-pre-wrap select-text shadow-inner max-h-80 custom-scrollbar">
                       {executionError}
                     </pre>
-
-                    <p className="text-[11px] font-sans text-rose-600/90 dark:text-rose-400/90 italic">
-                      The judge engine encountered an error while executing your code. Please review the line number and traceback above.
-                    </p>
                   </div>
                 )}
 
