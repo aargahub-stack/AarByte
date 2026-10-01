@@ -459,6 +459,109 @@ export const adminService = {
       return { success: false, error: err.message || "Failed to delete testcase" };
     }
   },
+
+  // ================= EXTENDED PLATFORM MANAGEMENT =================
+
+  /**
+   * Fetch all tasks with their parent module and course info.
+   */
+  async getAllTasks(): Promise<{ data: any[] | null; error: string | null }> {
+    try {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select(`
+          *,
+          modules:module_id (
+            id,
+            title,
+            courses:course_id (
+              id,
+              title
+            )
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) return { data: null, error: error.message };
+      return { data, error: null };
+    } catch (err: any) {
+      return { data: null, error: err.message || "Failed to fetch tasks" };
+    }
+  },
+
+  /**
+   * Fetch all registered student and admin profiles.
+   */
+  async getAllUsers(): Promise<{ data: any[] | null; error: string | null }> {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("points", { ascending: false });
+
+      if (error) return { data: null, error: error.message };
+      return { data, error: null };
+    } catch (err: any) {
+      return { data: null, error: err.message || "Failed to fetch users" };
+    }
+  },
+
+  /**
+   * Update a user's system role (admin | student).
+   */
+  async updateUserRole(
+    userId: string,
+    role: "admin" | "student"
+  ): Promise<{ success: boolean; error: string | null }> {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ role, updated_at: new Date().toISOString() })
+        .eq("id", userId);
+
+      if (error) return { success: false, error: error.message };
+      return { success: true, error: null };
+    } catch (err: any) {
+      return { success: false, error: err.message || "Failed to update user role" };
+    }
+  },
+
+  /**
+   * Get high level platform metrics for the admin overview dashboard.
+   */
+  async getPlatformMetrics(): Promise<{
+    coursesCount: number;
+    tasksCount: number;
+    submissionsCount: number;
+    usersCount: number;
+    passedSubmissionsCount: number;
+  }> {
+    try {
+      const [coursesRes, tasksRes, subsRes, usersRes, passedSubsRes] = await Promise.all([
+        supabase.from("courses").select("id", { count: "exact", head: true }),
+        supabase.from("tasks").select("id", { count: "exact", head: true }),
+        supabase.from("submissions").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("submissions").select("id", { count: "exact", head: true }).eq("status", "passed"),
+      ]);
+
+      return {
+        coursesCount: coursesRes.count || 0,
+        tasksCount: tasksRes.count || 0,
+        submissionsCount: subsRes.count || 0,
+        usersCount: usersRes.count || 0,
+        passedSubmissionsCount: passedSubsRes.count || 0,
+      };
+    } catch (e) {
+      return {
+        coursesCount: 0,
+        tasksCount: 0,
+        submissionsCount: 0,
+        usersCount: 0,
+        passedSubmissionsCount: 0,
+      };
+    }
+  },
 };
 
 export default adminService;

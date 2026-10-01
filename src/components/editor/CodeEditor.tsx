@@ -1,5 +1,5 @@
 import Editor, { type OnMount } from "@monaco-editor/react";
-import { useRef } from "react";
+import React, { useRef, useMemo } from "react";
 import type { editor } from "monaco-editor";
 import type { EditorSettings } from "@/types";
 
@@ -11,7 +11,13 @@ type CodeEditorProps = {
   settings: EditorSettings;
 };
 
-export function CodeEditor({ value, onChange, language, theme, settings }: CodeEditorProps) {
+export const CodeEditor = React.memo(function CodeEditor({
+  value,
+  onChange,
+  language,
+  theme,
+  settings,
+}: CodeEditorProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const handleMount: OnMount = (ed) => {
@@ -20,7 +26,7 @@ export function CodeEditor({ value, onChange, language, theme, settings }: CodeE
 
   const monacoTheme = theme === "dark" ? "vs-dark" : "light";
 
-  const options: editor.IStandaloneEditorConstructionOptions = {
+  const options = useMemo<editor.IStandaloneEditorConstructionOptions>(() => ({
     fontSize: settings.fontSize,
     tabSize: settings.tabSize,
     wordWrap: settings.wordWrap ? "on" : "off",
@@ -33,12 +39,22 @@ export function CodeEditor({ value, onChange, language, theme, settings }: CodeE
     fontFamily:
       "'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Monaco, 'Courier New', monospace",
     fontLigatures: true,
-    smoothScrolling: true,
-    cursorBlinking: "smooth",
-    cursorSmoothCaretAnimation: "on",
+    smoothScrolling: false,
+    cursorBlinking: "blink",
+    cursorSmoothCaretAnimation: "off",
     renderWhitespace: "selection",
-    formatOnPaste: true,
-  };
+    formatOnPaste: false,
+    quickSuggestions: { other: true, comments: false, strings: true },
+    suggestOnTriggerCharacters: true,
+    overviewRulerBorder: false,
+    hideCursorInOverviewRuler: true,
+  }), [
+    settings.fontSize,
+    settings.tabSize,
+    settings.wordWrap,
+    settings.minimap,
+    settings.lineNumbers,
+  ]);
 
   return (
     <Editor
@@ -50,4 +66,7 @@ export function CodeEditor({ value, onChange, language, theme, settings }: CodeE
       options={options}
     />
   );
-}
+});
+
+export default CodeEditor;
+
