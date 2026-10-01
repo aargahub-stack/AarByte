@@ -64,6 +64,11 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
     setMobileOpen(false);
     setUserDropdownOpen(false);
 
+    if (item.route === "compiler") {
+      window.open("#/compiler", "_blank", "noopener,noreferrer");
+      return;
+    }
+
     if (item.isAnchor) {
       if (route !== "landing") {
         navigate("landing");
