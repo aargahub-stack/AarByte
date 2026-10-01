@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { courseService } from "@/services/courseService";
+import { progressStorage } from "@/services/storage/progressStorage";
 import type {
   CourseWithModules,
   Task,
@@ -188,15 +189,32 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
         });
         setAllTasks(extractedTasks);
 
+        // 1. Read local completed tasks
+        const localCompleted = progressStorage.getCompletedTasks();
+        const mergedProgress: Record<string, UserTaskProgress> = {};
+        Object.keys(localCompleted).forEach((taskId) => {
+          if (localCompleted[taskId]?.is_completed) {
+            mergedProgress[taskId] = {
+              user_id: user?.id || "local-user",
+              task_id: taskId,
+              is_completed: true,
+              completed_at: localCompleted[taskId]?.completed_at || new Date().toISOString(),
+            };
+          }
+        });
+
+        // 2. If signed in, merge Supabase database progress
         if (user?.id && extractedTasks.length > 0) {
           const { data: prog } = await courseService.getUserProgress(
             user.id,
             extractedTasks.map((t) => t.id)
           );
           if (prog) {
-            setProgressMap(prog);
+            Object.assign(mergedProgress, prog);
           }
         }
+
+        setProgressMap(mergedProgress);
       } catch (err) {
         console.error("[StudentDashboard] Error loading data:", err);
       } finally {
@@ -205,10 +223,24 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
     }
 
     loadDashboardData();
+
+    const handleSync = () => {
+      loadDashboardData();
+    };
+    window.addEventListener("aarcode_progress_updated", handleSync);
+    window.addEventListener("storage", handleSync);
+
+    return () => {
+      window.removeEventListener("aarcode_progress_updated", handleSync);
+      window.removeEventListener("storage", handleSync);
+    };
   }, [user?.id]);
 
   const studentName =
     profile?.full_name || user?.email?.split("@")[0] || "Developer";
+
+  const localXP = progressStorage.getLocalXP();
+  const effectivePoints = Math.max(points || profile?.points || 0, localXP);
 
   const solvedTasksCount = allTasks.filter((t) => progressMap[t.id]?.is_completed).length;
   const totalTasksCount = allTasks.length;
@@ -248,7 +280,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-xs font-extrabold">
                   <Flame size={13} />
-                  <span>{getSkillTier(points)}</span>
+                  <span>{getSkillTier(effectivePoints)}</span>
                 </span>
               </div>
 
@@ -306,7 +338,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
               </div>
             </div>
             <div className="text-3xl font-bold text-slate-900 dark:text-white">
-              {points} <span className="text-base font-bold text-amber-500">XP</span>
+              {effectivePoints} <span className="text-base font-bold text-amber-500">XP</span>
             </div>
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
               Earned from passing hidden test cases
