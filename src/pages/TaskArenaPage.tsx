@@ -32,8 +32,25 @@ import type { TaskWithPublicTestCases, EditorSettings } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import { progressStorage } from "@/services/storage/progressStorage";
+import { enrollmentStorage } from "@/services/storage/enrollmentStorage";
+import { DEMO_COURSES } from "@/data/demoCourses";
 import { supabase } from "@/services/supabase";
 import { cn } from "@/utils/cn";
+
+export interface ModuleTaskItem {
+  id: string;
+  title: string;
+  order_index?: number;
+  module_id?: string;
+}
+
+export interface CourseContextInfo {
+  courseId?: string;
+  courseTitle?: string;
+  courseSlug?: string;
+  moduleId?: string;
+  moduleTitle?: string;
+}
 
 interface TaskArenaPageProps {
   taskId: string;
@@ -114,7 +131,7 @@ if lines:
   },
   "task-py-trappingrainwater": {
     id: "task-py-trappingrainwater",
-    module_id: "mod-py-8",
+    module_id: "mod-py-1",
     title: "Trapping Rain Water",
     slug: "trapping-rain-water",
     description: `Given \`n\` non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.
@@ -584,6 +601,136 @@ if lines:
       },
     ],
   },
+  "task-py-valid-parentheses": {
+    id: "task-py-valid-parentheses",
+    module_id: "mod-py-2",
+    title: "Valid Parentheses",
+    slug: "valid-parentheses",
+    description: "Given a string `s` containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.",
+    task_type: "algorithm",
+    language: "python",
+    difficulty: "easy",
+    starter_code: `def is_valid(s: str) -> bool:
+    stack = []
+    mapping = {')': '(', '}': '{', ']': '['}
+    for char in s:
+        if char in mapping:
+            top = stack.pop() if stack else '#'
+            if mapping[char] != top:
+                return False
+        else:
+            stack.append(char)
+    return not stack
+
+import sys
+print(str(is_valid(sys.stdin.read().strip())).lower())
+`,
+    solution_code: null,
+    hints: ["Push opening brackets to stack and pop matching closers."],
+    points: 15,
+    order_index: 1,
+    test_cases: [
+      {
+        id: "tc-vp-1",
+        task_id: "task-py-valid-parentheses",
+        input: "()[]{}",
+        expected_output: "true",
+        is_hidden: false,
+        explanation: "All brackets matched correctly.",
+      },
+      {
+        id: "tc-vp-2",
+        task_id: "task-py-valid-parentheses",
+        input: "(]",
+        expected_output: "false",
+        is_hidden: false,
+        explanation: "Mismatched bracket types.",
+      },
+    ],
+  },
+  "task-cpp-reversal": {
+    id: "task-cpp-reversal",
+    module_id: "mod-cpp-1",
+    title: "Array Reversal in Place",
+    slug: "array-reversal",
+    description: "Reverse an array of N integers in place without allocating extra memory.",
+    task_type: "algorithm",
+    language: "cpp",
+    difficulty: "easy",
+    starter_code: `#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    int n;
+    if (!(cin >> n)) return 0;
+    vector<int> a(n);
+    for(int i = 0; i < n; i++) cin >> a[i];
+    reverse(a.begin(), a.end());
+    for(int i = 0; i < n; i++) {
+        cout << a[i] << (i + 1 == n ? "" : " ");
+    }
+    cout << endl;
+    return 0;
+}
+`,
+    solution_code: null,
+    hints: ["Use std::reverse or two pointers swap."],
+    points: 10,
+    order_index: 1,
+    test_cases: [
+      {
+        id: "tc-rev-1",
+        task_id: "task-cpp-reversal",
+        input: "5\n1 2 3 4 5",
+        expected_output: "5 4 3 2 1",
+        is_hidden: false,
+        explanation: "Array reversed in place.",
+      },
+    ],
+  },
+  "task-js-flatten": {
+    id: "task-js-flatten",
+    module_id: "mod-js-1",
+    title: "Flatten Deep Array",
+    slug: "flatten-deep-array",
+    description: "Implement a function `flatten(arr)` that flattens a multi-dimensional array into a single dimension without using `Array.prototype.flat`.",
+    task_type: "algorithm",
+    language: "javascript",
+    difficulty: "medium",
+    starter_code: `function flatten(arr) {
+  let res = [];
+  for (let item of arr) {
+    if (Array.isArray(item)) res.push(...flatten(item));
+    else res.push(item);
+  }
+  return res;
+}
+
+const fs = require('fs');
+const input = fs.readFileSync(0, 'utf-8').trim();
+if (input) {
+  const parsed = JSON.parse(input);
+  console.log(JSON.stringify(flatten(parsed)));
+}
+`,
+    solution_code: null,
+    hints: ["Recursively process elements or use a stack."],
+    points: 15,
+    order_index: 1,
+    test_cases: [
+      {
+        id: "tc-flat-1",
+        task_id: "task-js-flatten",
+        input: "[1, [2, [3, 4], 5]]",
+        expected_output: "[1,2,3,4,5]",
+        is_hidden: false,
+        explanation: "Nested arrays flattened into single level.",
+      },
+    ],
+  },
 };
 
 const DEFAULT_SETTINGS: EditorSettings = {
@@ -599,6 +746,9 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
   const { showToast } = useToast();
 
   const [task, setTask] = useState<TaskWithPublicTestCases | null>(null);
+  const [activeTaskId, setActiveTaskId] = useState(taskId);
+  const [moduleTasks, setModuleTasks] = useState<ModuleTaskItem[]>([]);
+  const [courseContext, setCourseContext] = useState<CourseContextInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState("python");
   const [code, setCode] = useState("");
@@ -621,48 +771,201 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
   const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
-    async function loadTask() {
-      setLoading(true);
+    setActiveTaskId(taskId);
+  }, [taskId]);
+
+  async function resolveModuleAndTrack(currentTask: TaskWithPublicTestCases) {
+    let resolvedTasks: ModuleTaskItem[] = [];
+    let resolvedContext: CourseContextInfo | null = null;
+
+    // 1. If task has a module_id, try querying Supabase module, its tasks, and its course
+    if (currentTask.module_id) {
       try {
-        const { data } = await courseService.getTaskDetails(taskId);
-        if (data) {
-          setTask(data);
-          setLanguage(data.language || "python");
-          setCode(data.starter_code || getLanguageById(data.language || "python")?.starterCode || "");
-          if (data.test_cases && data.test_cases.length > 0) {
-            setCustomStdin(data.test_cases[0].input || "");
-          }
-        } else if (DEMO_TASKS_MAP[taskId]) {
-          const demo = DEMO_TASKS_MAP[taskId];
-          setTask(demo);
-          setLanguage(demo.language);
-          setCode(demo.starter_code || "");
-          if (demo.test_cases && demo.test_cases.length > 0) {
-            setCustomStdin(demo.test_cases[0].input || "");
-          }
-        } else {
-          // Fallback to first demo task
-          const demo = DEMO_TASKS_MAP["task-py-twosum"];
-          setTask(demo);
-          setLanguage(demo.language);
-          setCode(demo.starter_code || "");
-          if (demo.test_cases && demo.test_cases.length > 0) {
-            setCustomStdin(demo.test_cases[0].input || "");
+        const { data: moduleData, error: modErr } = await supabase
+          .from("modules")
+          .select(`
+            id,
+            title,
+            order_index,
+            course_id,
+            courses (
+              id,
+              title,
+              slug
+            ),
+            tasks (
+              id,
+              title,
+              order_index,
+              module_id
+            )
+          `)
+          .eq("id", currentTask.module_id)
+          .single();
+
+        if (!modErr && moduleData && moduleData.tasks && moduleData.tasks.length > 0) {
+          const sortedTasks = [...moduleData.tasks].sort(
+            (a: any, b: any) => (a.order_index ?? 0) - (b.order_index ?? 0)
+          );
+          resolvedTasks = sortedTasks.map((t: any) => ({
+            id: t.id,
+            title: t.title,
+            order_index: t.order_index,
+            module_id: t.module_id,
+          }));
+
+          const courseObj = moduleData.courses as any;
+          resolvedContext = {
+            courseId: moduleData.course_id,
+            courseTitle: courseObj?.title,
+            courseSlug: courseObj?.slug,
+            moduleId: moduleData.id,
+            moduleTitle: moduleData.title,
+          };
+
+          // Auto-enroll if enrolled flow
+          if (resolvedContext.courseId) {
+            enrollmentStorage.enroll(resolvedContext.courseId);
+            if (resolvedContext.courseSlug && resolvedContext.courseSlug !== "#") {
+              enrollmentStorage.enroll(resolvedContext.courseSlug);
+            }
           }
         }
+      } catch (err) {
+        console.warn("[TaskArena] Could not fetch module info from Supabase:", err);
+      }
+    }
+
+    // 2. Fallback to DEMO_COURSES
+    if (resolvedTasks.length === 0) {
+      for (const course of DEMO_COURSES) {
+        const mod = course.modules.find(
+          (m) => m.id === currentTask.module_id || m.tasks.some((t) => t.id === currentTask.id)
+        );
+        if (mod && mod.tasks && mod.tasks.length > 0) {
+          resolvedTasks = mod.tasks.map((t) => ({
+            id: t.id,
+            title: t.title,
+            order_index: t.order_index,
+            module_id: mod.id,
+          }));
+          resolvedContext = {
+            courseId: course.id,
+            courseTitle: course.title,
+            courseSlug: course.slug,
+            moduleId: mod.id,
+            moduleTitle: mod.title,
+          };
+          enrollmentStorage.enroll(course.id);
+          enrollmentStorage.enroll(course.slug);
+          break;
+        }
+      }
+    }
+
+    // 3. Fallback: group DEMO_TASKS_MAP by module_id
+    if (resolvedTasks.length === 0 && currentTask.module_id) {
+      const matchingDemoTasks = Object.values(DEMO_TASKS_MAP).filter(
+        (t) => t.module_id === currentTask.module_id
+      );
+      if (matchingDemoTasks.length > 0) {
+        resolvedTasks = matchingDemoTasks.map((t) => ({
+          id: t.id,
+          title: t.title,
+          order_index: t.order_index,
+          module_id: t.module_id,
+        }));
+      }
+    }
+
+    // 4. Fallback if still empty: use all demo tasks
+    if (resolvedTasks.length === 0) {
+      resolvedTasks = Object.values(DEMO_TASKS_MAP).map((t) => ({
+        id: t.id,
+        title: t.title,
+        order_index: t.order_index,
+        module_id: t.module_id,
+      }));
+    }
+
+    // Ensure current task is in resolvedTasks
+    const currentExists = resolvedTasks.some((t) => t.id === currentTask.id);
+    if (!currentExists) {
+      resolvedTasks = [
+        { id: currentTask.id, title: currentTask.title, order_index: currentTask.order_index, module_id: currentTask.module_id },
+        ...resolvedTasks,
+      ];
+    }
+
+    setModuleTasks(resolvedTasks);
+    setCourseContext(resolvedContext);
+  }
+
+  useEffect(() => {
+    async function loadTaskAndModule() {
+      setLoading(true);
+      setJudgeResult(null);
+      setRunTestResults(null);
+      setCustomRunResult(null);
+      setExecutionError(null);
+      setActiveTab("code");
+      setSelectedCaseIndex(0);
+      setShowCelebration(false);
+
+      try {
+        let loadedTask: TaskWithPublicTestCases | null = null;
+        const { data } = await courseService.getTaskDetails(activeTaskId);
+        if (data) {
+          loadedTask = data;
+        } else if (DEMO_TASKS_MAP[activeTaskId]) {
+          loadedTask = DEMO_TASKS_MAP[activeTaskId];
+        } else {
+          // Check DEMO_COURSES
+          for (const c of DEMO_COURSES) {
+            for (const m of c.modules) {
+              const t = m.tasks.find((x) => x.id === activeTaskId);
+              if (t) {
+                loadedTask = {
+                  ...t,
+                  test_cases: DEMO_TASKS_MAP[t.id]?.test_cases || [],
+                } as TaskWithPublicTestCases;
+                break;
+              }
+            }
+            if (loadedTask) break;
+          }
+        }
+
+        if (!loadedTask) {
+          loadedTask = DEMO_TASKS_MAP["task-py-twosum"];
+        }
+
+        setTask(loadedTask);
+        setLanguage(loadedTask.language || "python");
+        setCode(
+          loadedTask.starter_code ||
+          getLanguageById(loadedTask.language || "python")?.starterCode ||
+          ""
+        );
+        if (loadedTask.test_cases && loadedTask.test_cases.length > 0) {
+          setCustomStdin(loadedTask.test_cases[0].input || "");
+        }
+
+        await resolveModuleAndTrack(loadedTask);
       } catch (e: any) {
         console.error("Error loading task:", e);
-        const demo = DEMO_TASKS_MAP[taskId] || DEMO_TASKS_MAP["task-py-twosum"];
+        const demo = DEMO_TASKS_MAP[activeTaskId] || DEMO_TASKS_MAP["task-py-twosum"];
         setTask(demo);
         setLanguage(demo.language);
         setCode(demo.starter_code || "");
+        await resolveModuleAndTrack(demo);
       } finally {
         setLoading(false);
       }
     }
 
-    loadTask();
-  }, [taskId]);
+    loadTaskAndModule();
+  }, [activeTaskId]);
 
   const handleResetCode = () => {
     if (!task) return;
@@ -988,22 +1291,27 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
   const publicCases = task.test_cases || [];
   const currentCase = publicCases[selectedCaseIndex] || publicCases[0];
 
-  const demoKeys = Object.keys(DEMO_TASKS_MAP);
-  const currentTaskIndex = demoKeys.indexOf(taskId);
+  const currentTaskIndex = moduleTasks.findIndex(
+    (t) => t.id === (task?.id || activeTaskId)
+  );
   const questionNumber = currentTaskIndex >= 0 ? currentTaskIndex + 1 : 1;
-  const totalQuestions = demoKeys.length;
+  const totalQuestions = moduleTasks.length > 0 ? moduleTasks.length : 1;
   const hasPrev = currentTaskIndex > 0;
-  const hasNext = currentTaskIndex >= 0 && currentTaskIndex < demoKeys.length - 1;
+  const hasNext = currentTaskIndex >= 0 && currentTaskIndex < moduleTasks.length - 1;
 
   const handlePrevQuestion = () => {
     if (hasPrev) {
-      navigate("task_arena", { taskId: demoKeys[currentTaskIndex - 1] });
+      const prevTask = moduleTasks[currentTaskIndex - 1];
+      setActiveTaskId(prevTask.id);
+      navigate("task", { taskId: prevTask.id });
     }
   };
 
   const handleNextQuestion = () => {
     if (hasNext) {
-      navigate("task_arena", { taskId: demoKeys[currentTaskIndex + 1] });
+      const nextTask = moduleTasks[currentTaskIndex + 1];
+      setActiveTaskId(nextTask.id);
+      navigate("task", { taskId: nextTask.id });
     }
   };
 
@@ -1016,12 +1324,29 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
         {/* Left: Back button + Breadcrumbs + Difficulty */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("problems")}
+            onClick={() => {
+              if (courseContext?.courseSlug && courseContext.courseSlug !== "#") {
+                navigate("course", { slug: courseContext.courseSlug });
+              } else {
+                navigate("problems");
+              }
+            }}
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <ChevronLeft size={16} />
-            <span className="hidden sm:inline">Problem Bank</span>
+            <span className="hidden sm:inline">
+              {courseContext?.courseTitle ? courseContext.courseTitle : "Problem Bank"}
+            </span>
           </button>
+
+          {courseContext?.moduleTitle && (
+            <>
+              <span className="text-slate-300 dark:text-slate-700">/</span>
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:inline truncate max-w-[180px]">
+                {courseContext.moduleTitle}
+              </span>
+            </>
+          )}
 
           <span className="text-slate-300 dark:text-slate-700">/</span>
 
@@ -1855,26 +2180,38 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
       </div>
 
       {/* =====================================================================
-          BOTTOM QUESTION NAVIGATION FOOTER (Image 2 Style)
+          BOTTOM QUESTION NAVIGATION FOOTER (Always Visible, Course Module Scoped)
       ===================================================================== */}
       <footer className="h-12 border-t border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] px-6 flex items-center justify-between shrink-0 z-20">
         <button
           onClick={handlePrevQuestion}
           disabled={!hasPrev}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-colors"
         >
           <ChevronLeft size={16} />
           <span>Previous</span>
         </button>
 
-        <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
-          Question {questionNumber} of {totalQuestions}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+            Question {questionNumber} of {totalQuestions}
+          </span>
+          {courseContext?.moduleTitle && (
+            <span className="hidden sm:inline-block text-[11px] font-medium text-slate-400 dark:text-slate-500">
+              • {courseContext.moduleTitle}
+            </span>
+          )}
+        </div>
 
         <button
           onClick={handleNextQuestion}
           disabled={!hasNext}
-          className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-[#6366F1] hover:bg-[#4F46E5] text-white disabled:opacity-40 disabled:hover:bg-[#6366F1] shadow-sm transition-all"
+          className={cn(
+            "inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm",
+            hasNext
+              ? "bg-[#6366F1] hover:bg-[#4F46E5] text-white hover:shadow active:scale-95 cursor-pointer"
+              : "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-50"
+          )}
         >
           <span>Next</span>
           <ChevronRight size={16} />
@@ -1915,11 +2252,21 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
               <button
                 onClick={() => {
                   setShowCelebration(false);
-                  navigate("problems");
+                  if (hasNext) {
+                    handleNextQuestion();
+                  } else if (courseContext?.courseSlug && courseContext.courseSlug !== "#") {
+                    navigate("course", { slug: courseContext.courseSlug });
+                  } else {
+                    navigate("problems");
+                  }
                 }}
                 className="flex-1 py-2.5 px-4 text-xs font-bold rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white shadow-md shadow-indigo-500/25 transition-all"
               >
-                Next Challenge
+                {hasNext
+                  ? "Next Question"
+                  : courseContext?.courseTitle
+                  ? "Finish Chapter"
+                  : "Next Challenge"}
               </button>
             </div>
           </div>
