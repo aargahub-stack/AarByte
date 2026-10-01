@@ -93,42 +93,42 @@ export function ConsolePanel({
   return (
     <div
       onClick={() => inputRef.current?.focus()}
-      className="flex flex-col h-full font-sans bg-[#0E131F] text-slate-100 border border-slate-200/80 dark:border-[#1E293B] rounded-2xl overflow-hidden shadow-xs cursor-text select-text"
+      className="flex flex-col h-full font-sans bg-white dark:bg-[#0E131F] text-slate-800 dark:text-slate-100 border border-slate-200/90 dark:border-[#1E293B] rounded-2xl overflow-hidden shadow-xs cursor-text select-text transition-colors duration-200"
     >
       {/* ===================================================================
-          TERMINAL HEADER BAR (Matches user screenshot: "Output")
+          TERMINAL HEADER BAR (Output Window Title & Controls)
       =================================================================== */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#141A28] border-b border-[#1E293B] shrink-0 select-none">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 dark:bg-[#141A28] border-b border-slate-200/90 dark:border-[#1E293B] shrink-0 select-none transition-colors duration-200">
         {/* Left: Window Dots & "Output" Title */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 pr-2 border-r border-[#1E293B]">
+          <div className="flex items-center gap-1.5 pr-2 border-r border-slate-200 dark:border-[#1E293B]">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
             <span className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
           </div>
 
-          <span className="text-xs font-semibold text-slate-200 tracking-wide font-sans">
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 tracking-wide font-sans">
             Output
           </span>
 
           {/* Status Badge */}
           {isRunning ? (
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-500/15 text-[#818CF8] border border-indigo-500/25">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-[#818CF8] border border-indigo-200/70 dark:border-indigo-500/25">
               <Loader2 size={11} className="animate-spin" />
               <span>Running</span>
             </span>
           ) : isWaitingForInput ? (
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 animate-pulse">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-500/30 animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               <span>Input Required</span>
             </span>
           ) : exitStatus === "success" ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-500/20">
               <CheckCircle2 size={11} />
               <span>Exit 0</span>
             </span>
           ) : exitStatus === "error" ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200/70 dark:border-rose-500/20">
               <XCircle size={11} />
               <span>Exit 1</span>
             </span>
@@ -138,31 +138,31 @@ export function ConsolePanel({
         {/* Right: Telemetry & Actions */}
         <div className="flex items-center gap-2">
           {showExecutionTime && executionTime != null && (
-            <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono bg-[#090D16] text-slate-300 border border-[#1E293B]">
-              <Clock size={11} className="text-[#818CF8]" />
+            <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono bg-white dark:bg-[#090D16] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#1E293B]">
+              <Clock size={11} className="text-indigo-500 dark:text-[#818CF8]" />
               <span>{formatExecutionTime(executionTime)}</span>
             </span>
           )}
 
           {showMemoryUsage && memory != null && (
-            <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono bg-[#090D16] text-slate-300 border border-[#1E293B]">
-              <Cpu size={11} className="text-purple-400" />
+            <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono bg-white dark:bg-[#090D16] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#1E293B]">
+              <Cpu size={11} className="text-purple-600 dark:text-purple-400" />
               <span>{formatMemory(memory)}</span>
             </span>
           )}
 
           <button
             onClick={handleCopy}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/80 dark:hover:bg-slate-800 transition-colors"
             title="Copy Output"
             aria-label="Copy"
           >
-            {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+            {copied ? <Check size={14} className="text-emerald-500 dark:text-emerald-400" /> : <Copy size={14} />}
           </button>
 
           <button
             onClick={handleClear}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-200/80 dark:hover:bg-slate-800 transition-colors"
             title="Clear Output"
             aria-label="Clear"
           >
@@ -176,12 +176,12 @@ export function ConsolePanel({
       =================================================================== */}
       <div
         ref={terminalContainerRef}
-        className="flex-1 overflow-auto p-4 font-mono text-sm leading-relaxed custom-scrollbar bg-[#0E131F]"
+        className="flex-1 overflow-auto p-4 font-mono text-sm leading-relaxed custom-scrollbar bg-white dark:bg-[#0E131F] transition-colors duration-200"
       >
         {entries.length === 0 && !isRunning && (
-          <div className="py-12 flex flex-col items-center justify-center text-center space-y-3 text-slate-500 font-sans select-none">
-            <p className="text-xs text-slate-400 max-w-sm">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-slate-800 font-mono text-[10px] text-slate-200">Ctrl+Enter</kbd> or click <strong>Run</strong> to execute.
+          <div className="py-12 flex flex-col items-center justify-center text-center space-y-3 text-slate-400 dark:text-slate-500 font-sans select-none">
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
+              Press <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-[10px] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-medium">Ctrl+Enter</kbd> or click <strong>Run</strong> to execute.
             </p>
             {onRun && (
               <button
@@ -199,11 +199,11 @@ export function ConsolePanel({
         )}
 
         {/* Continuous Monospace Output Stream */}
-        <pre className="whitespace-pre-wrap font-mono text-sm text-slate-100 m-0 p-0 inline select-text">
+        <pre className="whitespace-pre-wrap font-mono text-sm text-slate-800 dark:text-slate-100 m-0 p-0 inline select-text">
           {entries.map((entry) => {
             if (entry.type === "input") {
               return (
-                <span key={entry.id} className="text-emerald-400 font-medium">
+                <span key={entry.id} className="text-emerald-600 dark:text-emerald-400 font-medium">
                   {entry.text}
                 </span>
               );
@@ -211,7 +211,7 @@ export function ConsolePanel({
 
             if (entry.type === "error") {
               return (
-                <span key={entry.id} className="text-rose-400">
+                <span key={entry.id} className="text-rose-600 dark:text-rose-400 font-medium">
                   {entry.text}
                 </span>
               );
@@ -219,7 +219,7 @@ export function ConsolePanel({
 
             if (entry.type === "system") {
               return (
-                <span key={entry.id} className="text-slate-500 text-xs italic">
+                <span key={entry.id} className="text-slate-400 dark:text-slate-500 text-xs italic">
                   {entry.text}
                 </span>
               );
@@ -238,7 +238,7 @@ export function ConsolePanel({
                 value={inlineValue}
                 onChange={(e) => setInlineValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="bg-transparent border-none outline-none font-mono text-sm text-white p-0 m-0 caret-white focus:ring-0 focus:outline-none inline-block min-w-[120px]"
+                className="bg-transparent border-none outline-none font-mono text-sm text-slate-900 dark:text-white p-0 m-0 caret-slate-900 dark:caret-white focus:ring-0 focus:outline-none inline-block min-w-[120px]"
                 style={{ width: `${Math.max(6, inlineValue.length + 2)}ch` }}
                 autoFocus
                 spellCheck={false}
@@ -250,7 +250,7 @@ export function ConsolePanel({
 
         {/* Live spinner if executing a background step */}
         {isRunning && entries.length > 0 && (
-          <span className="inline-flex items-center gap-1.5 text-xs text-indigo-400 ml-2 font-mono align-baseline">
+          <span className="inline-flex items-center gap-1.5 text-xs text-indigo-500 dark:text-indigo-400 ml-2 font-mono align-baseline">
             <Loader2 size={11} className="animate-spin" />
           </span>
         )}

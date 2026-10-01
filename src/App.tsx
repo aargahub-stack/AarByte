@@ -30,6 +30,10 @@ function MainApp() {
   const { user, isAuthModalOpen, authModalMode, closeAuthModal, openAuthModal } = useAuth();
 
   const handleNavigate = (to: Route | string, navParams?: Record<string, string>) => {
+    if (to === "compiler") {
+      window.open("#/compiler", "_blank", "noopener,noreferrer");
+      return;
+    }
     navigate(to, navParams);
   };
 
