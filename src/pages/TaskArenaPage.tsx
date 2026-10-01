@@ -28,6 +28,8 @@ import { judgeService, type JudgeResult, type TestCaseEvaluation } from "@/servi
 import type { TaskWithPublicTestCases, EditorSettings } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
+import { progressStorage } from "@/services/storage/progressStorage";
+import { supabase } from "@/services/supabase";
 import { cn } from "@/utils/cn";
 
 interface TaskArenaPageProps {
@@ -746,18 +748,86 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
   const handleSubmit = async () => {
     if (!task) return;
 
-    if (!user) {
-      showToast("warning", "Please sign in to submit and earn AarByte points!");
-      openAuthModal("login");
-      return;
-    }
-
     setIsSubmitting(true);
     setActiveBottomTab("result");
     setRunTestResults(null);
     setCustomRunResult(null);
     setExecutionError(null);
 
+    // If guest user (not logged in), evaluate locally and save progress to localStorage
+    if (!user) {
+      try {
+        const sampleCases = task.test_cases || [];
+        const evals: TestCaseEvaluation[] = [];
+        let passed = 0;
+
+        for (let i = 0; i < sampleCases.length; i++) {
+          const tc = sampleCases[i];
+          const execRes = await executeCode({
+            language,
+            sourceCode: code,
+            stdin: tc.input || "",
+          });
+
+          const actual = (execRes.stdout || "").replace(/\r\n/g, "\n").trim();
+          const expected = (tc.expected_output || "").replace(/\r\n/g, "\n").trim();
+          const isMatch = execRes.status === "success" && actual === expected;
+          if (isMatch) passed++;
+
+          evals.push({
+            testCaseId: tc.id || `tc-${i + 1}`,
+            index: i + 1,
+            isHidden: false,
+            passed: isMatch,
+            input: tc.input,
+            expectedOutput: tc.expected_output,
+            actualOutput: execRes.stdout,
+            executionTimeMs: execRes.executionTime,
+            errorMessage: execRes.status !== "success" ? execRes.stderr : undefined,
+          });
+        }
+
+        const allPassed = passed === sampleCases.length && sampleCases.length > 0;
+        const pts = task.points || 10;
+        const isAlreadyDone = progressStorage.isTaskCompleted(task.id);
+        const demoJudgeRes: JudgeResult = {
+          status: allPassed ? "passed" : "failed",
+          passedCases: passed,
+          totalCases: sampleCases.length,
+          totalExecutionTimeMs: evals.reduce((acc, e) => acc + (e.executionTimeMs || 0), 0),
+          testCaseResults: evals,
+          pointsEarned: allPassed ? pts : 0,
+          isAlreadyCompleted: isAlreadyDone,
+        };
+
+        setJudgeResult(demoJudgeRes);
+        const firstErr = evals.find((e) => e.errorMessage)?.errorMessage;
+        if (firstErr) {
+          setExecutionError(firstErr);
+        }
+
+        if (allPassed) {
+          progressStorage.recordTaskCompleted(task.id, pts);
+          setShowCelebration(true);
+          confetti({
+            particleCount: 90,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"],
+          });
+          showToast("success", `Challenge Solved! +${pts} XP earned. Sign in anytime to sync to the leaderboard!`);
+        } else {
+          showToast("error", "Submission: Solution failed some test cases");
+        }
+      } catch (err: any) {
+        showToast("error", err?.message || "Execution error during evaluation");
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
+    // Authenticated User Submission
     try {
       // Check if task exists in database
       const res = await judgeService.submitSolution({
@@ -773,6 +843,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
       }
 
       if (res.status === "passed") {
+        progressStorage.recordTaskCompleted(task.id, res.pointsEarned || task.points || 10);
         setShowCelebration(true);
         refreshProfile();
         confetti({
@@ -785,7 +856,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
         showToast("error", `Submission: ${res.status.toUpperCase()}`);
       }
     } catch (err: any) {
-      // Fallback local submission evaluation for demo tasks
+      // Fallback local submission evaluation for demo tasks or unseeded tasks
       const sampleCases = task.test_cases || [];
       const evals: TestCaseEvaluation[] = [];
       let passed = 0;
@@ -817,14 +888,16 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
       }
 
       const allPassed = passed === sampleCases.length && sampleCases.length > 0;
+      const pts = task.points || 10;
+      const isAlreadyDone = progressStorage.isTaskCompleted(task.id);
       const demoJudgeRes: JudgeResult = {
         status: allPassed ? "passed" : "failed",
         passedCases: passed,
         totalCases: sampleCases.length,
         totalExecutionTimeMs: evals.reduce((acc, e) => acc + (e.executionTimeMs || 0), 0),
         testCaseResults: evals,
-        pointsEarned: allPassed ? (task.points || 15) : 0,
-        isAlreadyCompleted: false,
+        pointsEarned: allPassed ? pts : 0,
+        isAlreadyCompleted: isAlreadyDone,
       };
 
       setJudgeResult(demoJudgeRes);
@@ -834,6 +907,25 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
       }
 
       if (allPassed) {
+        progressStorage.recordTaskCompleted(task.id, pts);
+        // If logged in, also try to credit profile points directly
+        if (user?.id && !isAlreadyDone) {
+          try {
+            const { data: prof } = await supabase
+              .from("profiles")
+              .select("points")
+              .eq("id", user.id)
+              .maybeSingle();
+            const currPts = (prof as any)?.points || 0;
+            await supabase
+              .from("profiles")
+              .update({ points: currPts + pts, updated_at: new Date().toISOString() })
+              .eq("id", user.id);
+            refreshProfile();
+          } catch (syncErr) {
+            console.warn("Could not sync points to profile:", syncErr);
+          }
+        }
         setShowCelebration(true);
         confetti({
           particleCount: 90,

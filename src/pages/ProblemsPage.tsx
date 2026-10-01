@@ -20,6 +20,7 @@ import {
 import { courseService } from "@/services/courseService";
 import type { Task, UserTaskProgress } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
+import { progressStorage } from "@/services/storage/progressStorage";
 import { cn } from "@/utils/cn";
 
 interface ProblemsPageProps {
@@ -285,7 +286,7 @@ const LANGUAGE_OPTIONS = [
 ];
 
 export function ProblemsPage({ navigate }: ProblemsPageProps) {
-  const { user } = useAuth();
+  const { user, profile, points } = useAuth();
   const [tasks, setTasks] = useState<TaskWithCourse[]>(DEFAULT_PRACTICE_PROBLEMS);
   const [progressMap, setProgressMap] = useState<Record<string, UserTaskProgress>>({});
   const [loading, setLoading] = useState(true);
@@ -300,9 +301,9 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
     async function loadTasks() {
       setLoading(true);
       try {
+        let loadedTasks: TaskWithCourse[] = [];
         const { data: courses } = await courseService.getCourses();
         if (courses && courses.length > 0) {
-          const loadedTasks: TaskWithCourse[] = [];
           courses.forEach((c) => {
             c.modules.forEach((m) => {
               (m.tasks || []).forEach((t) => {
@@ -316,26 +317,40 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
               });
             });
           });
-
-          // Merge loaded tasks with defaults (avoiding duplicates)
-          const existingIds = new Set(loadedTasks.map((t) => t.id));
-          const combined = [
-            ...loadedTasks,
-            ...DEFAULT_PRACTICE_PROBLEMS.filter((t) => !existingIds.has(t.id)),
-          ];
-          setTasks(combined);
-
-          if (user?.id) {
-            const taskIds = combined.map((t) => t.id);
-            const { data: prog } = await courseService.getUserProgress(user.id, taskIds);
-            if (prog) {
-              setProgressMap(prog);
-            }
-          }
-        } else {
-          // If no courses found in database yet, keep rich default list
-          setTasks(DEFAULT_PRACTICE_PROBLEMS);
         }
+
+        // Merge loaded tasks with defaults (avoiding duplicates)
+        const existingIds = new Set(loadedTasks.map((t) => t.id));
+        const combined = [
+          ...loadedTasks,
+          ...DEFAULT_PRACTICE_PROBLEMS.filter((t) => !existingIds.has(t.id)),
+        ];
+        setTasks(combined);
+
+        // 1. Read local storage progress (guest / offline / immediate solves)
+        const localCompleted = progressStorage.getCompletedTasks();
+        const mergedProgress: Record<string, UserTaskProgress> = {};
+        Object.keys(localCompleted).forEach((taskId) => {
+          if (localCompleted[taskId]?.is_completed) {
+            mergedProgress[taskId] = {
+              user_id: user?.id || "local-user",
+              task_id: taskId,
+              is_completed: true,
+              completed_at: localCompleted[taskId]?.completed_at || new Date().toISOString(),
+            };
+          }
+        });
+
+        // 2. If signed in, merge Supabase database user_task_progress
+        if (user?.id) {
+          const taskIds = combined.map((t) => t.id);
+          const { data: prog } = await courseService.getUserProgress(user.id, taskIds);
+          if (prog) {
+            Object.assign(mergedProgress, prog);
+          }
+        }
+
+        setProgressMap(mergedProgress);
       } catch (err) {
         console.error("Failed to fetch practice tasks:", err);
       } finally {
@@ -344,6 +359,18 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
     }
 
     loadTasks();
+
+    // Re-sync whenever a problem is submitted or progress changes
+    const handleSync = () => {
+      loadTasks();
+    };
+    window.addEventListener("aarcode_progress_updated", handleSync);
+    window.addEventListener("storage", handleSync);
+
+    return () => {
+      window.removeEventListener("aarcode_progress_updated", handleSync);
+      window.removeEventListener("storage", handleSync);
+    };
   }, [user?.id]);
 
   // Filter tasks based on search, difficulty, language, category, status
@@ -381,9 +408,17 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
   // Telemetry Calculations
   const totalTasks = tasks.length;
   const solvedCount = tasks.filter((t) => progressMap[t.id]?.is_completed).length;
-  const totalPoints = tasks
+
+  // Calculate points earned from all solved problems
+  const pointsFromSolvedTasks = tasks
     .filter((t) => progressMap[t.id]?.is_completed)
     .reduce((acc, curr) => acc + (curr.points || 10), 0);
+
+  const localXP = progressStorage.getLocalXP();
+  const userAuthPoints = points || profile?.points || 0;
+  // Total XP reflects whichever is highest to ensure no earned points are lost
+  const totalPoints = Math.max(userAuthPoints, pointsFromSolvedTasks, localXP);
+
   const completionPercentage = totalTasks > 0 ? Math.round((solvedCount / totalTasks) * 100) : 0;
 
   // Handle Pick Random Problem

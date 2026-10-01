@@ -198,13 +198,19 @@ export const courseService = {
         .select("*")
         .eq("user_id", userId);
 
+      // Only apply .in("task_id", ...) if valid UUIDs are present, as task_id is a UUID column in Postgres
       if (taskIds && taskIds.length > 0) {
-        query = query.in("task_id", taskIds);
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        const validUuids = taskIds.filter((id) => uuidRegex.test(id));
+        if (validUuids.length > 0) {
+          query = query.in("task_id", validUuids);
+        }
       }
 
       const { data, error } = await query;
       if (error) {
-        return { data: null, error: error.message };
+        console.warn("[courseService] getUserProgress query notice:", error.message);
+        return { data: {}, error: error.message };
       }
 
       const progressMap: Record<string, UserTaskProgress> = {};
@@ -214,7 +220,8 @@ export const courseService = {
 
       return { data: progressMap, error: null };
     } catch (err: any) {
-      return { data: null, error: err.message || "Failed to fetch progress" };
+      console.warn("[courseService] getUserProgress error:", err.message);
+      return { data: {}, error: err.message || "Failed to fetch progress" };
     }
   },
 
