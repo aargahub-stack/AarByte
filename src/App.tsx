@@ -8,6 +8,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ToastContainer } from "@/components/ui/ToastContainer";
 import { AuthModal } from "@/components/compiler/AuthModal";
+import { cn } from "@/utils/cn";
 
 import { LandingPage } from "@/pages/LandingPage";
 import { AuthPage } from "@/pages/AuthPage";
@@ -36,11 +37,19 @@ function MainApp() {
     route === "compiler" ||
     route === "task" ||
     route === "login" ||
-    route === "signup";
+    route === "signup" ||
+    route === "admin";
 
   return (
-    <div className={theme === "dark" ? "dark" : ""}>
-      <div className="min-h-screen font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-slate-100 flex flex-col justify-between transition-colors duration-300">
+    <div className={cn("w-full h-full", theme === "dark" ? "dark" : "")}>
+      <div
+        className={cn(
+          "w-full font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-slate-100 transition-colors duration-300",
+          isFullScreenArena
+            ? "h-full overflow-hidden flex flex-col"
+            : "min-h-full flex flex-col justify-between"
+        )}
+      >
         {/* Main Navbar shown on non-fullscreen pages */}
         {!isFullScreenArena && (
           <Navbar
@@ -52,7 +61,11 @@ function MainApp() {
         )}
 
         {/* Dynamic Route Pages */}
-        <main className="flex-1">
+        <main
+          className={cn(
+            isFullScreenArena ? "flex-1 flex flex-col min-h-0 overflow-hidden" : "flex-1"
+          )}
+        >
           {/* When student is logged in, landing & dashboard routes show StudentDashboardPage */}
           {(route === "landing" || route === "dashboard") &&
             (user ? (

