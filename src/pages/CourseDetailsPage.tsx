@@ -13,10 +13,16 @@ import {
   BookOpen,
   Trophy,
   Loader2,
+  Plus,
+  Check,
+  GraduationCap,
 } from "lucide-react";
 import { courseService } from "@/services/courseService";
 import type { CourseWithModules, Task, UserTaskProgress } from "@/types/database.types";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/useToast";
+import { enrollmentStorage } from "@/services/storage/enrollmentStorage";
+import { progressStorage } from "@/services/storage/progressStorage";
 import { cn } from "@/utils/cn";
 
 interface CourseDetailsPageProps {
@@ -26,8 +32,10 @@ interface CourseDetailsPageProps {
 
 export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [course, setCourse] = useState<CourseWithModules | null>(null);
   const [progressMap, setProgressMap] = useState<Record<string, UserTaskProgress>>({});
+  const [isEnrolled, setIsEnrolled] = useState(false);
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,13 +71,33 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
     }
 
     async function loadProgress(c: CourseWithModules) {
+      const localCompleted = progressStorage.getCompletedTasks();
+      const merged: Record<string, UserTaskProgress> = {};
+      Object.keys(localCompleted).forEach((taskId) => {
+        if (localCompleted[taskId]?.is_completed) {
+          merged[taskId] = {
+            user_id: user?.id || "local-user",
+            task_id: taskId,
+            is_completed: true,
+            completed_at: localCompleted[taskId]?.completed_at || new Date().toISOString(),
+          };
+        }
+      });
+
       if (user?.id) {
         const allTaskIds = c.modules.flatMap((m) => m.tasks.map((t) => t.id));
         const { data: prog } = await courseService.getUserProgress(user.id, allTaskIds);
         if (prog) {
-          setProgressMap(prog);
+          Object.assign(merged, prog);
         }
       }
+      setProgressMap(merged);
+
+      const allTaskIds = c.modules.flatMap((m) => m.tasks.map((t) => t.id));
+      const enrolled =
+        enrollmentStorage.isEnrolled(c.id, c.slug, allTaskIds) ||
+        allTaskIds.some((t) => merged[t]?.is_completed);
+      setIsEnrolled(enrolled);
     }
 
     function initAccordion(c: CourseWithModules) {
@@ -83,6 +111,18 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
 
     loadCourse();
   }, [slug, user?.id]);
+
+  const handleToggleEnroll = () => {
+    if (!course) return;
+    if (isEnrolled) {
+      showToast("info", `You are already enrolled in "${course.title}".`);
+    } else {
+      enrollmentStorage.enroll(course.id);
+      if (course.slug) enrollmentStorage.enroll(course.slug);
+      setIsEnrolled(true);
+      showToast("success", `🎉 Successfully enrolled in "${course.title}"!`);
+    }
+  };
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules((prev) => ({
@@ -151,6 +191,31 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                 {course.description || "Master these concepts sequentially by solving real coding tasks."}
               </p>
+
+              <div className="pt-2 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleToggleEnroll}
+                  className={cn(
+                    "inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm",
+                    isEnrolled
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 cursor-default"
+                      : "bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white hover:opacity-95 shadow-indigo-500/25 active:scale-95"
+                  )}
+                >
+                  {isEnrolled ? (
+                    <>
+                      <Check size={16} />
+                      <span>Enrolled Track</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={16} />
+                      <span>Enroll in Track</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Quick Stats Box */}
