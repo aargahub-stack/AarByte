@@ -75,15 +75,12 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
         }
         setProgressMap(mergedProgress);
 
-        // 3. Read current enrolled courses - auto-enroll active database courses if empty
-        let storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
-        if (storedEnrolled.length === 0 && courseList.length > 0) {
-          courseList.forEach((c) => {
-            enrollmentStorage.enroll(c.id);
-            if (c.slug && c.slug !== "#") enrollmentStorage.enroll(c.slug);
-          });
-          storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
-        }
+        // 3. Sync all active database courses into enrollment so catalog is fully available
+        courseList.forEach((c) => {
+          enrollmentStorage.enroll(c.id);
+          if (c.slug && c.slug !== "#") enrollmentStorage.enroll(c.slug);
+        });
+        const storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
         setEnrolledIds(storedEnrolled);
 
         // Smart Initial Tab Selection:
