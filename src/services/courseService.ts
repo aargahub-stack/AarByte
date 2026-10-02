@@ -21,11 +21,7 @@ export const courseService = {
         .select(`
           *,
           modules (
-            id,
-            course_id,
-            title,
-            order_index,
-            created_at,
+            *,
             tasks (
               id,
               module_id,
@@ -81,11 +77,7 @@ export const courseService = {
         .select(`
           *,
           modules (
-            id,
-            course_id,
-            title,
-            order_index,
-            created_at,
+            *,
             tasks (
               id,
               module_id,

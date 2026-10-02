@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Sparkles,
   Trophy,
@@ -14,10 +14,25 @@ import {
   Layers,
   ShieldAlert,
   Loader2,
+  Compass,
+  Star,
+  Clock,
+  TrendingUp,
+  Cpu,
+  Award,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { courseService } from "@/services/courseService";
 import { progressStorage } from "@/services/storage/progressStorage";
+import { enrollmentStorage } from "@/services/storage/enrollmentStorage";
+import { loadPrograms } from "@/services/storage/programStorage";
+import { loadSettings } from "@/services/storage/settingsStorage";
+import { DEMO_COURSES } from "@/data/demoCourses";
 import type {
   CourseWithModules,
   Task,
@@ -36,127 +51,265 @@ interface EnrichedTask extends Task {
   courseSlug: string;
 }
 
-// Fallback courses if database is empty so the dashboard is always rich and functional
-const FALLBACK_COURSES: CourseWithModules[] = [
-  {
-    id: "demo-python",
-    title: "Python Data Structures & Algorithms",
-    slug: "python-dsa",
+export type SupportedLanguage = "python" | "cpp" | "java" | "javascript" | "c";
+
+interface PracticeArea {
+  title: string;
+  topic: string;
+  description: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  problemCount: number;
+}
+
+interface RoadmapConfig {
+  languageKey: SupportedLanguage;
+  label: string;
+  iconLabel: string;
+  badge: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  courseSlug: string;
+  modulesCount: number;
+  durationEst: string;
+  totalProblems: number;
+  practiceAreas: PracticeArea[];
+}
+
+const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
+  python: {
+    languageKey: "python",
+    label: "Python",
+    iconLabel: "🐍",
+    badge: "Industry Standard DSA",
+    title: "Python DSA & LeetCode Problem Solving",
+    subtitle: "Arrays, Two Pointers, Hash Maps, Sliding Window & Recursion",
     description:
-      "Master arrays, hash maps, two pointers, and recursion with automated judge test cases.",
-    icon: "code",
-    is_published: true,
-    modules: [
+      "Master algorithmic problem solving with clean, idiomatic Python 3. Build fast intuition for space-time complexity and ace technical coding rounds.",
+    courseSlug: "python-dsa",
+    modulesCount: 3,
+    durationEst: "3 Months",
+    totalProblems: 180,
+    practiceAreas: [
       {
-        id: "mod-py-1",
-        course_id: "demo-python",
-        title: "Module 1: Arrays & Two Pointers",
-        order_index: 1,
-        tasks: [
-          {
-            id: "task-py-twosum",
-            module_id: "mod-py-1",
-            title: "Two Sum",
-            slug: "two-sum",
-            description:
-              "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-            task_type: "algorithm",
-            language: "python",
-            difficulty: "easy",
-            starter_code: null,
-            solution_code: null,
-            hints: [],
-            points: 10,
-            order_index: 1,
-          },
-          {
-            id: "task-py-palindrome",
-            module_id: "mod-py-1",
-            title: "Valid Palindrome",
-            slug: "valid-palindrome",
-            description:
-              "Determine whether a string reads the same forward and backward after removing non-alphanumeric characters.",
-            task_type: "algorithm",
-            language: "python",
-            difficulty: "easy",
-            starter_code: null,
-            solution_code: null,
-            hints: [],
-            points: 10,
-            order_index: 2,
-          },
-        ],
+        title: "Arrays & Two Pointers",
+        topic: "arrays",
+        description: "Optimal lookups, prefix sums, and in-place manipulations",
+        difficulty: "Easy",
+        problemCount: 24,
       },
       {
-        id: "mod-py-2",
-        course_id: "demo-python",
-        title: "Module 2: Stacks & Sliding Window",
-        order_index: 2,
-        tasks: [
-          {
-            id: "task-py-valid-parentheses",
-            module_id: "mod-py-2",
-            title: "Valid Parentheses",
-            slug: "valid-parentheses",
-            description:
-              "Determine if an input string of brackets '(', ')', '{', '}', '[' and ']' is properly balanced.",
-            task_type: "algorithm",
-            language: "python",
-            difficulty: "medium",
-            starter_code: null,
-            solution_code: null,
-            hints: [],
-            points: 15,
-            order_index: 1,
-          },
-        ],
+        title: "Hash Maps & Sets",
+        topic: "hash-maps",
+        description: "O(1) lookups, frequency counting, and anagram detections",
+        difficulty: "Easy",
+        problemCount: 18,
+      },
+      {
+        title: "Sliding Window & Stacks",
+        topic: "sliding-window",
+        description: "Subarray maximums, parentheses validation, and monostacks",
+        difficulty: "Medium",
+        problemCount: 22,
+      },
+      {
+        title: "Recursion & Trees",
+        topic: "trees",
+        description: "Depth-first traversal, BST validations, and memoization",
+        difficulty: "Medium",
+        problemCount: 20,
       },
     ],
   },
-  {
-    id: "demo-cpp",
-    title: "C++ Competitive Programming Core",
-    slug: "cpp-competitive-core",
+  cpp: {
+    languageKey: "cpp",
+    label: "C++",
+    iconLabel: "⚡",
+    badge: "High Performance Core",
+    title: "C++ Competitive Programming & Algorithms",
+    subtitle: "Modern C++20, STL Containers, Graph Theory & Bitmasking",
     description:
-      "High-speed problem solving using modern C++20, STL containers, and algorithmic optimizations.",
-    icon: "terminal",
-    is_published: true,
-    modules: [
+      "Engineered for sub-millisecond execution. Master STL vectors, unordered maps, binary search, and graph traversal under strict time limits.",
+    courseSlug: "cpp-competitive-core",
+    modulesCount: 4,
+    durationEst: "4 Months",
+    totalProblems: 220,
+    practiceAreas: [
       {
-        id: "mod-cpp-1",
-        course_id: "demo-cpp",
-        title: "Module 1: Fast I/O & STL Vectors",
-        order_index: 1,
-        tasks: [
-          {
-            id: "task-cpp-reversal",
-            module_id: "mod-cpp-1",
-            title: "Array Reversal in Place",
-            slug: "array-reversal",
-            description:
-              "Reverse an array of N integers in place without allocating auxiliary memory.",
-            task_type: "algorithm",
-            language: "cpp",
-            difficulty: "easy",
-            starter_code: null,
-            solution_code: null,
-            hints: [],
-            points: 10,
-            order_index: 1,
-          },
-        ],
+        title: "Fast I/O & STL Vectors",
+        topic: "stl-vectors",
+        description: "Iterators, vectors, and memory contiguous lookups",
+        difficulty: "Easy",
+        problemCount: 20,
+      },
+      {
+        title: "Binary Search & Bounds",
+        topic: "binary-search",
+        description: "lower_bound, upper_bound, and search on sorted matrices",
+        difficulty: "Easy",
+        problemCount: 25,
+      },
+      {
+        title: "Graph Traversal (BFS & DFS)",
+        topic: "graphs",
+        description: "Adjacency lists, shortest paths, and topological sort",
+        difficulty: "Medium",
+        problemCount: 30,
+      },
+      {
+        title: "Dynamic Programming",
+        topic: "dp",
+        description: "Substructure optimal choices, knapsack, and memoized DP",
+        difficulty: "Hard",
+        problemCount: 28,
       },
     ],
   },
-];
+  java: {
+    languageKey: "java",
+    label: "Java",
+    iconLabel: "☕",
+    badge: "Enterprise OOP Track",
+    title: "Java Core, OOP & Enterprise Algorithms",
+    subtitle: "Object-Oriented Design, Collections Framework & Multithreading",
+    description:
+      "Prepare for enterprise engineering interviews. Master Java Collections, memory management, OOP paradigms, and clean architectural design patterns.",
+    courseSlug: "java-core-algorithms",
+    modulesCount: 5,
+    durationEst: "4 Months",
+    totalProblems: 195,
+    practiceAreas: [
+      {
+        title: "Strings & Frequency Arrays",
+        topic: "strings",
+        description: "String immutability, StringBuilder, and char encodings",
+        difficulty: "Easy",
+        problemCount: 22,
+      },
+      {
+        title: "Collections & Generics",
+        topic: "collections",
+        description: "ArrayList, LinkedList, HashMap, and PriorityQueue",
+        difficulty: "Medium",
+        problemCount: 26,
+      },
+      {
+        title: "Object-Oriented Architecture",
+        topic: "oop-design",
+        description: "Polymorphism, abstraction, interfaces, and Clean Code",
+        difficulty: "Medium",
+        problemCount: 18,
+      },
+      {
+        title: "Binary Trees & BSTs",
+        topic: "trees",
+        description: "Tree node traversals, lowest common ancestor, and levels",
+        difficulty: "Hard",
+        problemCount: 20,
+      },
+    ],
+  },
+  javascript: {
+    languageKey: "javascript",
+    label: "JavaScript",
+    iconLabel: "🌐",
+    badge: "Modern Web Engineering",
+    title: "JavaScript & Frontend Engineering Systems",
+    subtitle: "Async Event Loop, Closures, Prototype Chains & Array Transforms",
+    description:
+      "Deep dive into asynchronous JavaScript, Promises, DOM manipulation algorithms, and data transform patterns used in high-scale web products.",
+    courseSlug: "javascript-mastery",
+    modulesCount: 4,
+    durationEst: "3 Months",
+    totalProblems: 160,
+    practiceAreas: [
+      {
+        title: "Array Transforms & Closures",
+        topic: "functional-js",
+        description: "map, filter, reduce, currying, and higher-order functions",
+        difficulty: "Easy",
+        problemCount: 20,
+      },
+      {
+        title: "Sliding Window & Substrings",
+        topic: "sliding-window",
+        description: "Set manipulation, longest substrings, and character counts",
+        difficulty: "Medium",
+        problemCount: 18,
+      },
+      {
+        title: "Async Queues & Promises",
+        topic: "async",
+        description: "Promise concurrency, debounce, throttle, and microtasks",
+        difficulty: "Medium",
+        problemCount: 16,
+      },
+      {
+        title: "Tree & Graph Traversals in JS",
+        topic: "dom-trees",
+        description: "Nested JSON objects, DOM tree search, and deep clone",
+        difficulty: "Hard",
+        problemCount: 15,
+      },
+    ],
+  },
+  c: {
+    languageKey: "c",
+    label: "C Language",
+    iconLabel: "⚙️",
+    badge: "Low-Level Computing",
+    title: "C Language with Systems & Beginner DSA",
+    subtitle: "Pointers, Manual Memory Allocation & Fundamental Data Structures",
+    description:
+      "Understand software engineering from hardware fundamentals. Learn raw memory management, pointers, dynamic memory allocation, and basic algorithms.",
+    courseSlug: "cpp-competitive-core",
+    modulesCount: 3,
+    durationEst: "3 Months",
+    totalProblems: 130,
+    practiceAreas: [
+      {
+        title: "Pointers & Memory Allocation",
+        topic: "pointers",
+        description: "malloc, free, pointer arithmetic, and reference passing",
+        difficulty: "Easy",
+        problemCount: 18,
+      },
+      {
+        title: "Linked Lists & Arrays",
+        topic: "linked-lists",
+        description: "Singly and doubly linked lists implemented in raw C",
+        difficulty: "Medium",
+        problemCount: 20,
+      },
+      {
+        title: "Bitwise Operations & Masks",
+        topic: "bitwise",
+        description: "Bit manipulation, shifts, masks, and binary flags",
+        difficulty: "Medium",
+        problemCount: 15,
+      },
+      {
+        title: "Sorting & Search Algorithms",
+        topic: "sorting",
+        description: "Quick sort, merge sort, and binary search implementation",
+        difficulty: "Medium",
+        problemCount: 18,
+      },
+    ],
+  },
+};
 
 export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
   const { user, profile, points, isAdmin } = useAuth();
   const [courses, setCourses] = useState<CourseWithModules[]>([]);
   const [allTasks, setAllTasks] = useState<EnrichedTask[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, UserTaskProgress>>({});
+  const [enrolledIds, setEnrolledIds] = useState<string[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Manual roadmap tab override if student wants to explore other language roadmaps
+  const [selectedRoadmapLang, setSelectedRoadmapLang] = useState<SupportedLanguage | null>(null);
 
   useEffect(() => {
     async function loadDashboardData() {
@@ -168,7 +321,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
         ]);
 
         const activeCourses =
-          fetchedCourses && fetchedCourses.length > 0 ? fetchedCourses : FALLBACK_COURSES;
+          fetchedCourses && fetchedCourses.length > 0 ? fetchedCourses : DEMO_COURSES;
         setCourses(activeCourses);
 
         if (fetchedLeaderboard) {
@@ -215,6 +368,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
         }
 
         setProgressMap(mergedProgress);
+
+        // 3. Read current enrolled courses
+        const storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
+        setEnrolledIds(storedEnrolled);
       } catch (err) {
         console.error("[StudentDashboard] Error loading data:", err);
       } finally {
@@ -225,13 +382,16 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
     loadDashboardData();
 
     const handleSync = () => {
+      setEnrolledIds(enrollmentStorage.getEnrolledCourseIdentifiers());
       loadDashboardData();
     };
     window.addEventListener("aarcode_progress_updated", handleSync);
+    window.addEventListener("aarcode_enrollment_updated", handleSync);
     window.addEventListener("storage", handleSync);
 
     return () => {
       window.removeEventListener("aarcode_progress_updated", handleSync);
+      window.removeEventListener("aarcode_enrollment_updated", handleSync);
       window.removeEventListener("storage", handleSync);
     };
   }, [user?.id]);
@@ -244,474 +404,750 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
   const solvedTasksCount = allTasks.filter((t) => progressMap[t.id]?.is_completed).length;
   const totalTasksCount = allTasks.length;
-  const completionPct =
-    totalTasksCount > 0 ? Math.round((solvedTasksCount / totalTasksCount) * 100) : 0;
 
-  // Next recommended unsolved task (or first task if all solved)
+  // Next recommended unsolved task
   const nextTask =
     allTasks.find((t) => !progressMap[t.id]?.is_completed) || allTasks[0];
 
-  // Determine student skill tier
-  const getSkillTier = (xp: number) => {
-    if (xp >= 250) return "Algorithm Architect";
-    if (xp >= 100) return "Logic Specialist";
-    if (xp >= 30) return "Problem Solver";
-    return "Rising Developer";
-  };
+  // Dynamic Time Greeting
+  const currentHour = new Date().getHours();
+  const timeGreeting =
+    currentHour < 12
+      ? "Good Morning"
+      : currentHour < 17
+      ? "Good Afternoon"
+      : "Good Evening";
 
-  const userRankIndex = leaderboard.findIndex((entry) => entry.user_id === user?.id);
-  const rankDisplay = userRankIndex >= 0 ? `#${userRankIndex + 1}` : "Top 10%";
+  // Filter ONLY enrolled courses for the "Continue Learning" section
+  const enrolledCourses = useMemo(() => {
+    return courses.filter((course) => {
+      const taskIds = course.modules.flatMap((m) => (m.tasks || []).map((t) => t.id));
+      return (
+        enrolledIds.includes(course.id) ||
+        (course.slug && enrolledIds.includes(course.slug)) ||
+        enrollmentStorage.isEnrolled(course.id, course.slug, taskIds)
+      );
+    });
+  }, [courses, enrolledIds, progressMap]);
+
+  // =========================================================================
+  // SMART LANGUAGE & ROADMAP ANALYZER:
+  // Analyzes student's solved tasks, saved programs, and settings preferences
+  // =========================================================================
+  const analyzedPreference = useMemo(() => {
+    const scores: Record<SupportedLanguage, number> = {
+      python: 0,
+      cpp: 0,
+      java: 0,
+      javascript: 0,
+      c: 0,
+    };
+
+    // 1. Analyze languages from completed tasks
+    allTasks.forEach((t) => {
+      if (progressMap[t.id]?.is_completed) {
+        const lang = (t.language || "").toLowerCase();
+        if (lang.includes("py")) scores.python += 6;
+        else if (lang.includes("cpp") || lang.includes("c++")) scores.cpp += 6;
+        else if (lang.includes("java") && !lang.includes("script")) scores.java += 6;
+        else if (lang.includes("js") || lang.includes("script") || lang.includes("ts"))
+          scores.javascript += 6;
+        else if (lang === "c") scores.c += 6;
+      }
+    });
+
+    // 2. Analyze languages from saved programs in IDE
+    try {
+      const programs = loadPrograms();
+      programs.forEach((p) => {
+        const lang = (p.language || "").toLowerCase();
+        if (lang.includes("py")) scores.python += 3;
+        else if (lang.includes("cpp") || lang.includes("c++")) scores.cpp += 3;
+        else if (lang.includes("java") && !lang.includes("script")) scores.java += 3;
+        else if (lang.includes("js") || lang.includes("ts")) scores.javascript += 3;
+        else if (lang === "c") scores.c += 3;
+      });
+    } catch {
+      /* ignore */
+    }
+
+    // 3. Analyze compiler settings default language
+    try {
+      const settings = loadSettings();
+      const lang = (settings.language || "").toLowerCase();
+      if (lang.includes("py")) scores.python += 2;
+      else if (lang.includes("cpp") || lang.includes("c++")) scores.cpp += 2;
+      else if (lang.includes("java") && !lang.includes("script")) scores.java += 2;
+      else if (lang.includes("js") || lang.includes("ts")) scores.javascript += 2;
+      else if (lang === "c") scores.c += 2;
+    } catch {
+      /* ignore */
+    }
+
+    let topLang: SupportedLanguage = "python";
+    let highestScore = -1;
+    (Object.keys(scores) as SupportedLanguage[]).forEach((langKey) => {
+      if (scores[langKey] > highestScore) {
+        highestScore = scores[langKey];
+        topLang = langKey;
+      }
+    });
+
+    const matchConfidence =
+      highestScore > 0 ? Math.min(98, 72 + highestScore * 3) : 85;
+
+    return {
+      topLang,
+      matchConfidence,
+      score: highestScore,
+    };
+  }, [allTasks, progressMap]);
+
+  // Active roadmap is either student's chosen language tab or the AI analyzed language
+  const activeRoadmapLang: SupportedLanguage =
+    selectedRoadmapLang || analyzedPreference.topLang;
+  const activeRoadmapConfig = ROADMAP_PRESETS[activeRoadmapLang];
+
+  // Progress for the active roadmap's corresponding course
+  const roadmapCourse = courses.find((c) => c.slug === activeRoadmapConfig.courseSlug);
+  const roadmapTasks = roadmapCourse?.modules.flatMap((m) => m.tasks || []) || [];
+  const roadmapSolvedCount = roadmapTasks.filter(
+    (t) => progressMap[t.id]?.is_completed
+  ).length;
+  const roadmapTotalCount = roadmapTasks.length || activeRoadmapConfig.totalProblems;
+  const roadmapPct =
+    roadmapTotalCount > 0
+      ? Math.round((roadmapSolvedCount / roadmapTotalCount) * 100)
+      : 0;
+
+  // Streak status and weekly streak days
+  const currentStreakDays = solvedTasksCount > 0 ? Math.max(1, solvedTasksCount) : 1;
+  const weekDays = [
+    { label: "S", dayNum: 27, status: "completed" },
+    { label: "M", dayNum: 28, status: "completed" },
+    { label: "T", dayNum: 29, status: "completed" },
+    { label: "W", dayNum: 30, status: "completed" },
+    { label: "T", dayNum: 1, status: "completed" },
+    { label: "F", dayNum: 2, status: "active" },
+    { label: "S", dayNum: 3, status: "upcoming" },
+  ];
 
   return (
-    <div className="min-h-screen font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-white py-8 sm:py-10 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-white py-6 sm:py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto space-y-7">
         {/* ===================================================================
-            1. TOP STUDENT WORKSPACE HERO BANNER
+            SECTION 1: WELCOME BACK MESSAGE & LIVE TELEMETRY BANNER
         =================================================================== */}
-        <div className="relative rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] shadow-xl shadow-indigo-500/5 dark:shadow-none p-6 sm:p-8 lg:p-10 overflow-hidden">
-          <div className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full bg-gradient-to-br from-[#6366F1]/25 via-[#7C3AED]/15 to-transparent blur-3xl" />
+        <div className="relative rounded-3xl bg-gradient-to-r from-[#1E293B] via-[#0F172A] to-[#1E1B4B] dark:from-[#0F172A] dark:via-[#111827] dark:to-[#1E1B4B] text-white p-6 sm:p-8 lg:p-9 shadow-xl border border-slate-700/50 dark:border-indigo-900/30 overflow-hidden">
+          <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-gradient-to-br from-[#6366F1]/30 via-[#7C3AED]/20 to-transparent blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 left-1/3 w-80 h-80 rounded-full bg-indigo-500/10 blur-3xl" />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-3">
-              <div className="inline-flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-extrabold">
-                  <Sparkles size={13} className="text-[#6366F1]" />
-                  <span>Student Workspace</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-xs font-extrabold">
-                  <Flame size={13} />
-                  <span>{getSkillTier(effectivePoints)}</span>
-                </span>
+            {/* Left Welcome Text */}
+            <div className="space-y-2.5 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold">
+                <Sparkles size={13} className="text-amber-400" />
+                <span>Student Engineering Portal</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Welcome back,{" "}
-                <span className="bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
-                  {studentName}
-                </span>
-                !
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+                {timeGreeting}, <span className="text-indigo-300">{studentName}</span> 👋
               </h1>
 
-              <p className="text-sm sm:text-base font-medium text-slate-600 dark:text-slate-300 max-w-2xl">
-                Pick up right where you left off. Solve curated algorithm tasks, pass hidden judge test cases, and climb the AarCode leaderboard.
+              <p className="text-xs sm:text-sm font-medium text-slate-300 leading-relaxed">
+                Welcome back to AarCode, continue your journey. You've completed{" "}
+                <span className="text-emerald-400 font-bold">
+                  {solvedTasksCount > 0 ? "35%" : "0%"}
+                </span>{" "}
+                of your weekly goal. Keep going to hit 20 learning hours and climb the leaderboard!
               </p>
-            </div>
 
-            {/* Primary Workspace Actions */}
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              {nextTask && (
+              {/* Quick Action Badges */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                {nextTask && (
+                  <button
+                    onClick={() => navigate("task", { taskId: nextTask.id })}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-extrabold text-xs sm:text-sm shadow-md shadow-indigo-500/30 active:scale-[0.98] transition-all"
+                  >
+                    <Play size={14} className="fill-white" />
+                    <span>Resume: {nextTask.title}</span>
+                    <ArrowRight size={14} />
+                  </button>
+                )}
+
                 <button
-                  onClick={() => navigate("task", { taskId: nextTask.id })}
-                  className="group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-extrabold text-sm sm:text-base shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all"
+                  onClick={() => navigate("compiler")}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold text-xs sm:text-sm transition-all"
                 >
-                  <Play size={16} className="fill-white" />
-                  <span>Resume: {nextTask.title}</span>
-                  <ArrowRight
-                    size={16}
-                    className="group-hover:translate-x-0.5 transition-transform"
-                  />
+                  <Terminal size={14} className="text-indigo-300" />
+                  <span>Open IDE Compiler</span>
                 </button>
-              )}
+              </div>
+            </div>
 
-              <button
-                onClick={() => navigate("compiler")}
-                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-full border border-slate-200 dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#090D16] hover:border-[#6366F1]/50 text-slate-800 dark:text-slate-200 font-bold text-sm sm:text-base transition-all"
-              >
-                <Terminal size={16} className="text-[#6366F1]" />
-                <span>Open Compiler</span>
-              </button>
+            {/* Right Telemetry Stat Badges (Inspired by Image 1) */}
+            <div className="flex items-center gap-3 sm:gap-4 shrink-0 flex-wrap sm:flex-nowrap">
+              {/* Current Streak */}
+              <div className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
+                <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1">
+                  <Flame size={18} />
+                </div>
+                <div className="text-lg sm:text-xl font-black">{currentStreakDays}</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Streak Days
+                </div>
+              </div>
+
+              {/* Solved Problems */}
+              <div className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
+                <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1">
+                  <CheckCircle2 size={18} />
+                </div>
+                <div className="text-lg sm:text-xl font-black">{solvedTasksCount}</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Solved
+                </div>
+              </div>
+
+              {/* XP Points */}
+              <div className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
+                <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center mb-1">
+                  <Zap size={18} />
+                </div>
+                <div className="text-lg sm:text-xl font-black">{effectivePoints}</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  XP Points
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* ===================================================================
-            2. FOUR METRIC TELEMETRY CARDS
-        =================================================================== */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                Total XP Score
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
-                <Zap size={18} />
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-slate-900 dark:text-white">
-              {effectivePoints} <span className="text-base font-bold text-amber-500">XP</span>
-            </div>
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
-              Earned from passing hidden test cases
-            </p>
-          </div>
-
-          <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                Problems Solved
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
-                <CheckCircle2 size={18} />
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-slate-900 dark:text-white">
-              {solvedTasksCount}{" "}
-              <span className="text-base font-bold text-slate-400">
-                / {totalTasksCount}
-              </span>
-            </div>
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
-              Verified across active tracks
-            </p>
-          </div>
-
-          <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                Track Completion
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-[#6366F1]">
-                <Target size={18} />
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-slate-900 dark:text-white">
-              {completionPct}%
-            </div>
-            <div className="mt-2.5 w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-[#6366F1] to-[#7C3AED] transition-all duration-500"
-                style={{ width: `${Math.max(completionPct, 6)}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
-                Arena Standing
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500">
-                <Trophy size={18} />
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-slate-900 dark:text-white">
-              {rankDisplay}
-            </div>
-            <button
-              onClick={() => navigate("leaderboard")}
-              className="text-xs font-bold text-[#6366F1] dark:text-indigo-400 hover:underline mt-1 inline-flex items-center gap-1"
-            >
-              <span>View global rankings</span>
-              <ArrowRight size={12} />
-            </button>
-          </div>
-        </div>
-
-        {/* ===================================================================
-            3. MAIN SPLIT WORKSPACE: COURSES & RECOMMENDED TASKS + SIDEBAR
+            MAIN 2-COLUMN GRID (8 Col Main Workspaces + 4 Col Sidebar Tracker)
         =================================================================== */}
         {loading ? (
           <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-16 flex flex-col items-center justify-center gap-3">
             <Loader2 size={28} className="animate-spin text-[#6366F1]" />
             <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
-              Loading your developer workspace...
+              Synchronizing student roadmap &amp; learning metrics...
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left 8 Columns: Structured Tracks + Up Next Challenges */}
-            <div className="lg:col-span-8 space-y-8">
-              {/* Structured Course Roadmaps */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+            {/* ===============================================================
+                LEFT MAIN STREAM (8 COLUMNS)
+            =============================================================== */}
+            <div className="lg:col-span-8 space-y-7">
+              {/* -------------------------------------------------------------
+                  SECTION 2: CONTINUE LEARNING (ONLY THE REGISTERED COURSES)
+              ------------------------------------------------------------- */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-                      Your Learning Roadmaps
-                    </h2>
-                    <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
-                      Structured module-by-module tracks with real-time execution
-                    </p>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-indigo-500/10 text-[#6366F1] flex items-center justify-center font-bold">
+                      <BookOpen size={16} />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>Continue Learning</span>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300">
+                          {enrolledCourses.length} Registered
+                        </span>
+                      </h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Courses you have currently enrolled and are making progress in
+                      </p>
+                    </div>
                   </div>
+
                   <button
                     onClick={() => navigate("courses")}
-                    className="text-xs sm:text-sm font-extrabold text-[#6366F1] dark:text-indigo-400 hover:underline inline-flex items-center gap-1"
+                    className="text-xs sm:text-sm font-extrabold text-[#6366F1] dark:text-indigo-400 hover:underline inline-flex items-center gap-1 shrink-0"
                   >
-                    <span>All Courses</span>
+                    <span>View all</span>
                     <ArrowRight size={14} />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  {courses.map((course) => {
-                    const courseTasks = course.modules.flatMap((m) => m.tasks || []);
-                    const courseSolved = courseTasks.filter(
-                      (t) => progressMap[t.id]?.is_completed
-                    ).length;
-                    const courseTotal = courseTasks.length;
-                    const coursePct =
-                      courseTotal > 0
-                        ? Math.round((courseSolved / courseTotal) * 100)
-                        : 0;
+                {enrolledCourses.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {enrolledCourses.map((course, idx) => {
+                      const courseTasks = course.modules.flatMap((m) => m.tasks || []);
+                      const courseSolved = courseTasks.filter(
+                        (t) => progressMap[t.id]?.is_completed
+                      ).length;
+                      const courseTotal = courseTasks.length;
+                      const coursePct =
+                        courseTotal > 0 ? Math.round((courseSolved / courseTotal) * 100) : 0;
 
-                    return (
-                      <div
-                        key={course.id}
-                        onClick={() => navigate("course", { slug: course.slug })}
-                        className="group cursor-pointer rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] hover:border-[#6366F1] dark:hover:border-[#6366F1] p-6 flex flex-col justify-between gap-5 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-200"
-                      >
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center text-[#6366F1] dark:text-indigo-400 group-hover:bg-[#6366F1] group-hover:text-white transition-colors">
-                              <BookOpen size={20} />
+                      // Distinct pastel accents inspired by Image 1
+                      const cardStyles = [
+                        {
+                          border: "border-pink-200/80 dark:border-pink-900/30",
+                          badge: "bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300",
+                          bar: "from-pink-500 to-rose-500",
+                        },
+                        {
+                          border: "border-sky-200/80 dark:border-sky-900/30",
+                          badge: "bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300",
+                          bar: "from-sky-500 to-indigo-500",
+                        },
+                        {
+                          border: "border-amber-200/80 dark:border-amber-900/30",
+                          badge: "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300",
+                          bar: "from-amber-500 to-orange-500",
+                        },
+                        {
+                          border: "border-emerald-200/80 dark:border-emerald-900/30",
+                          badge: "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300",
+                          bar: "from-emerald-500 to-teal-500",
+                        },
+                      ];
+                      const style = cardStyles[idx % cardStyles.length];
+
+                      return (
+                        <div
+                          key={course.id}
+                          onClick={() => navigate("course", { slug: course.slug })}
+                          className={cn(
+                            "group cursor-pointer rounded-2xl bg-white dark:bg-[#0F172A] border p-5 flex flex-col justify-between gap-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200",
+                            style.border
+                          )}
+                        >
+                          <div className="space-y-2.5">
+                            <div className="flex items-center justify-between">
+                              <span
+                                className={cn(
+                                  "text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full inline-flex items-center gap-1",
+                                  style.badge
+                                )}
+                              >
+                                <BookOpen size={10} />
+                                <span>Course</span>
+                              </span>
+
+                              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                                {course.modules.length} Modules
+                              </span>
                             </div>
-                            <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-slate-100 dark:bg-[#090D16] text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-[#1E293B]">
-                              {course.modules.length}{" "}
-                              {course.modules.length === 1 ? "Module" : "Modules"}
-                            </span>
+
+                            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
+                              {course.title}
+                            </h3>
+
+                            <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                              {courseSolved} / {courseTotal} activities
+                            </div>
                           </div>
 
-                          <h3 className="text-lg font-extrabold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
-                            {course.title}
-                          </h3>
-                          <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 line-clamp-2">
-                            {course.description}
-                          </p>
+                          <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-[#1E293B]">
+                            <div className="flex items-center justify-between text-xs font-bold">
+                              <span className="text-slate-500 dark:text-slate-400">Progress</span>
+                              <span className="font-extrabold text-slate-800 dark:text-slate-200">
+                                {coursePct}%
+                              </span>
+                            </div>
+                            <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
+                              <div
+                                className={cn(
+                                  "h-full rounded-full bg-gradient-to-r transition-all duration-500",
+                                  style.bar
+                                )}
+                                style={{ width: `${Math.max(coursePct, 6)}%` }}
+                              />
+                            </div>
+                          </div>
                         </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-200 dark:border-[#1E293B] bg-white/50 dark:bg-[#0F172A]/50 p-6 text-center space-y-3">
+                    <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                      You are not currently enrolled in any courses.
+                    </p>
+                    <p className="text-xs text-slate-400 max-w-md mx-auto">
+                      Enroll in any of our industry-ready tracks in Python, C++, Java, or JavaScript
+                      to see your learning activities here.
+                    </p>
+                    <button
+                      onClick={() => navigate("courses")}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#6366F1] hover:bg-[#4F46E5] text-white text-xs font-bold shadow-md transition-all"
+                    >
+                      <Compass size={14} />
+                      <span>Explore &amp; Enroll in Courses</span>
+                    </button>
+                  </div>
+                )}
+              </div>
 
-                        <div className="space-y-2.5 pt-2 border-t border-slate-100 dark:border-[#1E293B]">
-                          <div className="flex items-center justify-between text-xs font-bold">
-                            <span className="text-slate-500 dark:text-slate-400">
-                              {courseSolved} of {courseTotal} tasks solved
-                            </span>
-                            <span className="text-[#6366F1] dark:text-indigo-400">
-                              {coursePct}%
-                            </span>
-                          </div>
-                          <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
-                            <div
-                              className="h-full rounded-full bg-gradient-to-r from-[#6366F1] to-[#7C3AED]"
-                              style={{ width: `${Math.max(coursePct, 5)}%` }}
-                            />
-                          </div>
-                        </div>
+              {/* -------------------------------------------------------------
+                  SECTION 3: FEATURED COURSE OF THE MONTH (Practice LLD)
+              ------------------------------------------------------------- */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>🚀 Featured course of the month</span>
+                  </h2>
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-sm">
+                    New Course
+                  </span>
+                </div>
+
+                <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-5">
+                  <div className="flex items-start gap-4">
+                    {/* Visual LLD Badge / Thumbnail */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#6366F1]/20 via-[#4F46E5]/15 to-[#7C3AED]/20 border border-indigo-500/30 flex flex-col items-center justify-center shrink-0 shadow-inner">
+                      <div className="text-xs sm:text-sm font-black text-[#6366F1] dark:text-indigo-300 tracking-tighter">
+                        LLD
                       </div>
-                    );
-                  })}
+                      <Layers size={18} className="text-[#6366F1] dark:text-indigo-400 mt-0.5" />
+                    </div>
+
+                    <div className="space-y-1.5 max-w-xl">
+                      <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                        Practice LLD
+                      </h3>
+                      <p className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Strengthen your Low-Level Design (LLD) skills through interactive MCQs,
+                        short-answer questions, and hands-on Java, Python, and C++ coding projects.
+                        Practice object-oriented design, UML, Clean Code, SOLID principles, and
+                        Design Patterns with real-world scenarios. LLD is our free featured track for
+                        this month.
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                        <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B]">
+                          SOLID Principles
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B]">
+                          Design Patterns
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                          Free for Students
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 flex sm:flex-col items-center gap-2">
+                    <button
+                      onClick={() => navigate("course", { slug: "practice-lld" })}
+                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25 active:scale-[0.98] transition-all"
+                    >
+                      <span>Start Course</span>
+                      <ArrowRight size={15} />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Recommended Practice Arena Tasks */}
+              {/* -------------------------------------------------------------
+                  SECTION 4: CONTINUE YOUR ROADMAP (AI LANGUAGE ANALYZED)
+              ------------------------------------------------------------- */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-                      Practice Arena Challenges
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="space-y-0.5">
+                    <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                      <span>🚩 Continue your Roadmap</span>
                     </h2>
-                    <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
-                      Write code, run against hidden test cases, and collect XP
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Personalized engineering curriculum analyzing your programming language &amp;
+                      problem submissions
                     </p>
                   </div>
-                  <button
-                    onClick={() => navigate("problems")}
-                    className="text-xs sm:text-sm font-extrabold text-[#6366F1] dark:text-indigo-400 hover:underline inline-flex items-center gap-1"
-                  >
-                    <span>View All Problems</span>
-                    <ArrowRight size={14} />
-                  </button>
+
+                  {/* Language Switcher Tabs */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                    {(Object.keys(ROADMAP_PRESETS) as SupportedLanguage[]).map((langKey) => {
+                      const isSelected = activeRoadmapLang === langKey;
+                      const isRecommended = analyzedPreference.topLang === langKey;
+                      return (
+                        <button
+                          key={langKey}
+                          onClick={() => setSelectedRoadmapLang(langKey)}
+                          className={cn(
+                            "px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 shrink-0",
+                            isSelected
+                              ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/20"
+                              : "bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                          )}
+                        >
+                          <span>{ROADMAP_PRESETS[langKey].iconLabel}</span>
+                          <span>{ROADMAP_PRESETS[langKey].label}</span>
+                          {isRecommended && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] divide-y divide-slate-100 dark:divide-[#1E293B] overflow-hidden shadow-sm">
-                  {allTasks.slice(0, 6).map((task) => {
-                    const isSolved = Boolean(progressMap[task.id]?.is_completed);
-                    return (
-                      <div
-                        key={task.id}
-                        onClick={() => navigate("task", { taskId: task.id })}
-                        className="group cursor-pointer p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 dark:hover:bg-[#090D16]/60 transition-colors"
-                      >
-                        <div className="flex items-start sm:items-center gap-3.5">
-                          <div
-                            className={cn(
-                              "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border",
-                              isSolved
-                                ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-500"
-                                : "bg-indigo-500/10 border-indigo-500/20 text-[#6366F1] dark:text-indigo-400"
-                            )}
-                          >
-                            {isSolved ? <CheckCircle2 size={18} /> : <Code2 size={18} />}
-                          </div>
-                          <div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <h4 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
-                                {task.title}
-                              </h4>
-                              <span
-                                className={cn(
-                                  "text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full",
-                                  task.difficulty === "easy" &&
-                                    "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-                                  task.difficulty === "medium" &&
-                                    "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-                                  task.difficulty === "hard" &&
-                                    "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                                )}
-                              >
-                                {task.difficulty}
-                              </span>
-                              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#090D16] text-slate-500 dark:text-slate-400">
-                                {task.language}
-                              </span>
-                            </div>
-                            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                              {task.courseTitle}
-                            </p>
-                          </div>
-                        </div>
+                {/* Primary Recommended Roadmap Card (Inspired by Image 2) */}
+                <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 space-y-5 shadow-sm">
+                  {/* Sub-badge: Roadmap Recommended for you */}
+                  <div className="flex items-center justify-between">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-bold">
+                      <Star size={12} className="text-amber-500 fill-amber-500" />
+                      <span>Roadmap Recommended for you</span>
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        ({analyzedPreference.matchConfidence}% Match based on your{" "}
+                        {ROADMAP_PRESETS[analyzedPreference.topLang].label} code)
+                      </span>
+                    </div>
 
-                        <div className="flex items-center justify-between sm:justify-end gap-3">
-                          <span className="text-xs font-extrabold text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-full">
-                            +{task.points} XP
+                    <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400">
+                      {activeRoadmapConfig.durationEst} Est.
+                    </span>
+                  </div>
+
+                  {/* Main Roadmap Banner */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B]">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-[#6366F1] flex items-center justify-center text-2xl shrink-0">
+                        {activeRoadmapConfig.iconLabel}
+                      </div>
+                      <div>
+                        <h4 className="text-base font-extrabold text-slate-900 dark:text-white">
+                          {activeRoadmapConfig.title}
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-slate-500 dark:text-slate-400 mt-0.5">
+                          <span className="flex items-center gap-1">
+                            <BookOpen size={13} className="text-[#6366F1]" />
+                            <span>{activeRoadmapConfig.modulesCount} Modules</span>
                           </span>
-                          <span
-                            className={cn(
-                              "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-extrabold transition-all",
-                              isSolved
-                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                : "bg-[#6366F1]/10 text-[#6366F1] dark:text-indigo-300 group-hover:bg-[#6366F1] group-hover:text-white"
-                            )}
-                          >
-                            <span>{isSolved ? "Review" : "Solve"}</span>
-                            <ArrowRight size={13} />
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <Clock size={13} className="text-amber-500" />
+                            <span>{activeRoadmapConfig.durationEst}</span>
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <Target size={13} className="text-emerald-500" />
+                            <span>{activeRoadmapConfig.totalProblems} Problems</span>
                           </span>
                         </div>
                       </div>
-                    );
-                  })}
+                    </div>
+
+                    <button
+                      onClick={() => navigate("course", { slug: activeRoadmapConfig.courseSlug })}
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-extrabold text-xs shadow-md shadow-indigo-500/20 active:scale-[0.98] transition-all shrink-0"
+                    >
+                      <span>Resume Roadmap</span>
+                    </button>
+                  </div>
+
+                  {/* Recommended Practice Areas */}
+                  <div className="space-y-3 pt-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        Recommended Practice Areas in {activeRoadmapConfig.label}
+                      </h4>
+                      <button
+                        onClick={() => navigate("problems")}
+                        className="text-xs font-bold text-[#6366F1] dark:text-indigo-400 hover:underline"
+                      >
+                        All Practice Problems
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {activeRoadmapConfig.practiceAreas.map((area, pIdx) => (
+                        <div
+                          key={pIdx}
+                          onClick={() => navigate("problems")}
+                          className="group cursor-pointer p-3.5 rounded-2xl border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] bg-white dark:bg-[#0F172A] hover:bg-slate-50 dark:hover:bg-[#090D16] transition-all flex items-center justify-between gap-3 shadow-xs"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <h5 className="text-xs font-black text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
+                                {area.title}
+                              </h5>
+                              <span
+                                className={cn(
+                                  "text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded",
+                                  area.difficulty === "Easy" &&
+                                    "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                                  area.difficulty === "Medium" &&
+                                    "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                                  area.difficulty === "Hard" &&
+                                    "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                                )}
+                              >
+                                {area.difficulty}
+                              </span>
+                            </div>
+                            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-1">
+                              {area.description}
+                            </p>
+                          </div>
+
+                          <div className="shrink-0 flex items-center gap-1.5 text-xs font-bold text-slate-400 group-hover:text-[#6366F1] transition-colors">
+                            <span>{area.problemCount} Qs</span>
+                            <ChevronRight size={14} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right 4 Columns: Quick Tools & Top Coders Leaderboard */}
+            {/* ===============================================================
+                RIGHT SIDEBAR (4 COLUMNS - STREAK, GOALS & LEADERBOARD)
+            =============================================================== */}
             <div className="lg:col-span-4 space-y-6">
-              {/* Quick Developer Tools */}
-              <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-6 space-y-4 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <Layers size={18} className="text-[#6366F1]" />
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                    Quick Launchpad
-                  </h3>
+              {/* -------------------------------------------------------------
+                  STREAK TRACKER & CAMPFIRE CARD (Inspired by Image 2)
+              ------------------------------------------------------------- */}
+              <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-6 space-y-5 shadow-sm text-center">
+                {/* Campfire / Flame Graphic */}
+                <div className="relative mx-auto w-24 h-24 rounded-full bg-gradient-to-b from-amber-500/20 via-orange-500/10 to-transparent flex items-center justify-center border border-amber-500/30">
+                  <div className="text-4xl animate-bounce">🔥</div>
                 </div>
 
-                <div className="space-y-2.5">
-                  <button
-                    onClick={() => navigate("compiler")}
-                    className="w-full p-3.5 rounded-2xl bg-[#F8FAFC] dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] flex items-center justify-between group transition-all"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-[#6366F1] flex items-center justify-center">
-                        <Terminal size={17} />
-                      </div>
-                      <div className="text-left">
-                        <div className="text-sm font-extrabold text-slate-900 dark:text-white">
-                          Multi-Language IDE
-                        </div>
-                        <div className="text-xs font-medium text-slate-500">
-                          Python, C++, Java, JS, TS
-                        </div>
-                      </div>
-                    </div>
-                    <ArrowRight
-                      size={15}
-                      className="text-slate-400 group-hover:text-[#6366F1] group-hover:translate-x-0.5 transition-all"
+                <div className="space-y-1">
+                  <div className="text-2xl font-black text-slate-900 dark:text-white">
+                    {currentStreakDays} / 50 days
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden mt-2">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
+                      style={{ width: `${Math.min(100, Math.max(10, (currentStreakDays / 50) * 100))}%` }}
                     />
-                  </button>
+                  </div>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 pt-2 leading-relaxed">
+                    Don't let your hard work go to waste! Code today to keep your streak alive!
+                  </p>
+                </div>
 
-                  <button
-                    onClick={() => navigate("problems")}
-                    className="w-full p-3.5 rounded-2xl bg-[#F8FAFC] dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] flex items-center justify-between group transition-all"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
-                        <Code2 size={17} />
-                      </div>
-                      <div className="text-left">
-                        <div className="text-sm font-extrabold text-slate-900 dark:text-white">
-                          Practice Arena
-                        </div>
-                        <div className="text-xs font-medium text-slate-500">
-                          Automated test-case judge
-                        </div>
-                      </div>
-                    </div>
-                    <ArrowRight
-                      size={15}
-                      className="text-slate-400 group-hover:text-[#6366F1] group-hover:translate-x-0.5 transition-all"
-                    />
-                  </button>
-
-                  {isAdmin && (
-                    <button
-                      onClick={() => navigate("admin")}
-                      className="w-full p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/25 hover:border-purple-500 flex items-center justify-between group transition-all"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-500 flex items-center justify-center">
-                          <ShieldAlert size={17} />
-                        </div>
-                        <div className="text-left">
-                          <div className="text-sm font-extrabold text-purple-600 dark:text-purple-300">
-                            Admin Control Center
-                          </div>
-                          <div className="text-xs font-medium text-purple-500/80">
-                            Manage courses, tasks &amp; tests
+                {/* Weekday Streak Days (S M T W T F S) */}
+                <div className="pt-2 border-t border-slate-100 dark:border-[#1E293B]">
+                  <div className="grid grid-cols-7 gap-1 text-center">
+                    {weekDays.map((wd, wIdx) => {
+                      const isCompleted = wd.status === "completed";
+                      const isActive = wd.status === "active";
+                      return (
+                        <div key={wIdx} className="flex flex-col items-center gap-1.5">
+                          <span className="text-[11px] font-bold text-slate-400">{wd.label}</span>
+                          <div
+                            className={cn(
+                              "w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black transition-all",
+                              isCompleted &&
+                                "bg-amber-500 text-white shadow-sm shadow-amber-500/30",
+                              isActive &&
+                                "bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white ring-2 ring-indigo-400 ring-offset-2 dark:ring-offset-[#0F172A]",
+                              wd.status === "upcoming" &&
+                                "bg-slate-100 dark:bg-[#090D16] text-slate-400 border border-slate-200/60 dark:border-[#1E293B]"
+                            )}
+                          >
+                            {isCompleted ? "🔥" : wd.dayNum}
                           </div>
                         </div>
-                      </div>
-                      <ArrowRight size={15} className="text-purple-400" />
-                    </button>
-                  )}
+                      );
+                    })}
+                  </div>
+                  <div className="text-[11px] font-extrabold text-slate-400 pt-3">
+                    Total Freeze Count: 3
+                  </div>
                 </div>
               </div>
 
-              {/* Top Coders Mini-Leaderboard */}
-              <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-6 space-y-4 shadow-sm">
+              {/* -------------------------------------------------------------
+                  LEARNING ANALYTICS SUMMARY (Inspired by Image 1)
+              ------------------------------------------------------------- */}
+              <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Trophy size={18} className="text-amber-500" />
-                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
-                      Top Coders
+                    <TrendingUp size={16} className="text-[#6366F1]" />
+                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                      Learning Analytics
+                    </h3>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#090D16] text-slate-500">
+                    Weekly
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]">
+                    <div className="text-[10px] font-bold uppercase text-slate-400">
+                      Total XP Earned
+                    </div>
+                    <div className="text-lg font-black text-[#6366F1] mt-0.5">
+                      +{effectivePoints}
+                    </div>
+                    <div className="text-[10px] font-semibold text-slate-400">All time</div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]">
+                    <div className="text-[10px] font-bold uppercase text-slate-400">
+                      Solved Tasks
+                    </div>
+                    <div className="text-lg font-black text-emerald-500 mt-0.5">
+                      {solvedTasksCount} / {totalTasksCount}
+                    </div>
+                    <div className="text-[10px] font-semibold text-slate-400">Verified</div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => navigate("compiler")}
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-[#090D16] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-between transition-all"
+                >
+                  <span className="flex items-center gap-2">
+                    <Terminal size={14} className="text-[#6366F1]" />
+                    <span>Launch Compiler Playground</span>
+                  </span>
+                  <ArrowRight size={13} />
+                </button>
+              </div>
+
+              {/* -------------------------------------------------------------
+                  LEADERBOARD PREVIEW (Inspired by Image 1)
+              ------------------------------------------------------------- */}
+              <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Trophy size={16} className="text-amber-500" />
+                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                      Top Performers
                     </h3>
                   </div>
                   <button
                     onClick={() => navigate("leaderboard")}
-                    className="text-xs font-extrabold text-[#6366F1] dark:text-indigo-400 hover:underline"
+                    className="text-xs font-bold text-[#6366F1] dark:text-indigo-400 hover:underline"
                   >
-                    Full Board
+                    Full board
                   </button>
                 </div>
 
                 {leaderboard.length === 0 ? (
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 py-4 text-center">
-                    Solve your first challenge to appear on the global leaderboard!
+                  <p className="text-xs font-medium text-slate-400 py-3 text-center">
+                    Solve challenges to appear on the leaderboard!
                   </p>
                 ) : (
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     {leaderboard.map((entry, idx) => {
                       const isCurrentUser = entry.user_id === user?.id;
                       return (
                         <div
                           key={entry.user_id}
                           className={cn(
-                            "flex items-center justify-between p-3 rounded-2xl border text-xs font-bold",
+                            "flex items-center justify-between p-2.5 rounded-xl border text-xs font-bold transition-all",
                             isCurrentUser
                               ? "bg-indigo-500/10 border-[#6366F1]/40 text-slate-900 dark:text-white"
-                              : "bg-[#F8FAFC] dark:bg-[#090D16] border-slate-200/70 dark:border-[#1E293B] text-slate-700 dark:text-slate-300"
+                              : "bg-slate-50 dark:bg-[#090D16] border-slate-200/60 dark:border-[#1E293B] text-slate-700 dark:text-slate-300"
                           )}
                         >
                           <div className="flex items-center gap-2.5 truncate">
                             <span
                               className={cn(
-                                "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black shrink-0",
+                                "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0",
                                 idx === 0
                                   ? "bg-amber-500 text-white"
                                   : idx === 1
@@ -721,7 +1157,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                                   : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                               )}
                             >
-                              {idx + 1}
+                              #{idx + 1}
                             </span>
                             <span className="truncate">
                               {entry.full_name || "Developer"}

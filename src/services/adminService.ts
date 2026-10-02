@@ -26,11 +26,21 @@ export interface CreateModuleInput {
   course_id: string;
   title: string;
   order_index?: number;
+  about_content?: string | null;
+  youtube_url?: string | null;
+  youtube_title?: string | null;
+  reading_time_mins?: number | null;
+  key_takeaways?: string[] | null;
 }
 
 export interface UpdateModuleInput {
   title?: string;
   order_index?: number;
+  about_content?: string | null;
+  youtube_url?: string | null;
+  youtube_title?: string | null;
+  reading_time_mins?: number | null;
+  key_takeaways?: string[] | null;
 }
 
 export interface CreateTaskInput {
@@ -204,6 +214,11 @@ export const adminService = {
           course_id: input.course_id,
           title: input.title,
           order_index: input.order_index ?? 1,
+          about_content: input.about_content ?? null,
+          youtube_url: input.youtube_url ?? null,
+          youtube_title: input.youtube_title ?? null,
+          reading_time_mins: input.reading_time_mins ?? 5,
+          key_takeaways: input.key_takeaways ?? [],
         })
         .select()
         .single();
