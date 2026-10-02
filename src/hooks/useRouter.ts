@@ -9,8 +9,15 @@ export interface RouteState {
 
 function parseLocationHash(): RouteState {
   const hash = window.location.hash;
+  const search = window.location.search;
+
   // If recovery password link from Supabase email
-  if (hash.includes("type=recovery") || hash.startsWith("#/reset-password") || hash.startsWith("#reset-password")) {
+  if (
+    hash.includes("type=recovery") ||
+    search.includes("type=recovery") ||
+    hash.startsWith("#/reset-password") ||
+    hash.startsWith("#reset-password")
+  ) {
     return { route: "reset-password", params: {}, fullPath: "reset-password" };
   }
 

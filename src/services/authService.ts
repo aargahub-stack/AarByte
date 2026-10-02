@@ -84,7 +84,7 @@ export const authService = {
    * Trigger password reset email via Supabase.
    */
   async resetPasswordForEmail(email: string): Promise<{ error: AuthError | null }> {
-    const redirectUrl = `${window.location.origin}${window.location.pathname}#/reset-password`;
+    const redirectUrl = `${window.location.origin}${window.location.pathname}`;
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,
     });
