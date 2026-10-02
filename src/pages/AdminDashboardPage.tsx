@@ -260,15 +260,26 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
   // Actions: Courses & Modules
   const handleCreateCourse = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!courseTitle.trim() || !courseSlug.trim()) {
-      showToast("error", "Title and slug are required");
+    const cleanSlug =
+      courseSlug
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") ||
+      courseTitle
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
+    if (!courseTitle.trim() || !cleanSlug) {
+      showToast("error", "Title and valid slug are required");
       return;
     }
 
     const { data, error } = await adminService.createCourse({
       title: courseTitle.trim(),
-      slug: courseSlug.trim().toLowerCase(),
+      slug: cleanSlug,
       description: courseDescription.trim(),
       is_published: courseIsPublished,
     });

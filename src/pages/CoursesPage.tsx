@@ -75,8 +75,15 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
         }
         setProgressMap(mergedProgress);
 
-        // 3. Read current enrolled courses
-        const storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
+        // 3. Read current enrolled courses - auto-enroll active database courses if empty
+        let storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
+        if (storedEnrolled.length === 0 && courseList.length > 0) {
+          courseList.forEach((c) => {
+            enrollmentStorage.enroll(c.id);
+            if (c.slug && c.slug !== "#") enrollmentStorage.enroll(c.slug);
+          });
+          storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
+        }
         setEnrolledIds(storedEnrolled);
 
         // Smart Initial Tab Selection:
@@ -353,7 +360,11 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
                 return (
                   <div
                     key={course.id}
-                    onClick={() => navigate("course", { slug: course.slug })}
+                    onClick={() =>
+                      navigate("course", {
+                        slug: course.slug && course.slug !== "#" ? course.slug : course.id,
+                      })
+                    }
                     className="group cursor-pointer rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] hover:border-indigo-500/50 dark:hover:border-indigo-500/50 shadow-xs hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col justify-between overflow-hidden"
                   >
                     <div className="p-6 sm:p-7 space-y-4">

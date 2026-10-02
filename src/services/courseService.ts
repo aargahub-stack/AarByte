@@ -72,7 +72,8 @@ export const courseService = {
     slug: string
   ): Promise<{ data: CourseWithModules | null; error: string | null }> {
     try {
-      const { data, error } = await supabase
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(slug);
+      let query = supabase
         .from("courses")
         .select(`
           *,
@@ -96,12 +97,53 @@ export const courseService = {
             )
           )
         `)
-        .eq("slug", slug)
-        .eq("is_published", true)
-        .single();
+        .eq("is_published", true);
 
-      if (error) {
-        return { data: null, error: error.message };
+      if (isUuid) {
+        query = query.eq("id", slug);
+      } else {
+        query = query.eq("slug", slug);
+      }
+
+      let { data, error } = await query.single();
+
+      if ((error || !data) && !isUuid) {
+        const fallback = await supabase
+          .from("courses")
+          .select(`
+            *,
+            modules (
+              *,
+              tasks (
+                id,
+                module_id,
+                title,
+                slug,
+                description,
+                task_type,
+                language,
+                difficulty,
+                starter_code,
+                hints,
+                points,
+                order_index,
+                created_at,
+                updated_at
+              )
+            )
+          `)
+          .eq("id", slug)
+          .eq("is_published", true)
+          .single();
+
+        if (fallback.data) {
+          data = fallback.data;
+          error = null;
+        }
+      }
+
+      if (error || !data) {
+        return { data: null, error: error?.message || "Course not found" };
       }
 
       const courseData = data as any;

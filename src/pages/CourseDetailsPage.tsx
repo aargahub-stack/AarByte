@@ -65,8 +65,8 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
           // Fallback if not found in db yet
           const { data: allCourses } = await courseService.getCourses();
           const found =
-            (allCourses || []).find((c) => c.slug === slug) ||
-            DEMO_COURSES.find((c) => c.slug === slug);
+            (allCourses || []).find((c) => c.slug === slug || c.id === slug) ||
+            DEMO_COURSES.find((c) => c.slug === slug || c.id === slug);
           if (found) {
             setCourse(found);
             initAccordion(found);
