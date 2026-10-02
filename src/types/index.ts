@@ -73,6 +73,7 @@ export type Route =
   | "pricing"
   | "privacy"
   | "terms"
+  | "reset-password"
   | "login"
   | "signup";
 

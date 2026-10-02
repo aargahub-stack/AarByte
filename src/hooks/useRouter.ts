@@ -9,6 +9,11 @@ export interface RouteState {
 
 function parseLocationHash(): RouteState {
   const hash = window.location.hash;
+  // If recovery password link from Supabase email
+  if (hash.includes("type=recovery") || hash.startsWith("#/reset-password") || hash.startsWith("#reset-password")) {
+    return { route: "reset-password", params: {}, fullPath: "reset-password" };
+  }
+
   // If returning from Google OAuth with tokens in hash, land cleanly on dashboard
   if (hash.includes("access_token=") || hash.includes("refresh_token=")) {
     return { route: "dashboard", params: {}, fullPath: "dashboard" };
@@ -37,6 +42,7 @@ function parseLocationHash(): RouteState {
     "pricing",
     "privacy",
     "terms",
+    "reset-password",
     "login",
     "signup",
   ];

@@ -21,9 +21,8 @@ interface AuthContextType {
   isAuthModalOpen: boolean;
   authModalMode: "login" | "signup";
   openAuthModal: (mode?: "login" | "signup") => void;
-  closeAuthModal: () => void;
-  signIn: (params: SignInParams) => Promise<{ success: boolean; error?: string }>;
-  signUp: (params: SignUpParams) => Promise<{ success: boolean; error?: string }>;
+  signIn: (params: SignInParams) => Promise<{ success: boolean; error?: string; isEmailUnconfirmed?: boolean; email?: string }>;
+  signUp: (params: SignUpParams) => Promise<{ success: boolean; error?: string; needsEmailConfirmation?: boolean; email?: string }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -102,13 +101,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(
     async (params: SignInParams) => {
       try {
-        const { user: signedInUser, error } = await authService.signIn(params);
+        const { user: signedInUser, session, error } = await authService.signIn(params);
         if (error) {
+          const isUnconfirmed =
+            error.message?.toLowerCase().includes("email not confirmed") ||
+            error.message?.toLowerCase().includes("email not verified") ||
+            (error as any).code === "email_not_confirmed";
+
+          if (isUnconfirmed) {
+            return {
+              success: false,
+              error: "Please confirm your email address before signing in.",
+              isEmailUnconfirmed: true,
+              email: params.email,
+            };
+          }
+
           showToast("error", error.message || "Failed to sign in");
           return { success: false, error: error.message };
         }
 
-        if (signedInUser) {
+        if (signedInUser && session) {
           setUser(signedInUser);
           await fetchProfile(signedInUser.id);
           showToast("success", "Welcome back to AarCode!");
@@ -128,13 +141,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = useCallback(
     async (params: SignUpParams) => {
       try {
-        const { user: newUser, error } = await authService.signUp(params);
+        const { user: newUser, session, error } = await authService.signUp(params);
         if (error) {
           showToast("error", error.message || "Failed to create account");
           return { success: false, error: error.message };
         }
 
-        if (newUser) {
+        // If email confirmation is enabled in Supabase, session is null
+        if (newUser && !session) {
+          return {
+            success: true,
+            needsEmailConfirmation: true,
+            email: params.email,
+          };
+        }
+
+        if (newUser && session) {
           setUser(newUser);
           await fetchProfile(newUser.id);
           showToast("success", "Account created successfully! Welcome to AarCode.");
