@@ -771,357 +771,149 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
           </div>
         ) : (
           <div className="space-y-8">
-            {/* -------------------------------------------------------------
-                SECTION 1: CONTINUE LEARNING (LIST TYPE ONLY - NO GRID TYPE)
-            ------------------------------------------------------------- */}
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="space-y-0.5">
-                  <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                    <BookOpen size={19} className="text-indigo-500" />
-                    <span>Continue Learning</span>
-                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300">
-                      {enrolledCourses.length > 0 ? `${enrolledCourses.length} Registered Tracks` : "Available Tracks"}
-                    </span>
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {enrolledCourses.length > 0
-                      ? "Resume your enrolled curricula and practice modules right where you left off"
-                      : "Explore core programming and algorithmic curricula to start your engineering journey"}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => navigate("courses")}
-                  className="text-xs sm:text-sm font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline inline-flex items-center gap-1 shrink-0 self-start sm:self-auto"
-                >
-                  <span>Explore all curricula</span>
-                  <ArrowRight size={14} />
-                </button>
-              </div>
-
-              {/* LIST TYPE PRESENTATION (flex-col rows, clean horizontal cards) */}
-              <div className="flex flex-col gap-3">
-                {(enrolledCourses.length > 0 ? enrolledCourses : courses.slice(0, 3)).map((course, idx) => {
-                  const courseTasks = course.modules.flatMap((m) => m.tasks || []);
-                  const courseSolved = courseTasks.filter(
-                    (t) => progressMap[t.id]?.is_completed
-                  ).length;
-                  const courseTotal = courseTasks.length;
-                  const coursePct =
-                    courseTotal > 0 ? Math.round((courseSolved / courseTotal) * 100) : 0;
-                  const courseSlugOrId =
-                    course.slug && course.slug !== "#" ? course.slug : course.id;
-
-                  const rowStyles = [
-                    {
-                      bg: "bg-indigo-500/10 text-[#6366F1] dark:text-indigo-400 border-indigo-500/25",
-                      bar: "from-[#6366F1] to-[#7C3AED]",
-                    },
-                    {
-                      bg: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25",
-                      bar: "from-sky-500 to-indigo-500",
-                    },
-                    {
-                      bg: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25",
-                      bar: "from-amber-500 to-orange-500",
-                    },
-                    {
-                      bg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25",
-                      bar: "from-emerald-500 to-teal-500",
-                    },
-                  ];
-                  const style = rowStyles[idx % rowStyles.length];
-
-                  return (
-                    <div
-                      key={course.id}
-                      onClick={() => navigate("course", { slug: courseSlugOrId })}
-                      className="group cursor-pointer rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] hover:border-indigo-500/50 dark:hover:border-indigo-500/50 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs hover:shadow-md transition-all duration-200"
-                    >
-                      {/* Left: Monogram and Course Info */}
-                      <div className="flex items-center gap-3.5 min-w-0">
-                        <div
-                          className={cn(
-                            "w-12 h-12 rounded-xl border flex items-center justify-center font-mono font-bold text-xs sm:text-sm shrink-0 shadow-xs",
-                            style.bg
-                          )}
-                        >
-                          {getCourseMonogram(course.title)}
-                        </div>
-
-                        <div className="min-w-0 space-y-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors truncate">
-                              {course.title}
-                            </h3>
-                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#1E293B] text-slate-600 dark:text-slate-300">
-                              {course.modules.length} Modules
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xl">
-                            {course.description ||
-                              "Master core algorithmic patterns, data structures, and technical interview problems."}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Right: Progress Telemetry and Action Button */}
-                      <div className="flex flex-wrap sm:flex-nowrap items-center justify-between md:justify-end gap-4 shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-[#1E293B]">
-                        <div className="flex flex-col gap-1.5 min-w-[150px] sm:min-w-[190px]">
-                          <div className="flex items-center justify-between text-xs font-semibold">
-                            <span className="text-slate-500 dark:text-slate-400">
-                              {courseSolved} of {courseTotal} tasks
-                            </span>
-                            <span className="text-indigo-600 dark:text-indigo-400 font-bold">
-                              {coursePct}%
-                            </span>
-                          </div>
-                          <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
-                            <div
-                              className={cn(
-                                "h-full rounded-full bg-gradient-to-r transition-all duration-500",
-                                style.bar
-                              )}
-                              style={{ width: `${Math.max(coursePct, 5)}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate("course", { slug: courseSlugOrId });
-                          }}
-                          className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-[#1E293B] group-hover:bg-gradient-to-r group-hover:from-[#6366F1] group-hover:to-[#7C3AED] text-slate-700 dark:text-slate-200 group-hover:text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-xs"
-                        >
-                          <span>{courseSolved > 0 ? "Resume Track" : "Start Learning"}</span>
-                          <ArrowRight size={13} />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* -------------------------------------------------------------
-                SECTION 2: CONTINUE YOUR ROADMAP (FULL WIDTH HERO TRACK)
-            ------------------------------------------------------------- */}
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="space-y-0.5">
-                  <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Compass size={19} className="text-indigo-500" />
-                    <span>Continue Your Roadmap</span>
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                    Personalized engineering curriculum analyzing your programming language &amp; problem submissions
-                    {analyzedPreference.hasUserActivity && (
-                      <span className="inline-flex items-center gap-1 ml-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                        • Auto-selected {ROADMAP_PRESETS[analyzedPreference.topLang].label} (
-                        {analyzedPreference.totalSolvedInTop > 0
-                          ? `${analyzedPreference.totalSolvedInTop} solved`
-                          : "most active"}
-                        )
-                      </span>
-                    )}
-                  </p>
-                </div>
-
-                {/* Modern Segmented Language Switcher Tabs */}
-                <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-slate-100 dark:bg-[#0B132B]/80 border border-slate-200/80 dark:border-slate-800 shadow-xs shrink-0">
-                  {(Object.keys(ROADMAP_PRESETS) as SupportedLanguage[]).map((langKey) => {
-                    const isSelected = activeRoadmapLang === langKey;
-                    const isTopUsed = analyzedPreference.topLang === langKey;
-                    const solvedCount = analyzedPreference.solvedCounts[langKey] || 0;
-
-                    return (
-                      <button
-                        key={langKey}
-                        onClick={() => {
-                          if (langKey === analyzedPreference.topLang) {
-                            setSelectedRoadmapLang(null);
-                          } else {
-                            setSelectedRoadmapLang(langKey);
-                          }
-                        }}
-                        className={cn(
-                          "px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 select-none",
-                          isSelected
-                            ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-slate-700/80 font-semibold"
-                            : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50 border border-transparent"
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "w-2 h-2 rounded-full shrink-0",
-                            langKey === "python" && "bg-sky-500",
-                            langKey === "cpp" && "bg-blue-600",
-                            langKey === "java" && "bg-amber-500",
-                            langKey === "javascript" && "bg-yellow-400",
-                            langKey === "c" && "bg-slate-400"
-                          )}
-                        />
-                        <span>{ROADMAP_PRESETS[langKey].label}</span>
-                        {isTopUsed && (
-                          <span
-                            className={cn(
-                              "text-xs font-mono tracking-tight px-1.5 py-0.5 rounded-md font-semibold uppercase shrink-0 transition-colors",
-                              isSelected
-                                ? "bg-indigo-500/10 dark:bg-indigo-500/20 text-[#4F46E5] dark:text-indigo-300 border border-indigo-500/20"
-                                : "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                            )}
-                          >
-                            {solvedCount > 0 ? `${solvedCount} Solved` : "Top"}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Primary Recommended Roadmap Card (Full Width) */}
-              <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 space-y-5 shadow-xs">
-                {/* Sub-badge: Roadmap Recommendation & Auto-Selected Details (Comfortable readability) */}
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold">
-                    <Target size={14} className="text-indigo-500" />
-                    <span>
-                      {activeRoadmapLang === analyzedPreference.topLang
-                        ? "Auto-Selected for You"
-                        : "Previewing Track"}
-                    </span>
-                    <span className="text-xs text-slate-600 dark:text-slate-300 font-normal">
-                      {activeRoadmapLang === analyzedPreference.topLang
-                        ? `(${analyzedPreference.matchConfidence}% Match • ${
-                            analyzedPreference.totalSolvedInTop > 0
-                              ? `${analyzedPreference.totalSolvedInTop} solved problems`
-                              : "Based on your activity"
-                          })`
-                        : `(Your top language is ${ROADMAP_PRESETS[analyzedPreference.topLang].label})`}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    {selectedRoadmapLang !== null &&
-                      selectedRoadmapLang !== analyzedPreference.topLang && (
-                        <button
-                          onClick={() => setSelectedRoadmapLang(null)}
-                          className="text-xs font-medium text-[#6366F1] dark:text-indigo-400 hover:underline flex items-center gap-1 transition-all"
-                        >
-                          <RotateCcw size={13} />
-                          <span>
-                            Back to {ROADMAP_PRESETS[analyzedPreference.topLang].label} (Auto)
-                          </span>
-                        </button>
-                      )}
-                    <span className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
-                      {activeRoadmapConfig.durationEst} Est.
-                    </span>
-                  </div>
-                </div>
-
-                {/* Main Roadmap Banner */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B]">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-[#6366F1] flex items-center justify-center font-mono font-bold text-sm shrink-0">
-                      {activeRoadmapConfig.iconLabel}
-                    </div>
-                    <div>
-                      <h4 className="text-base sm:text-xl font-semibold text-slate-900 dark:text-white">
-                        {activeRoadmapConfig.title}
-                      </h4>
-                      <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
-                        <span className="flex items-center gap-1.5">
-                          <BookOpen size={14} className="text-[#6366F1]" />
-                          <span>{activeRoadmapConfig.modulesCount} Modules</span>
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1.5">
-                          <Clock size={14} className="text-slate-400" />
-                          <span>{activeRoadmapConfig.durationEst}</span>
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1.5">
-                          <Target size={14} className="text-emerald-500" />
-                          <span>{activeRoadmapConfig.totalProblems} Problems</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => navigate("course", { slug: activeRoadmapConfig.courseSlug })}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs sm:text-sm shadow-xs active:scale-[0.98] transition-all shrink-0 text-center"
-                  >
-                    <span>Resume Roadmap</span>
-                  </button>
-                </div>
-
-                {/* Practice Areas Grid - Full Width 4-Column Layout with High Readability */}
-                <div className="space-y-3.5">
-                  <div className="flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    <span className="tracking-wide">PRACTICE TRACKS &amp; CURATED TOPICS</span>
-                    <button
-                      onClick={() => navigate("problems")}
-                      className="text-xs sm:text-sm font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
-                    >
-                      All Practice Problems →
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                    {activeRoadmapConfig.practiceAreas.map((area, pIdx) => (
-                      <div
-                        key={pIdx}
-                        onClick={() => navigate("problems")}
-                        className="group cursor-pointer p-4 sm:p-4.5 rounded-xl border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] bg-slate-50 dark:bg-[#090D16] transition-all flex flex-col justify-between gap-3.5 shadow-xs"
-                      >
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between gap-2">
-                            <h5 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
-                              {area.title}
-                            </h5>
-                            <span
-                              className={cn(
-                                "text-xs font-semibold uppercase px-2.5 py-0.5 rounded-md border shrink-0",
-                                area.difficulty === "Easy" &&
-                                  "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-                                area.difficulty === "Medium" &&
-                                  "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-                                area.difficulty === "Hard" &&
-                                  "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-                              )}
-                            >
-                              {area.difficulty}
-                            </span>
-                          </div>
-                          <p className="text-xs sm:text-sm font-normal text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
-                            {area.description}
-                          </p>
-                        </div>
-
-                        <div className="pt-2.5 border-t border-slate-200/60 dark:border-[#1E293B] flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 group-hover:text-[#6366F1] transition-colors">
-                          <span>{area.problemCount} Problems</span>
-                          <ChevronRight size={16} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* ===============================================================
-                SECTION 3: 2-COLUMN GRID (8 Col Main Workspaces + 4 Col Sidebar Tracker)
+                MAIN 2-COLUMN GRID (8 Col Left Stream + 4 Col Right Sidebar)
+                Placed directly after Welcome Banner so Continue Learning is NOT full width
             =============================================================== */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
               {/* ===============================================================
                   LEFT MAIN STREAM (8 COLUMNS)
               =============================================================== */}
               <div className="lg:col-span-8 space-y-7">
+                {/* -------------------------------------------------------------
+                    CONTINUE LEARNING (LIST TYPE ONLY - NOT FULL WIDTH, 8-COL STREAM)
+                ------------------------------------------------------------- */}
+                <div className="space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="space-y-0.5">
+                      <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                        <BookOpen size={19} className="text-indigo-500" />
+                        <span>Continue Learning</span>
+                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300">
+                          {enrolledCourses.length > 0 ? `${enrolledCourses.length} Registered Tracks` : "Available Tracks"}
+                        </span>
+                      </h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {enrolledCourses.length > 0
+                          ? "Resume your enrolled curricula and practice modules right where you left off"
+                          : "Explore core programming and algorithmic curricula to start your engineering journey"}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => navigate("courses")}
+                      className="text-xs sm:text-sm font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline inline-flex items-center gap-1 shrink-0 self-start sm:self-auto"
+                    >
+                      <span>Explore all curricula</span>
+                      <ArrowRight size={14} />
+                    </button>
+                  </div>
+
+                  {/* LIST TYPE PRESENTATION (flex-col rows, clean horizontal cards) */}
+                  <div className="flex flex-col gap-3">
+                    {(enrolledCourses.length > 0 ? enrolledCourses : courses.slice(0, 3)).map((course, idx) => {
+                      const courseTasks = course.modules.flatMap((m) => m.tasks || []);
+                      const courseSolved = courseTasks.filter(
+                        (t) => progressMap[t.id]?.is_completed
+                      ).length;
+                      const courseTotal = courseTasks.length;
+                      const coursePct =
+                        courseTotal > 0 ? Math.round((courseSolved / courseTotal) * 100) : 0;
+                      const courseSlugOrId =
+                        course.slug && course.slug !== "#" ? course.slug : course.id;
+
+                      const rowStyles = [
+                        {
+                          bg: "bg-indigo-500/10 text-[#6366F1] dark:text-indigo-400 border-indigo-500/25",
+                          bar: "from-[#6366F1] to-[#7C3AED]",
+                        },
+                        {
+                          bg: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25",
+                          bar: "from-sky-500 to-indigo-500",
+                        },
+                        {
+                          bg: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25",
+                          bar: "from-amber-500 to-orange-500",
+                        },
+                        {
+                          bg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25",
+                          bar: "from-emerald-500 to-teal-500",
+                        },
+                      ];
+                      const style = rowStyles[idx % rowStyles.length];
+
+                      return (
+                        <div
+                          key={course.id}
+                          onClick={() => navigate("course", { slug: courseSlugOrId })}
+                          className="group cursor-pointer rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] hover:border-indigo-500/50 dark:hover:border-indigo-500/50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs hover:shadow-md transition-all duration-200"
+                        >
+                          {/* Left: Monogram and Course Info */}
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            <div
+                              className={cn(
+                                "w-11 h-11 sm:w-12 sm:h-12 rounded-xl border flex items-center justify-center font-mono font-bold text-xs sm:text-sm shrink-0 shadow-xs",
+                                style.bg
+                              )}
+                            >
+                              {getCourseMonogram(course.title)}
+                            </div>
+
+                            <div className="min-w-0 space-y-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors truncate">
+                                  {course.title}
+                                </h3>
+                                <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#1E293B] text-slate-600 dark:text-slate-300">
+                                  {course.modules.length} Modules
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-md">
+                                {course.description ||
+                                  "Master core algorithmic patterns, data structures, and technical interview problems."}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Right: Progress Telemetry and Action Button */}
+                          <div className="flex items-center justify-between sm:justify-end gap-3.5 shrink-0 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-[#1E293B]">
+                            <div className="flex flex-col gap-1 min-w-[120px] sm:min-w-[150px]">
+                              <div className="flex items-center justify-between text-xs font-semibold">
+                                <span className="text-slate-500 dark:text-slate-400">
+                                  {courseSolved}/{courseTotal}
+                                </span>
+                                <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                                  {coursePct}%
+                                </span>
+                              </div>
+                              <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
+                                <div
+                                  className={cn(
+                                    "h-full rounded-full bg-gradient-to-r transition-all duration-500",
+                                    style.bar
+                                  )}
+                                  style={{ width: `${Math.max(coursePct, 5)}%` }}
+                                />
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate("course", { slug: courseSlugOrId });
+                              }}
+                              className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-[#1E293B] group-hover:bg-gradient-to-r group-hover:from-[#6366F1] group-hover:to-[#7C3AED] text-slate-700 dark:text-slate-200 group-hover:text-white text-xs font-semibold inline-flex items-center gap-1 transition-all shadow-xs shrink-0"
+                            >
+                              <span>{courseSolved > 0 ? "Resume" : "Start"}</span>
+                              <ArrowRight size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 {/* -------------------------------------------------------------
                     FEATURED TRACK OF THE MONTH (Dynamic from DB)
                 ------------------------------------------------------------- */}
@@ -1480,6 +1272,215 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       })}
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+
+            {/* -------------------------------------------------------------
+                SECTION 2: CONTINUE YOUR ROADMAP (FULL WIDTH HERO TRACK BELOW)
+            ------------------------------------------------------------- */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Compass size={19} className="text-indigo-500" />
+                    <span>Continue Your Roadmap</span>
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                    Personalized engineering curriculum analyzing your programming language &amp; problem submissions
+                    {analyzedPreference.hasUserActivity && (
+                      <span className="inline-flex items-center gap-1 ml-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                        • Auto-selected {ROADMAP_PRESETS[analyzedPreference.topLang].label} (
+                        {analyzedPreference.totalSolvedInTop > 0
+                          ? `${analyzedPreference.totalSolvedInTop} solved`
+                          : "most active"}
+                        )
+                      </span>
+                    )}
+                  </p>
+                </div>
+
+                {/* Modern Segmented Language Switcher Tabs */}
+                <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-slate-100 dark:bg-[#0B132B]/80 border border-slate-200/80 dark:border-slate-800 shadow-xs shrink-0">
+                  {(Object.keys(ROADMAP_PRESETS) as SupportedLanguage[]).map((langKey) => {
+                    const isSelected = activeRoadmapLang === langKey;
+                    const isTopUsed = analyzedPreference.topLang === langKey;
+                    const solvedCount = analyzedPreference.solvedCounts[langKey] || 0;
+
+                    return (
+                      <button
+                        key={langKey}
+                        onClick={() => {
+                          if (langKey === analyzedPreference.topLang) {
+                            setSelectedRoadmapLang(null);
+                          } else {
+                            setSelectedRoadmapLang(langKey);
+                          }
+                        }}
+                        className={cn(
+                          "px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 select-none",
+                          isSelected
+                            ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-slate-700/80 font-semibold"
+                            : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50 border border-transparent"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "w-2 h-2 rounded-full shrink-0",
+                            langKey === "python" && "bg-sky-500",
+                            langKey === "cpp" && "bg-blue-600",
+                            langKey === "java" && "bg-amber-500",
+                            langKey === "javascript" && "bg-yellow-400",
+                            langKey === "c" && "bg-slate-400"
+                          )}
+                        />
+                        <span>{ROADMAP_PRESETS[langKey].label}</span>
+                        {isTopUsed && (
+                          <span
+                            className={cn(
+                              "text-xs font-mono tracking-tight px-1.5 py-0.5 rounded-md font-semibold uppercase shrink-0 transition-colors",
+                              isSelected
+                                ? "bg-indigo-500/10 dark:bg-indigo-500/20 text-[#4F46E5] dark:text-indigo-300 border border-indigo-500/20"
+                                : "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                            )}
+                          >
+                            {solvedCount > 0 ? `${solvedCount} Solved` : "Top"}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Primary Recommended Roadmap Card (Full Width) */}
+              <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 space-y-5 shadow-xs">
+                {/* Sub-badge: Roadmap Recommendation & Auto-Selected Details (Comfortable readability) */}
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold">
+                    <Target size={14} className="text-indigo-500" />
+                    <span>
+                      {activeRoadmapLang === analyzedPreference.topLang
+                        ? "Auto-Selected for You"
+                        : "Previewing Track"}
+                    </span>
+                    <span className="text-xs text-slate-600 dark:text-slate-300 font-normal">
+                      {activeRoadmapLang === analyzedPreference.topLang
+                        ? `(${analyzedPreference.matchConfidence}% Match • ${
+                            analyzedPreference.totalSolvedInTop > 0
+                              ? `${analyzedPreference.totalSolvedInTop} solved problems`
+                              : "Based on your activity"
+                          })`
+                        : `(Your top language is ${ROADMAP_PRESETS[analyzedPreference.topLang].label})`}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    {selectedRoadmapLang !== null &&
+                      selectedRoadmapLang !== analyzedPreference.topLang && (
+                        <button
+                          onClick={() => setSelectedRoadmapLang(null)}
+                          className="text-xs font-medium text-[#6366F1] dark:text-indigo-400 hover:underline flex items-center gap-1 transition-all"
+                        >
+                          <RotateCcw size={13} />
+                          <span>
+                            Back to {ROADMAP_PRESETS[analyzedPreference.topLang].label} (Auto)
+                          </span>
+                        </button>
+                      )}
+                    <span className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
+                      {activeRoadmapConfig.durationEst} Est.
+                    </span>
+                  </div>
+                </div>
+
+                {/* Main Roadmap Banner */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B]">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-[#6366F1] flex items-center justify-center font-mono font-bold text-sm shrink-0">
+                      {activeRoadmapConfig.iconLabel}
+                    </div>
+                    <div>
+                      <h4 className="text-base sm:text-xl font-semibold text-slate-900 dark:text-white">
+                        {activeRoadmapConfig.title}
+                      </h4>
+                      <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+                        <span className="flex items-center gap-1.5">
+                          <BookOpen size={14} className="text-[#6366F1]" />
+                          <span>{activeRoadmapConfig.modulesCount} Modules</span>
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1.5">
+                          <Clock size={14} className="text-slate-400" />
+                          <span>{activeRoadmapConfig.durationEst}</span>
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1.5">
+                          <Target size={14} className="text-emerald-500" />
+                          <span>{activeRoadmapConfig.totalProblems} Problems</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => navigate("course", { slug: activeRoadmapConfig.courseSlug })}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs sm:text-sm shadow-xs active:scale-[0.98] transition-all shrink-0 text-center"
+                  >
+                    <span>Resume Roadmap</span>
+                  </button>
+                </div>
+
+                {/* Practice Areas Grid - Full Width 4-Column Layout with High Readability */}
+                <div className="space-y-3.5">
+                  <div className="flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <span className="tracking-wide">PRACTICE TRACKS &amp; CURATED TOPICS</span>
+                    <button
+                      onClick={() => navigate("problems")}
+                      className="text-xs sm:text-sm font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
+                    >
+                      All Practice Problems →
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    {activeRoadmapConfig.practiceAreas.map((area, pIdx) => (
+                      <div
+                        key={pIdx}
+                        onClick={() => navigate("problems")}
+                        className="group cursor-pointer p-4 sm:p-4.5 rounded-xl border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] bg-slate-50 dark:bg-[#090D16] transition-all flex flex-col justify-between gap-3.5 shadow-xs"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <h5 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
+                              {area.title}
+                            </h5>
+                            <span
+                              className={cn(
+                                "text-xs font-semibold uppercase px-2.5 py-0.5 rounded-md border shrink-0",
+                                area.difficulty === "Easy" &&
+                                  "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+                                area.difficulty === "Medium" &&
+                                  "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+                                area.difficulty === "Hard" &&
+                                  "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                              )}
+                            >
+                              {area.difficulty}
+                            </span>
+                          </div>
+                          <p className="text-xs sm:text-sm font-normal text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                            {area.description}
+                          </p>
+                        </div>
+
+                        <div className="pt-2.5 border-t border-slate-200/60 dark:border-[#1E293B] flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 group-hover:text-[#6366F1] transition-colors">
+                          <span>{area.problemCount} Problems</span>
+                          <ChevronRight size={16} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
