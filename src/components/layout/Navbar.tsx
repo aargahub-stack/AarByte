@@ -100,9 +100,9 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 font-urbanist bg-white/90 dark:bg-[#090D16]/90 backdrop-blur-xl transition-colors duration-300">
+    <header className="sticky top-0 z-50 font-urbanist bg-white/90 dark:bg-[#090D16]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Left: AarCode Logo + bold "AarCode" text */}
           <button
             onClick={() => handleNav({ route: user ? "dashboard" : "landing" })}
@@ -121,8 +121,8 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
             </span>
           </button>
 
-          {/* Center: Navigation Links */}
-          <nav className="hidden md:flex items-center gap-2 lg:gap-4 bg-white dark:bg-[#0F172A]/90 px-5 py-2 rounded-full border border-slate-200/80 dark:border-[#1E293B] shadow-sm shadow-slate-200/50 dark:shadow-none">
+          {/* Center: Navigation Links - Just Nav Links Without Full Oval Container */}
+          <nav className="hidden md:flex items-center gap-1 sm:gap-1.5 lg:gap-2">
             {navItems.map((item) => {
               const isActive =
                 !item.isAnchor &&
@@ -136,10 +136,10 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                   key={item.label}
                   onClick={() => handleNav(item)}
                   className={cn(
-                    "px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200",
+                    "px-3.5 py-2 rounded-xl text-sm transition-all duration-150",
                     isActive
-                      ? "bg-[#6366F1] text-white shadow-sm shadow-indigo-500/30"
-                      : "text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60"
+                      ? "text-[#6366F1] dark:text-indigo-400 bg-indigo-500/10 dark:bg-indigo-500/15 font-semibold"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-800/50 font-medium"
                   )}
                 >
                   {item.label}
