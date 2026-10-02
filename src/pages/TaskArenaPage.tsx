@@ -1607,6 +1607,8 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                 );
               })}
             </div>
+          )}
+
           {/* Mobile CTA to jump to code */}
           <div className="lg:hidden pt-3 pb-6 border-t border-slate-100 dark:border-slate-800">
             <button
