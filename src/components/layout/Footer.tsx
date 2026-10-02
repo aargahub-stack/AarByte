@@ -72,13 +72,13 @@ export function Footer({ navigate }: FooterProps) {
           <div className="flex flex-wrap items-center gap-6 text-xs sm:text-sm font-medium text-slate-500">
             <span>© {new Date().getFullYear()} AarCode. All rights reserved.</span>
             <button
-              onClick={() => navigate("docs")}
+              onClick={() => navigate("terms")}
               className="hover:text-slate-300 transition-colors"
             >
               Terms of Service
             </button>
             <button
-              onClick={() => navigate("docs")}
+              onClick={() => navigate("privacy")}
               className="hover:text-slate-300 transition-colors"
             >
               Privacy Policy

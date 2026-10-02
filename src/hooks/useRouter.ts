@@ -8,7 +8,13 @@ export interface RouteState {
 }
 
 function parseLocationHash(): RouteState {
-  const raw = window.location.hash.replace(/^#\/?/, "");
+  const hash = window.location.hash;
+  // If returning from Google OAuth with tokens in hash, land cleanly on dashboard
+  if (hash.includes("access_token=") || hash.includes("refresh_token=")) {
+    return { route: "dashboard", params: {}, fullPath: "dashboard" };
+  }
+
+  const raw = hash.replace(/^#\/?/, "");
   if (!raw) {
     return { route: "landing", params: {}, fullPath: "landing" };
   }
@@ -29,6 +35,8 @@ function parseLocationHash(): RouteState {
     "playground",
     "docs",
     "pricing",
+    "privacy",
+    "terms",
     "login",
     "signup",
   ];

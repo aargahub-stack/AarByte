@@ -21,6 +21,7 @@ import { TaskArenaPage } from "@/pages/TaskArenaPage";
 import { AdminDashboardPage } from "@/pages/AdminDashboardPage";
 import { LeaderboardPage } from "@/pages/LeaderboardPage";
 import { PlaygroundPage, DocsPage, PricingPage } from "@/pages/ComingSoonPages";
+import { LegalPage } from "@/pages/LegalPage";
 import type { Route } from "@/types";
 
 function MainApp() {
@@ -124,6 +125,12 @@ function MainApp() {
           {route === "playground" && <PlaygroundPage navigate={handleNavigate} />}
           {route === "docs" && <DocsPage navigate={handleNavigate} />}
           {route === "pricing" && <PricingPage navigate={handleNavigate} />}
+          {(route === "privacy" || route === "terms") && (
+            <LegalPage
+              initialTab={route === "terms" ? "terms" : "privacy"}
+              navigate={handleNavigate}
+            />
+          )}
         </main>
 
         {/* Footer */}

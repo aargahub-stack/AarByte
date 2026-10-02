@@ -71,6 +71,8 @@ export type Route =
   | "playground"
   | "docs"
   | "pricing"
+  | "privacy"
+  | "terms"
   | "login"
   | "signup";
 
