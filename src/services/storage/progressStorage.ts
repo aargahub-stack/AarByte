@@ -3,6 +3,7 @@ export interface LocalCompletedTask {
   is_completed: boolean;
   completed_at: string;
   points: number;
+  language?: string;
 }
 
 const STORAGE_KEYS = {
@@ -47,7 +48,11 @@ export const progressStorage = {
   /**
    * Record a completed task and award points.
    */
-  recordTaskCompleted(taskId: string, pointsAwarded: number = 10): { isNew: boolean; totalXP: number } {
+  recordTaskCompleted(
+    taskId: string,
+    pointsAwarded: number = 10,
+    language?: string
+  ): { isNew: boolean; totalXP: number } {
     try {
       const completed = this.getCompletedTasks();
       const isNew = !completed[taskId]?.is_completed;
@@ -57,9 +62,14 @@ export const progressStorage = {
         is_completed: true,
         completed_at: completed[taskId]?.completed_at || new Date().toISOString(),
         points: pointsAwarded,
+        language: language || completed[taskId]?.language || undefined,
       };
 
       localStorage.setItem(STORAGE_KEYS.COMPLETED_TASKS, JSON.stringify(completed));
+
+      if (language) {
+        localStorage.setItem("aarcode_last_used_lang", language);
+      }
 
       let currentXP = this.getLocalXP();
       if (isNew) {

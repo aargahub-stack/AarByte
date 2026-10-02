@@ -81,6 +81,11 @@ export function CompilerPage({
     const newLang = getLanguageById(id);
     if (!newLang) return;
     setLanguageId(id);
+    try {
+      localStorage.setItem("aarcode_last_used_lang", id);
+    } catch {
+      /* ignore */
+    }
     setSourceCode(newLang.starterCode);
     setResult(null);
     setCurrentProgramId(null);

@@ -1149,7 +1149,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
         }
 
         if (allPassed) {
-          progressStorage.recordTaskCompleted(task.id, pts);
+          progressStorage.recordTaskCompleted(task.id, pts, language);
           setShowCelebration(true);
           confetti({
             particleCount: 90,
@@ -1185,7 +1185,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
       }
 
       if (res.status === "passed") {
-        progressStorage.recordTaskCompleted(task.id, res.pointsEarned || task.points || 10);
+        progressStorage.recordTaskCompleted(task.id, res.pointsEarned || task.points || 10, language);
         setShowCelebration(true);
         refreshProfile();
         confetti({
@@ -1249,7 +1249,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
       }
 
       if (allPassed) {
-        progressStorage.recordTaskCompleted(task.id, pts);
+        progressStorage.recordTaskCompleted(task.id, pts, language);
         // If logged in, also try to credit profile points directly
         if (user?.id && !isAlreadyDone) {
           try {
@@ -1656,7 +1656,14 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
               <div className="w-28 sm:w-36">
                 <LanguageSelector
                   value={language}
-                  onChange={(langId: string) => setLanguage(langId)}
+                  onChange={(langId: string) => {
+                    setLanguage(langId);
+                    try {
+                      localStorage.setItem("aarcode_last_used_lang", langId);
+                    } catch {
+                      /* ignore */
+                    }
+                  }}
                 />
               </div>
 

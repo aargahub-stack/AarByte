@@ -24,8 +24,10 @@ import {
   ChevronLeft,
   ChevronDown,
   ChevronUp,
+  RotateCcw,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/services/supabase";
 import { courseService } from "@/services/courseService";
 import { progressStorage } from "@/services/storage/progressStorage";
 import { enrollmentStorage } from "@/services/storage/enrollmentStorage";
@@ -254,7 +256,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
   },
   c: {
     languageKey: "c",
-    label: "C Language",
+    label: "C",
     iconLabel: "C",
     badge: "Low-Level Computing",
     title: "C Language with Systems & Beginner DSA",
@@ -355,14 +357,37 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
           }
         });
 
-        // 2. If signed in, merge Supabase database progress
-        if (user?.id && extractedTasks.length > 0) {
-          const { data: prog } = await courseService.getUserProgress(
-            user.id,
-            extractedTasks.map((t) => t.id)
-          );
+        // 2. If signed in, merge Supabase database progress for all completed tasks
+        if (user?.id) {
+          const { data: prog } = await courseService.getUserProgress(user.id);
           if (prog) {
             Object.assign(mergedProgress, prog);
+
+            // If there are completed tasks in DB not yet in extractedTasks, fetch their task metadata
+            const solvedIds = Object.keys(prog).filter((id) => prog[id]?.is_completed);
+            const missingIds = solvedIds.filter((id) => !extractedTasks.some((t) => t.id === id));
+            if (missingIds.length > 0) {
+              try {
+                const { data: extraTasks } = await supabase
+                  .from("tasks")
+                  .select(
+                    "id, module_id, title, slug, description, task_type, language, difficulty, starter_code, hints, points, order_index, created_at, updated_at"
+                  )
+                  .in("id", missingIds);
+                if (extraTasks && extraTasks.length > 0) {
+                  extraTasks.forEach((et) => {
+                    extractedTasks.push({
+                      ...et,
+                      courseTitle: "Practice Arena",
+                      courseSlug: "problems",
+                    } as EnrichedTask);
+                  });
+                  setAllTasks([...extractedTasks]);
+                }
+              } catch (e) {
+                console.warn("[StudentDashboard] Could not fetch extra task metadata:", e);
+              }
+            }
           }
         }
 
@@ -465,17 +490,52 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
       javascript: 0,
       c: 0,
     };
+    const solvedCounts: Record<SupportedLanguage, number> = {
+      python: 0,
+      cpp: 0,
+      java: 0,
+      javascript: 0,
+      c: 0,
+    };
+
+    const normalizeLang = (raw?: string | null): SupportedLanguage | null => {
+      if (!raw) return null;
+      const l = raw.toLowerCase().trim();
+      if (l.includes("java") && !l.includes("script")) return "java";
+      if (l.includes("cpp") || l.includes("c++")) return "cpp";
+      if (l.includes("py")) return "python";
+      if (l.includes("js") || l.includes("script") || l.includes("ts") || l.includes("node"))
+        return "javascript";
+      if (l === "c") return "c";
+      return null;
+    };
 
     // 1. Analyze languages from completed tasks
+    const localCompleted = progressStorage.getCompletedTasks();
+
     allTasks.forEach((t) => {
-      if (progressMap[t.id]?.is_completed) {
-        const lang = (t.language || "").toLowerCase();
-        if (lang.includes("py")) scores.python += 6;
-        else if (lang.includes("cpp") || lang.includes("c++")) scores.cpp += 6;
-        else if (lang.includes("java") && !lang.includes("script")) scores.java += 6;
-        else if (lang.includes("js") || lang.includes("script") || lang.includes("ts"))
-          scores.javascript += 6;
-        else if (lang === "c") scores.c += 6;
+      const isDone = progressMap[t.id]?.is_completed || localCompleted[t.id]?.is_completed;
+      if (isDone) {
+        const localLang = localCompleted[t.id]?.language;
+        const langKey = normalizeLang(localLang || t.language);
+        if (langKey) {
+          scores[langKey] += 12;
+          solvedCounts[langKey] += 1;
+        }
+      }
+    });
+
+    // Check local completed tasks not in allTasks
+    Object.values(localCompleted).forEach((lc) => {
+      if (lc.is_completed && lc.language) {
+        const isAlreadyCounted = allTasks.some((t) => t.id === lc.task_id);
+        if (!isAlreadyCounted) {
+          const langKey = normalizeLang(lc.language);
+          if (langKey) {
+            scores[langKey] += 12;
+            solvedCounts[langKey] += 1;
+          }
+        }
       }
     });
 
@@ -483,52 +543,80 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
     try {
       const programs = loadPrograms();
       programs.forEach((p) => {
-        const lang = (p.language || "").toLowerCase();
-        if (lang.includes("py")) scores.python += 3;
-        else if (lang.includes("cpp") || lang.includes("c++")) scores.cpp += 3;
-        else if (lang.includes("java") && !lang.includes("script")) scores.java += 3;
-        else if (lang.includes("js") || lang.includes("ts")) scores.javascript += 3;
-        else if (lang === "c") scores.c += 3;
+        const langKey = normalizeLang(p.language);
+        if (langKey) {
+          scores[langKey] += 3;
+        }
       });
     } catch {
       /* ignore */
     }
 
-    // 3. Analyze compiler settings default language
+    // 3. Analyze compiler settings and recent platform language
     try {
-      const settings = loadSettings();
-      const lang = (settings.language || "").toLowerCase();
-      if (lang.includes("py")) scores.python += 2;
-      else if (lang.includes("cpp") || lang.includes("c++")) scores.cpp += 2;
-      else if (lang.includes("java") && !lang.includes("script")) scores.java += 2;
-      else if (lang.includes("js") || lang.includes("ts")) scores.javascript += 2;
-      else if (lang === "c") scores.c += 2;
+      const lastLang = localStorage.getItem("aarcode_last_used_lang");
+      const langKey = normalizeLang(lastLang);
+      if (langKey) {
+        scores[langKey] += 4;
+      }
     } catch {
       /* ignore */
     }
 
+    try {
+      const settings = loadSettings();
+      const langKey = normalizeLang((settings as any).language);
+      if (langKey) {
+        scores[langKey] += 2;
+      }
+    } catch {
+      /* ignore */
+    }
+
+    // Determine top language:
+    // If the student solved problems, the language with the MOST solved problems ALWAYS wins!
     let topLang: SupportedLanguage = "python";
-    let highestScore = -1;
-    (Object.keys(scores) as SupportedLanguage[]).forEach((langKey) => {
-      if (scores[langKey] > highestScore) {
-        highestScore = scores[langKey];
-        topLang = langKey;
+    let maxSolved = 0;
+    (Object.keys(solvedCounts) as SupportedLanguage[]).forEach((lang) => {
+      if (solvedCounts[lang] > maxSolved) {
+        maxSolved = solvedCounts[lang];
+        topLang = lang;
       }
     });
 
+    // If no solved problems yet, choose by activity score (saved programs, last language)
+    let highestScore = -1;
+    if (maxSolved === 0) {
+      (Object.keys(scores) as SupportedLanguage[]).forEach((lang) => {
+        if (scores[lang] > highestScore) {
+          highestScore = scores[lang];
+          topLang = lang;
+        }
+      });
+    } else {
+      highestScore = scores[topLang];
+    }
+
     const matchConfidence =
-      highestScore > 0 ? Math.min(98, 72 + highestScore * 3) : 85;
+      maxSolved > 0
+        ? Math.min(99, 82 + maxSolved * 4)
+        : highestScore > 0
+        ? 86
+        : 80;
 
     return {
       topLang,
+      solvedCounts,
+      totalSolvedInTop: solvedCounts[topLang],
       matchConfidence,
       score: highestScore,
+      hasUserActivity: maxSolved > 0 || highestScore > 0,
     };
   }, [allTasks, progressMap]);
 
   // Active roadmap is either student's chosen language tab or the AI analyzed language
   const activeRoadmapLang: SupportedLanguage =
-    selectedRoadmapLang || analyzedPreference.topLang;
+    selectedRoadmapLang ?? analyzedPreference.topLang;
   const activeRoadmapConfig = ROADMAP_PRESETS[activeRoadmapLang];
 
   // Progress for the active roadmap's corresponding course
@@ -945,33 +1033,65 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       <span>Continue Your Roadmap</span>
                     </h2>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Personalized engineering curriculum analyzing your programming language &amp;
-                      problem submissions
+                      Personalized engineering curriculum analyzing your programming language &amp; problem submissions
+                      {analyzedPreference.hasUserActivity && (
+                        <span className="inline-flex items-center gap-1 ml-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                          • Auto-selected {ROADMAP_PRESETS[analyzedPreference.topLang].label} (
+                          {analyzedPreference.totalSolvedInTop > 0
+                            ? `${analyzedPreference.totalSolvedInTop} solved`
+                            : "most active"}
+                          )
+                        </span>
+                      )}
                     </p>
                   </div>
 
-                  {/* Language Switcher Tabs */}
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                  {/* Modern Segmented Language Switcher Tabs */}
+                  <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-slate-100 dark:bg-[#0B132B]/80 border border-slate-200/80 dark:border-slate-800 shadow-xs shrink-0">
                     {(Object.keys(ROADMAP_PRESETS) as SupportedLanguage[]).map((langKey) => {
                       const isSelected = activeRoadmapLang === langKey;
-                      const isRecommended = analyzedPreference.topLang === langKey;
+                      const isTopUsed = analyzedPreference.topLang === langKey;
+                      const solvedCount = analyzedPreference.solvedCounts[langKey] || 0;
+
                       return (
                         <button
                           key={langKey}
-                          onClick={() => setSelectedRoadmapLang(langKey)}
+                          onClick={() => {
+                            if (langKey === analyzedPreference.topLang) {
+                              setSelectedRoadmapLang(null);
+                            } else {
+                              setSelectedRoadmapLang(langKey);
+                            }
+                          }}
                           className={cn(
-                            "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0",
+                            "px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 select-none",
                             isSelected
-                              ? "bg-[#6366F1] text-white shadow-xs"
-                              : "bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                              ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-slate-700/80 font-semibold"
+                              : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50 border border-transparent"
                           )}
                         >
-                          <span className="font-mono text-[10px] px-1 py-0.2 rounded bg-black/10 dark:bg-white/10 font-bold">
-                            {ROADMAP_PRESETS[langKey].iconLabel}
-                          </span>
+                          <span
+                            className={cn(
+                              "w-2 h-2 rounded-full shrink-0",
+                              langKey === "python" && "bg-sky-500",
+                              langKey === "cpp" && "bg-blue-600",
+                              langKey === "java" && "bg-amber-500",
+                              langKey === "javascript" && "bg-yellow-400",
+                              langKey === "c" && "bg-slate-400"
+                            )}
+                          />
                           <span>{ROADMAP_PRESETS[langKey].label}</span>
-                          {isRecommended && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          {isTopUsed && (
+                            <span
+                              className={cn(
+                                "text-[9px] font-mono tracking-tight px-1.5 py-0.5 rounded-md font-semibold uppercase shrink-0 transition-colors",
+                                isSelected
+                                  ? "bg-indigo-500/10 dark:bg-indigo-500/20 text-[#4F46E5] dark:text-indigo-300 border border-indigo-500/20"
+                                  : "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                              )}
+                            >
+                              {solvedCount > 0 ? `${solvedCount} Solved` : "Most Used"}
+                            </span>
                           )}
                         </button>
                       );
@@ -981,20 +1101,43 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                 {/* Primary Recommended Roadmap Card */}
                 <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 space-y-5 shadow-xs">
-                  {/* Sub-badge: Roadmap Recommended for you */}
-                  <div className="flex items-center justify-between">
+                  {/* Sub-badge: Roadmap Recommendation & Auto-Selected Details */}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold">
                       <Target size={13} className="text-indigo-500" />
-                      <span>Recommended for You</span>
-                      <span className="text-[10px] text-slate-400 font-normal">
-                        ({analyzedPreference.matchConfidence}% Match based on your{" "}
-                        {ROADMAP_PRESETS[analyzedPreference.topLang].label} submissions)
+                      <span>
+                        {activeRoadmapLang === analyzedPreference.topLang
+                          ? "Auto-Selected for You"
+                          : "Previewing Track"}
+                      </span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">
+                        {activeRoadmapLang === analyzedPreference.topLang
+                          ? `(${analyzedPreference.matchConfidence}% Match • ${
+                              analyzedPreference.totalSolvedInTop > 0
+                                ? `${analyzedPreference.totalSolvedInTop} solved problems`
+                                : "Based on your activity"
+                            })`
+                          : `(Your top language is ${ROADMAP_PRESETS[analyzedPreference.topLang].label})`}
                       </span>
                     </div>
 
-                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                      {activeRoadmapConfig.durationEst} Est.
-                    </span>
+                    <div className="flex items-center gap-3">
+                      {selectedRoadmapLang !== null &&
+                        selectedRoadmapLang !== analyzedPreference.topLang && (
+                          <button
+                            onClick={() => setSelectedRoadmapLang(null)}
+                            className="text-[11px] font-medium text-[#6366F1] dark:text-indigo-400 hover:underline flex items-center gap-1 transition-all"
+                          >
+                            <RotateCcw size={11} />
+                            <span>
+                              Back to {ROADMAP_PRESETS[analyzedPreference.topLang].label} (Auto)
+                            </span>
+                          </button>
+                        )}
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                        {activeRoadmapConfig.durationEst} Est.
+                      </span>
+                    </div>
                   </div>
 
                   {/* Main Roadmap Banner */}
