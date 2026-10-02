@@ -368,8 +368,15 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
         setProgressMap(mergedProgress);
 
-        // 3. Read current enrolled courses
-        const storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
+        // 3. Read current enrolled courses - auto-enroll active database courses if empty so tracks are immediately available
+        let storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
+        if (storedEnrolled.length === 0 && activeCourses.length > 0) {
+          activeCourses.forEach((c) => {
+            enrollmentStorage.enroll(c.id);
+            if (c.slug && c.slug !== "#") enrollmentStorage.enroll(c.slug);
+          });
+          storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
+        }
         setEnrolledIds(storedEnrolled);
       } catch (err) {
         console.error("[StudentDashboard] Error loading data:", err);
@@ -428,6 +435,15 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
       );
     });
   }, [courses, enrolledIds, progressMap]);
+
+  // Dynamic Featured Course from real database courses
+  const featuredCourse = courses[0] || DEMO_COURSES[0];
+  const featuredSlug =
+    featuredCourse?.slug && featuredCourse.slug !== "#"
+      ? featuredCourse.slug
+      : featuredCourse?.id || "python-dsa";
+  const featuredTasksCount =
+    featuredCourse?.modules?.flatMap((m) => m.tasks || []).length || 0;
 
   // =========================================================================
   // SMART LANGUAGE & ROADMAP ANALYZER:
@@ -708,7 +724,11 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       return (
                         <div
                           key={course.id}
-                          onClick={() => navigate("course", { slug: course.slug })}
+                          onClick={() =>
+                            navigate("course", {
+                              slug: course.slug && course.slug !== "#" ? course.slug : course.id,
+                            })
+                          }
                           className={cn(
                             "group cursor-pointer rounded-2xl bg-white dark:bg-[#0F172A] border p-5 flex flex-col justify-between gap-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200",
                             style.border
@@ -761,34 +781,100 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       );
                     })}
                   </div>
+                ) : courses.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {courses.map((course, idx) => {
+                      const courseTasks = course.modules.flatMap((m) => m.tasks || []);
+                      const courseSlugOrId =
+                        course.slug && course.slug !== "#" ? course.slug : course.id;
+                      const cardStyles = [
+                        {
+                          border: "border-sky-200/80 dark:border-sky-900/30",
+                          badge: "bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300",
+                        },
+                        {
+                          border: "border-amber-200/80 dark:border-amber-900/30",
+                          badge: "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300",
+                        },
+                        {
+                          border: "border-emerald-200/80 dark:border-emerald-900/30",
+                          badge: "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300",
+                        },
+                      ];
+                      const style = cardStyles[idx % cardStyles.length];
+
+                      return (
+                        <div
+                          key={course.id}
+                          onClick={() => navigate("course", { slug: courseSlugOrId })}
+                          className={cn(
+                            "group cursor-pointer rounded-2xl bg-white dark:bg-[#0F172A] border p-5 flex flex-col justify-between gap-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200",
+                            style.border
+                          )}
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span
+                                className={cn(
+                                  "text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full inline-flex items-center gap-1",
+                                  style.badge
+                                )}
+                              >
+                                <BookOpen size={10} />
+                                <span>Track</span>
+                              </span>
+                              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                                {course.modules.length} Modules • {courseTasks.length} Tasks
+                              </span>
+                            </div>
+
+                            <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
+                              {course.title}
+                            </h3>
+
+                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                              {course.description || "Master algorithmic problem solving, clean code patterns, and interview readiness."}
+                            </p>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
+                            <span className="text-xs font-semibold text-emerald-500">Available Track</span>
+                            <span className="text-xs font-semibold text-[#6366F1] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                              <span>Start Learning</span>
+                              <ArrowRight size={13} />
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 ) : (
                   <div className="rounded-2xl border border-dashed border-slate-200 dark:border-[#1E293B] bg-white/50 dark:bg-[#0F172A]/50 p-6 text-center space-y-3">
                     <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-                      You are not currently enrolled in any courses.
+                      No courses found in database catalog.
                     </p>
                     <p className="text-xs text-slate-400 max-w-md mx-auto">
-                      Enroll in any of our industry-ready tracks in Python, C++, Java, or JavaScript
-                      to see your learning activities here.
+                      Explore available curricula or seed sample problem modules in the admin dashboard.
                     </p>
                     <button
                       onClick={() => navigate("courses")}
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#6366F1] hover:bg-[#4F46E5] text-white text-xs font-bold shadow-md transition-all"
                     >
                       <Compass size={14} />
-                      <span>Explore &amp; Enroll in Courses</span>
+                      <span>Explore Tracks</span>
                     </button>
                   </div>
                 )}
               </div>
 
               {/* -------------------------------------------------------------
-                  SECTION 3: FEATURED COURSE OF THE MONTH (Practice LLD)
+                  SECTION 3: FEATURED COURSE OF THE MONTH (Dynamic from DB)
               ------------------------------------------------------------- */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2.5">
                   <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                     <Award size={19} className="text-indigo-500" />
-                    <span>Featured Course of the Month</span>
+                    <span>Featured Track of the Month</span>
                   </h2>
                   <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400">
                     Spotlight
@@ -797,34 +883,32 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                 <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 shadow-xs hover:border-indigo-500/40 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-5">
                   <div className="flex items-start gap-4">
-                    {/* Visual LLD Badge / Thumbnail */}
+                    {/* Visual Track Badge / Thumbnail */}
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex flex-col items-center justify-center shrink-0">
                       <div className="text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400 tracking-wider font-mono">
-                        LLD
+                        {featuredCourse.title.slice(0, 3).toUpperCase()}
                       </div>
                       <Layers size={17} className="text-indigo-500 mt-1" />
                     </div>
 
                     <div className="space-y-1.5 max-w-xl">
                       <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
-                        Practice LLD
+                        {featuredCourse.title}
                       </h3>
                       <p className="text-xs sm:text-sm font-normal text-slate-600 dark:text-slate-300 leading-relaxed">
-                        Strengthen your Low-Level Design (LLD) skills through interactive MCQs,
-                        short-answer questions, and hands-on Java, Python, and C++ coding projects.
-                        Practice object-oriented design, UML, Clean Code, SOLID principles, and
-                        Design Patterns with real-world scenarios.
+                        {featuredCourse.description ||
+                          "Master algorithmic problem solving, clean code patterns, and interview readiness with live sandbox evaluation."}
                       </p>
 
                       <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
                         <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B]">
-                          SOLID Principles
+                          {featuredCourse.modules.length} Modules
                         </span>
                         <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B]">
-                          Design Patterns
+                          {featuredTasksCount} Practice Tasks
                         </span>
                         <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                          Free for Students
+                          Curated Curriculum
                         </span>
                       </div>
                     </div>
@@ -832,10 +916,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                   <div className="shrink-0 flex sm:flex-col items-center gap-2">
                     <button
-                      onClick={() => navigate("course", { slug: "practice-lld" })}
+                      onClick={() => navigate("course", { slug: featuredSlug })}
                       className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs active:scale-[0.98] transition-all"
                     >
-                      <span>Start Course</span>
+                      <span>Start Track</span>
                       <ArrowRight size={14} />
                     </button>
                   </div>
