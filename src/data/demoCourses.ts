@@ -12,8 +12,56 @@ export const DEMO_COURSES: CourseWithModules[] = [
       {
         id: "mod-py-1",
         course_id: "demo-python",
-        title: "Module 1: Arrays & Two Pointers",
+        title: "Module 1: Data Structures - Arrays & Two Pointers",
         order_index: 1,
+        reading_time_mins: 6,
+        youtube_url: "https://www.youtube.com/watch?v=RBSGKlAvoiM",
+        youtube_title: "Data Structures in 15 Minutes - Visual Intuition & Practical Guide",
+        about_content: `### What is a Data Structure?
+
+A **Data Structure** is a specialized format for organizing, processing, retrieving, and storing data in computer memory efficiently. Just like a physical library organizes books by categories and call numbers so you can locate them in seconds, data structures organize data so algorithms can access and manipulate values in optimal time.
+
+---
+
+### Core Data Structure Categories
+
+1. **Linear Data Structures**: Elements are arranged sequentially in memory (e.g., Arrays, Linked Lists, Stacks, Queues).
+2. **Non-Linear Data Structures**: Elements have hierarchical or interconnected relationships (e.g., Trees, Graphs).
+3. **Hash-Based Structures**: Key-value mapping providing near O(1) lookup times (e.g., Hash Tables, Hash Sets).
+
+---
+
+### Where Can We Use It? (Real-World Applications)
+
+- **Operating Systems**: Task scheduling uses **Priority Queues** (Heaps); undo/redo actions in code editors use **Stacks**.
+- **Databases & Indexing**: Relational engines (PostgreSQL, MySQL) index table rows using **B+ Trees** and **LSM Trees** for lightning-fast disk retrieval.
+- **Web Browsers**: Browser history navigation (Back/Forward buttons) is powered by two distinct **Stacks**.
+- **Social Networks & Maps**: Friend connections (LinkedIn, Instagram) and GPS routing (Google Maps) rely heavily on **Graphs** and BFS/Dijkstra algorithms.
+- **Compilers & Interpreters**: Syntax parsing and bracket matching use **Abstract Syntax Trees (AST)** and **Call Stacks**.
+
+---
+
+### The Two-Pointer Optimization Pattern
+
+Instead of checking every pair with nested loops ($O(N^2)$), the Two-Pointer technique maintains two cursor indices (e.g., \`left\` at start and \`right\` at end) and moves them inward based on comparison logic, reducing the time complexity to **$O(N)$ linear time** and **$O(1)$ space**.`,
+        key_takeaways: [
+          "Data structures define how information is organized in RAM to optimize algorithmic execution speed.",
+          "Arrays offer instant O(1) random access via memory indexing, but resizing and insertions cost O(N).",
+          "The Two-Pointer pattern eliminates nested O(N^2) loops by converging from boundaries in O(N) time.",
+          "Hash Maps trade memory for O(1) average lookup speeds using hash functions and bucket collision handling."
+        ],
+        code_examples: [
+          {
+            language: "python",
+            title: "Two Pointers Array Scan (Python)",
+            code: "def two_sum_sorted(arr, target):\n    left, right = 0, len(arr) - 1\n    while left < right:\n        s = arr[left] + arr[right]\n        if s == target:\n            return (left, right)\n        elif s < target:\n            left += 1\n        else:\n            right -= 1\n    return None"
+          },
+          {
+            language: "java",
+            title: "Hash Map Fast Lookup (Java)",
+            code: "import java.util.HashMap;\n\npublic class Solution {\n    public static int[] twoSum(int[] nums, int target) {\n        HashMap<Integer, Integer> map = new HashMap<>();\n        for (int i = 0; i < nums.length; i++) {\n            int comp = target - nums[i];\n            if (map.containsKey(comp)) return new int[]{map.get(comp), i};\n            map.put(nums[i], i);\n        }\n        return new int[]{};\n    }\n}"
+          }
+        ],
         tasks: [
           {
             id: "task-py-twosum",
@@ -292,4 +340,61 @@ export const DEMO_COURSES: CourseWithModules[] = [
       },
     ],
   },
+  {
+    id: "demo-lld",
+    title: "Practice LLD - Low-Level Design & Architecture",
+    slug: "practice-lld",
+    description: "Strengthen your Low-Level Design skills through interactive design patterns, UML, Clean Code, SOLID principles, and hands-on coding projects.",
+    icon: "layers",
+    is_published: true,
+    modules: [
+      {
+        id: "mod-lld-1",
+        course_id: "demo-lld",
+        title: "Module 1: SOLID Principles & Clean Architecture",
+        order_index: 1,
+        tasks: [
+          {
+            id: "task-lld-solid",
+            module_id: "mod-lld-1",
+            title: "Design a Notification Service (Open/Closed Principle)",
+            slug: "notification-service-ocp",
+            description: "Design an extensible Notification Service supporting Email, SMS, and Push notifications following the Open/Closed Principle.",
+            task_type: "algorithm",
+            language: "python",
+            difficulty: "medium",
+            starter_code: "class NotificationSender:\n    def send(self, message: str, recipient: str):\n        pass\n\nclass EmailNotification(NotificationSender):\n    def send(self, message: str, recipient: str):\n        return f'EMAIL to {recipient}: {message}'\n\nclass SMSNotification(NotificationSender):\n    def send(self, message: str, recipient: str):\n        return f'SMS to {recipient}: {message}'\n\nimport sys\nlines = sys.stdin.read().splitlines()\nif lines:\n    service_type = lines[0].strip()\n    msg = lines[1].strip() if len(lines) > 1 else 'Alert'\n    target = lines[2].strip() if len(lines) > 2 else 'admin'\n    sender = EmailNotification() if service_type == 'email' else SMSNotification()\n    print(sender.send(msg, target))\n",
+            solution_code: null,
+            hints: ["Use polymorphism to add new notification channels without modifying existing senders."],
+            points: 25,
+            order_index: 1,
+          },
+        ],
+      },
+      {
+        id: "mod-lld-2",
+        course_id: "demo-lld",
+        title: "Module 2: Creational & Structural Design Patterns",
+        order_index: 2,
+        tasks: [
+          {
+            id: "task-lld-singleton",
+            module_id: "mod-lld-2",
+            title: "Thread-Safe Singleton Logger",
+            slug: "thread-safe-singleton-logger",
+            description: "Implement a thread-safe Singleton Logger class ensuring only a single instance exists across multiple calls.",
+            task_type: "algorithm",
+            language: "python",
+            difficulty: "easy",
+            starter_code: "class Logger:\n    _instance = None\n    def __new__(cls):\n        if cls._instance is None:\n            cls._instance = super(Logger, cls).__new__(cls)\n            cls._instance.logs = []\n        return cls._instance\n\n    def log(self, message: str):\n        self.logs.append(message)\n\nimport sys\nlines = sys.stdin.read().splitlines()\nl1 = Logger()\nl2 = Logger()\nfor line in lines:\n    if line.strip():\n        l1.log(line.strip())\nprint(str(l1 is l2).lower())\nprint(len(l2.logs))\n",
+            solution_code: null,
+            hints: ["Override __new__ in Python or use a static getInstance method."],
+            points: 20,
+            order_index: 1,
+          },
+        ],
+      },
+    ],
+  },
 ];
+

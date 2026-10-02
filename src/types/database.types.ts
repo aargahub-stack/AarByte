@@ -31,11 +31,23 @@ export type Course = {
   updated_at?: string;
 };
 
+export type CodeExample = {
+  language: string;
+  title: string;
+  code: string;
+};
+
 export type Module = {
   id: string;
   course_id: string;
   title: string;
   order_index: number;
+  about_content?: string | null;
+  youtube_url?: string | null;
+  youtube_title?: string | null;
+  reading_time_mins?: number | null;
+  key_takeaways?: string[] | null;
+  code_examples?: CodeExample[] | null;
   created_at?: string;
 };
 

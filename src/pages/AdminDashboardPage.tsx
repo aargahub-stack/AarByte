@@ -88,6 +88,15 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   const [moduleTitle, setModuleTitle] = useState("");
   const [moduleOrder, setModuleOrder] = useState(1);
 
+  // Module Study Guide & Video Modal
+  const [editingModule, setEditingModule] = useState<Module | null>(null);
+  const [editAboutContent, setEditAboutContent] = useState("");
+  const [editYoutubeUrl, setEditYoutubeUrl] = useState("");
+  const [editYoutubeTitle, setEditYoutubeTitle] = useState("");
+  const [editReadingTime, setEditReadingTime] = useState(5);
+  const [editKeyTakeaways, setEditKeyTakeaways] = useState("");
+  const [savingModuleContent, setSavingModuleContent] = useState(false);
+
   // Tasks State & Creator
   const [tasksTab, setTasksTab] = useState<"catalog" | "create">("catalog");
   const [allTasks, setAllTasks] = useState<any[]>([]);
@@ -329,6 +338,47 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       } else {
         showToast("error", error || "Failed to delete module");
       }
+    }
+  };
+
+  const handleOpenEditModule = (mod: Module) => {
+    setEditingModule(mod);
+    setEditAboutContent(mod.about_content || "");
+    setEditYoutubeUrl(mod.youtube_url || "");
+    setEditYoutubeTitle(mod.youtube_title || "");
+    setEditReadingTime(mod.reading_time_mins || 5);
+    setEditKeyTakeaways(
+      Array.isArray(mod.key_takeaways) ? mod.key_takeaways.join("\n") : ""
+    );
+  };
+
+  const handleSaveModuleContent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingModule || !selectedCourse) return;
+    setSavingModuleContent(true);
+    try {
+      const takeawaysList = editKeyTakeaways
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const { error } = await adminService.updateModule(editingModule.id, {
+        about_content: editAboutContent,
+        youtube_url: editYoutubeUrl,
+        youtube_title: editYoutubeTitle,
+        reading_time_mins: Number(editReadingTime) || 5,
+        key_takeaways: takeawaysList,
+      });
+
+      if (error) {
+        showToast("error", error);
+      } else {
+        showToast("success", `Study guide & video updated for "${editingModule.title}"!`);
+        setEditingModule(null);
+        selectCourse(selectedCourse);
+      }
+    } finally {
+      setSavingModuleContent(false);
     }
   };
 
@@ -1168,16 +1218,38 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                             <div className="w-6 h-6 rounded-md bg-[#6366F1]/10 text-[#6366F1] font-bold text-xs flex items-center justify-center">
                               {m.order_index}
                             </div>
-                            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                              {m.title}
-                            </span>
+                            <div>
+                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                                {m.title}
+                              </span>
+                              {m.about_content && (
+                                <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-[#6366F1]">
+                                  Study Guide Active
+                                </span>
+                              )}
+                              {m.youtube_url && (
+                                <span className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500">
+                                  Video Linked
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <button
-                            onClick={() => handleDeleteModule(m.id)}
-                            className="text-slate-400 hover:text-rose-500 p-1 transition-colors"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleOpenEditModule(m)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300 hover:bg-[#6366F1] hover:text-white text-xs font-bold transition-all"
+                            >
+                              <BookOpen size={13} />
+                              <span>Study Guide &amp; Video</span>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteModule(m.id)}
+                              className="text-slate-400 hover:text-rose-500 p-1.5 transition-colors"
+                              title="Delete module"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         </div>
                       ))}
 
@@ -2092,6 +2164,128 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Module Study Guide & Video Modal */}
+      {editingModule && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-3xl rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1E293B] pb-3">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <BookOpen size={16} className="text-[#6366F1]" />
+                  <span>Configure Study Guide &amp; Video ({editingModule.title})</span>
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Provide rich book-style study material (&quot;What is it, where to use, examples&quot;) and YouTube tutorial for students.
+                </p>
+              </div>
+              <button
+                onClick={() => setEditingModule(null)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveModuleContent} className="space-y-4">
+              {/* About Topic Markdown Guide */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                  <span>📖 About Topic / Study Material (Markdown Supported)</span>
+                  <span className="text-[11px] font-normal text-slate-400">
+                    What is it, where to use, time/space complexity, etc.
+                  </span>
+                </label>
+                <textarea
+                  rows={8}
+                  value={editAboutContent}
+                  onChange={(e) => setEditAboutContent(e.target.value)}
+                  placeholder="### What is this topic?&#10;&#10;Explain the core intuition...&#10;&#10;### Where Can We Use It?&#10;- Real-world application 1&#10;- Real-world application 2&#10;&#10;### Complexity Analysis&#10;Access: O(1), Search: O(N)..."
+                  className="w-full p-3.5 text-xs font-mono rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                />
+              </div>
+
+              {/* YouTube Video URL & Title */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    🎥 YouTube Video URL
+                  </label>
+                  <input
+                    type="url"
+                    value={editYoutubeUrl}
+                    onChange={(e) => setEditYoutubeUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Video Lecture Title
+                  </label>
+                  <input
+                    type="text"
+                    value={editYoutubeTitle}
+                    onChange={(e) => setEditYoutubeTitle(e.target.value)}
+                    placeholder="e.g. Data Structures Visualized in 15 Minutes"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                  />
+                </div>
+              </div>
+
+              {/* Reading Duration & Key Takeaways */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    ⏱️ Reading Duration (Minutes)
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={60}
+                    value={editReadingTime}
+                    onChange={(e) => setEditReadingTime(Number(e.target.value))}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                  />
+                </div>
+
+                <div className="sm:col-span-2 space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    💡 Key Takeaways (One per line)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={editKeyTakeaways}
+                    onChange={(e) => setEditKeyTakeaways(e.target.value)}
+                    placeholder="Arrays provide O(1) random lookup&#10;Two pointers converge in linear O(N) time&#10;Use hash maps when order does not matter"
+                    className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingModule(null)}
+                  className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingModuleContent}
+                  className="px-5 py-2 text-xs font-bold rounded-xl bg-[#6366F1] hover:bg-[#4F46E5] text-white flex items-center gap-1.5 shadow-md shadow-indigo-500/20 disabled:opacity-50 transition-all"
+                >
+                  {savingModuleContent && <Loader2 size={13} className="animate-spin" />}
+                  <span>Save Study Material &amp; Video</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

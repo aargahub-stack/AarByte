@@ -35,6 +35,12 @@ CREATE TABLE IF NOT EXISTS public.modules (
     course_id UUID REFERENCES public.courses(id) ON DELETE CASCADE NOT NULL,
     title TEXT NOT NULL,
     order_index INTEGER NOT NULL DEFAULT 1,
+    about_content TEXT, -- Markdown study guide ("What is it, where to use, examples")
+    youtube_url TEXT, -- Video tutorial link
+    youtube_title TEXT, -- Video title
+    reading_time_mins INTEGER DEFAULT 5,
+    key_takeaways JSONB DEFAULT '[]'::jsonb,
+    code_examples JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
