@@ -41,7 +41,11 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
       if (isLogin) {
         const res = await signIn({ email: email.trim(), password });
         if (!res.success) {
-          setErrorMessage(res.error || "Failed to sign in. Check your credentials.");
+          if (res.isEmailUnconfirmed) {
+            setErrorMessage("Please check your email and click the confirmation link before signing in.");
+          } else {
+            setErrorMessage(res.error || "Failed to sign in. Check your credentials.");
+          }
         } else {
           onClose();
           window.location.hash = "#/dashboard";
@@ -59,6 +63,10 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
         });
         if (!res.success) {
           setErrorMessage(res.error || "Failed to create account.");
+        } else if (res.needsEmailConfirmation) {
+          showToast("info", "Verification link sent! Please check your email to activate your account.");
+          onClose();
+          window.location.hash = "#/login";
         } else {
           onClose();
           window.location.hash = "#/dashboard";

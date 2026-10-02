@@ -66,6 +66,42 @@ export const authService = {
   },
 
   /**
+   * Resend signup verification confirmation email.
+   */
+  async resendVerificationEmail(email: string): Promise<{ error: AuthError | null }> {
+    const redirectUrl = `${window.location.origin}${window.location.pathname}`;
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: {
+        emailRedirectTo: redirectUrl,
+      },
+    });
+    return { error };
+  },
+
+  /**
+   * Trigger password reset email via Supabase.
+   */
+  async resetPasswordForEmail(email: string): Promise<{ error: AuthError | null }> {
+    const redirectUrl = `${window.location.origin}${window.location.pathname}#/reset-password`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    });
+    return { error };
+  },
+
+  /**
+   * Update the logged in or recovery-session user's password.
+   */
+  async updateUserPassword(newPassword: string): Promise<{ error: AuthError | null }> {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    return { error };
+  },
+
+  /**
    * Sign in with Google OAuth via Supabase.
    */
   async signInWithGoogle(): Promise<{ error: AuthError | null }> {

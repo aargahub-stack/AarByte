@@ -22,6 +22,7 @@ import { AdminDashboardPage } from "@/pages/AdminDashboardPage";
 import { LeaderboardPage } from "@/pages/LeaderboardPage";
 import { PlaygroundPage, DocsPage, PricingPage } from "@/pages/ComingSoonPages";
 import { LegalPage } from "@/pages/LegalPage";
+import { ResetPasswordPage } from "@/pages/ResetPasswordPage";
 import type { Route } from "@/types";
 
 function MainApp() {
@@ -43,6 +44,7 @@ function MainApp() {
     route === "task" ||
     route === "login" ||
     route === "signup" ||
+    route === "reset-password" ||
     route === "admin";
 
   return (
@@ -129,6 +131,13 @@ function MainApp() {
             <LegalPage
               initialTab={route === "terms" ? "terms" : "privacy"}
               navigate={handleNavigate}
+            />
+          )}
+          {route === "reset-password" && (
+            <ResetPasswordPage
+              navigate={handleNavigate}
+              theme={theme}
+              onToggleTheme={toggleTheme}
             />
           )}
         </main>
