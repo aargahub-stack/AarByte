@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import {
-  Sparkles,
   Trophy,
   Code2,
   BookOpen,
@@ -80,7 +79,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
   python: {
     languageKey: "python",
     label: "Python",
-    iconLabel: "🐍",
+    iconLabel: "PY",
     badge: "Industry Standard DSA",
     title: "Python DSA & LeetCode Problem Solving",
     subtitle: "Arrays, Two Pointers, Hash Maps, Sliding Window & Recursion",
@@ -124,7 +123,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
   cpp: {
     languageKey: "cpp",
     label: "C++",
-    iconLabel: "⚡",
+    iconLabel: "C++",
     badge: "High Performance Core",
     title: "C++ Competitive Programming & Algorithms",
     subtitle: "Modern C++20, STL Containers, Graph Theory & Bitmasking",
@@ -168,7 +167,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
   java: {
     languageKey: "java",
     label: "Java",
-    iconLabel: "☕",
+    iconLabel: "Java",
     badge: "Enterprise OOP Track",
     title: "Java Core, OOP & Enterprise Algorithms",
     subtitle: "Object-Oriented Design, Collections Framework & Multithreading",
@@ -212,7 +211,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
   javascript: {
     languageKey: "javascript",
     label: "JavaScript",
-    iconLabel: "🌐",
+    iconLabel: "JS",
     badge: "Modern Web Engineering",
     title: "JavaScript & Frontend Engineering Systems",
     subtitle: "Async Event Loop, Closures, Prototype Chains & Array Transforms",
@@ -256,7 +255,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
   c: {
     languageKey: "c",
     label: "C Language",
-    iconLabel: "⚙️",
+    iconLabel: "C",
     badge: "Low-Level Computing",
     title: "C Language with Systems & Beginner DSA",
     subtitle: "Pointers, Manual Memory Allocation & Fundamental Data Structures",
@@ -545,21 +544,21 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             {/* Left Welcome Text */}
             <div className="space-y-2.5 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold">
-                <Sparkles size={13} className="text-amber-400" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-400/25 text-indigo-300 text-xs font-semibold">
+                <Terminal size={13} className="text-indigo-400" />
                 <span>Student Engineering Portal</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
-                {timeGreeting}, <span className="text-indigo-300">{studentName}</span> 👋
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white">
+                {timeGreeting}, <span className="text-indigo-300 font-semibold">{studentName}</span>
               </h1>
 
-              <p className="text-xs sm:text-sm font-medium text-slate-300 leading-relaxed">
-                Welcome back to AarCode, continue your journey. You've completed{" "}
-                <span className="text-emerald-400 font-bold">
+              <p className="text-xs sm:text-sm font-normal text-slate-300 leading-relaxed">
+                Welcome back to AarCode. You've completed{" "}
+                <span className="text-emerald-400 font-semibold">
                   {solvedTasksCount > 0 ? "35%" : "0%"}
                 </span>{" "}
-                of your weekly goal. Keep going to hit 20 learning hours and climb the leaderboard!
+                of your weekly goal. Keep practicing to level up your engineering skills and climb the leaderboard.
               </p>
 
               {/* Quick Action Badges */}
@@ -567,7 +566,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 {nextTask && (
                   <button
                     onClick={() => navigate("task", { taskId: nextTask.id })}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-extrabold text-xs sm:text-sm shadow-md shadow-indigo-500/30 active:scale-[0.98] transition-all"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs sm:text-sm shadow-md shadow-indigo-500/20 active:scale-[0.98] transition-all"
                   >
                     <Play size={14} className="fill-white" />
                     <span>Resume: {nextTask.title}</span>
@@ -577,7 +576,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                 <button
                   onClick={() => navigate("compiler")}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold text-xs sm:text-sm transition-all"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 text-white font-medium text-xs sm:text-sm transition-all"
                 >
                   <Terminal size={14} className="text-indigo-300" />
                   <span>Open IDE Compiler</span>
@@ -585,15 +584,15 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
               </div>
             </div>
 
-            {/* Right Telemetry Stat Badges (Inspired by Image 1) */}
+            {/* Right Telemetry Stat Badges (Clean LeetCode-style stat boxes) */}
             <div className="flex items-center gap-3 sm:gap-4 shrink-0 flex-wrap sm:flex-nowrap">
               {/* Current Streak */}
               <div className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
                 <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1">
-                  <Flame size={18} />
+                  <Flame size={17} strokeWidth={2} />
                 </div>
-                <div className="text-lg sm:text-xl font-black">{currentStreakDays}</div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <div className="text-lg sm:text-xl font-semibold text-white">{currentStreakDays}</div>
+                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   Streak Days
                 </div>
               </div>
@@ -601,10 +600,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
               {/* Solved Problems */}
               <div className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
                 <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1">
-                  <CheckCircle2 size={18} />
+                  <CheckCircle2 size={17} strokeWidth={2} />
                 </div>
-                <div className="text-lg sm:text-xl font-black">{solvedTasksCount}</div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <div className="text-lg sm:text-xl font-semibold text-white">{solvedTasksCount}</div>
+                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   Solved
                 </div>
               </div>
@@ -612,10 +611,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
               {/* XP Points */}
               <div className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
                 <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center mb-1">
-                  <Zap size={18} />
+                  <Zap size={17} strokeWidth={2} />
                 </div>
-                <div className="text-lg sm:text-xl font-black">{effectivePoints}</div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <div className="text-lg sm:text-xl font-semibold text-white">{effectivePoints}</div>
+                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   XP Points
                 </div>
               </div>
@@ -649,9 +648,9 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       <BookOpen size={16} />
                     </div>
                     <div>
-                      <h2 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                      <h2 className="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                         <span>Continue Learning</span>
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300">
                           {enrolledCourses.length} Registered
                         </span>
                       </h2>
@@ -663,7 +662,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                   <button
                     onClick={() => navigate("courses")}
-                    className="text-xs sm:text-sm font-extrabold text-[#6366F1] dark:text-indigo-400 hover:underline inline-flex items-center gap-1 shrink-0"
+                    className="text-xs sm:text-sm font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline inline-flex items-center gap-1 shrink-0"
                   >
                     <span>View all</span>
                     <ArrowRight size={14} />
@@ -719,7 +718,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                             <div className="flex items-center justify-between">
                               <span
                                 className={cn(
-                                  "text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full inline-flex items-center gap-1",
+                                  "text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full inline-flex items-center gap-1",
                                   style.badge
                                 )}
                               >
@@ -727,24 +726,24 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                                 <span>Course</span>
                               </span>
 
-                              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                                 {course.modules.length} Modules
                               </span>
                             </div>
 
-                            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
+                            <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
                               {course.title}
                             </h3>
 
-                            <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                            <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
                               {courseSolved} / {courseTotal} activities
                             </div>
                           </div>
 
                           <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-[#1E293B]">
-                            <div className="flex items-center justify-between text-xs font-bold">
+                            <div className="flex items-center justify-between text-xs font-semibold">
                               <span className="text-slate-500 dark:text-slate-400">Progress</span>
-                              <span className="font-extrabold text-slate-800 dark:text-slate-200">
+                              <span className="font-semibold text-slate-800 dark:text-slate-200">
                                 {coursePct}%
                               </span>
                             </div>
@@ -786,38 +785,38 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                   SECTION 3: FEATURED COURSE OF THE MONTH (Practice LLD)
               ------------------------------------------------------------- */}
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                    <span>🚀 Featured course of the month</span>
+                <div className="flex items-center gap-2.5">
+                  <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Award size={19} className="text-indigo-500" />
+                    <span>Featured Course of the Month</span>
                   </h2>
-                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-sm">
-                    New Course
+                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400">
+                    Spotlight
                   </span>
                 </div>
 
-                <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-5">
+                <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 shadow-xs hover:border-indigo-500/40 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-5">
                   <div className="flex items-start gap-4">
                     {/* Visual LLD Badge / Thumbnail */}
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#6366F1]/20 via-[#4F46E5]/15 to-[#7C3AED]/20 border border-indigo-500/30 flex flex-col items-center justify-center shrink-0 shadow-inner">
-                      <div className="text-xs sm:text-sm font-black text-[#6366F1] dark:text-indigo-300 tracking-tighter">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex flex-col items-center justify-center shrink-0">
+                      <div className="text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400 tracking-wider font-mono">
                         LLD
                       </div>
-                      <Layers size={18} className="text-[#6366F1] dark:text-indigo-400 mt-0.5" />
+                      <Layers size={17} className="text-indigo-500 mt-1" />
                     </div>
 
                     <div className="space-y-1.5 max-w-xl">
-                      <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                      <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
                         Practice LLD
                       </h3>
-                      <p className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <p className="text-xs sm:text-sm font-normal text-slate-600 dark:text-slate-300 leading-relaxed">
                         Strengthen your Low-Level Design (LLD) skills through interactive MCQs,
                         short-answer questions, and hands-on Java, Python, and C++ coding projects.
                         Practice object-oriented design, UML, Clean Code, SOLID principles, and
-                        Design Patterns with real-world scenarios. LLD is our free featured track for
-                        this month.
+                        Design Patterns with real-world scenarios.
                       </p>
 
-                      <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                      <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
                         <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B]">
                           SOLID Principles
                         </span>
@@ -834,10 +833,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                   <div className="shrink-0 flex sm:flex-col items-center gap-2">
                     <button
                       onClick={() => navigate("course", { slug: "practice-lld" })}
-                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/25 active:scale-[0.98] transition-all"
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs active:scale-[0.98] transition-all"
                     >
                       <span>Start Course</span>
-                      <ArrowRight size={15} />
+                      <ArrowRight size={14} />
                     </button>
                   </div>
                 </div>
@@ -849,8 +848,9 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="space-y-0.5">
-                    <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                      <span>🚩 Continue your Roadmap</span>
+                    <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Compass size={19} className="text-indigo-500" />
+                      <span>Continue Your Roadmap</span>
                     </h2>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
                       Personalized engineering curriculum analyzing your programming language &amp;
@@ -868,13 +868,15 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                           key={langKey}
                           onClick={() => setSelectedRoadmapLang(langKey)}
                           className={cn(
-                            "px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 shrink-0",
+                            "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0",
                             isSelected
-                              ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/20"
+                              ? "bg-[#6366F1] text-white shadow-xs"
                               : "bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                           )}
                         >
-                          <span>{ROADMAP_PRESETS[langKey].iconLabel}</span>
+                          <span className="font-mono text-[10px] px-1 py-0.2 rounded bg-black/10 dark:bg-white/10 font-bold">
+                            {ROADMAP_PRESETS[langKey].iconLabel}
+                          </span>
                           <span>{ROADMAP_PRESETS[langKey].label}</span>
                           {isRecommended && (
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
@@ -885,42 +887,42 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                   </div>
                 </div>
 
-                {/* Primary Recommended Roadmap Card (Inspired by Image 2) */}
-                <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 space-y-5 shadow-sm">
+                {/* Primary Recommended Roadmap Card */}
+                <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 space-y-5 shadow-xs">
                   {/* Sub-badge: Roadmap Recommended for you */}
                   <div className="flex items-center justify-between">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-bold">
-                      <Star size={12} className="text-amber-500 fill-amber-500" />
-                      <span>Roadmap Recommended for you</span>
-                      <span className="text-[10px] text-slate-400 font-medium">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold">
+                      <Target size={13} className="text-indigo-500" />
+                      <span>Recommended for You</span>
+                      <span className="text-[10px] text-slate-400 font-normal">
                         ({analyzedPreference.matchConfidence}% Match based on your{" "}
-                        {ROADMAP_PRESETS[analyzedPreference.topLang].label} code)
+                        {ROADMAP_PRESETS[analyzedPreference.topLang].label} submissions)
                       </span>
                     </div>
 
-                    <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                       {activeRoadmapConfig.durationEst} Est.
                     </span>
                   </div>
 
                   {/* Main Roadmap Banner */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B]">
                     <div className="flex items-center gap-3.5">
-                      <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-[#6366F1] flex items-center justify-center text-2xl shrink-0">
+                      <div className="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-[#6366F1] flex items-center justify-center font-mono font-bold text-sm shrink-0">
                         {activeRoadmapConfig.iconLabel}
                       </div>
                       <div>
-                        <h4 className="text-base font-extrabold text-slate-900 dark:text-white">
+                        <h4 className="text-base font-semibold text-slate-900 dark:text-white">
                           {activeRoadmapConfig.title}
                         </h4>
-                        <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-slate-500 dark:text-slate-400 mt-0.5">
+                        <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
                           <span className="flex items-center gap-1">
                             <BookOpen size={13} className="text-[#6366F1]" />
                             <span>{activeRoadmapConfig.modulesCount} Modules</span>
                           </span>
                           <span>•</span>
                           <span className="flex items-center gap-1">
-                            <Clock size={13} className="text-amber-500" />
+                            <Clock size={13} className="text-slate-400" />
                             <span>{activeRoadmapConfig.durationEst}</span>
                           </span>
                           <span>•</span>
@@ -934,23 +936,21 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                     <button
                       onClick={() => navigate("course", { slug: activeRoadmapConfig.courseSlug })}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-extrabold text-xs shadow-md shadow-indigo-500/20 active:scale-[0.98] transition-all shrink-0"
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs shadow-xs active:scale-[0.98] transition-all shrink-0"
                     >
                       <span>Resume Roadmap</span>
                     </button>
                   </div>
 
-                  {/* Recommended Practice Areas */}
-                  <div className="space-y-3 pt-1">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                        Recommended Practice Areas in {activeRoadmapConfig.label}
-                      </h4>
+                  {/* Practice Areas Grid */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-300">
+                      <span>PRACTICE TRACKS &amp; CURATED TOPICS</span>
                       <button
                         onClick={() => navigate("problems")}
-                        className="text-xs font-bold text-[#6366F1] dark:text-indigo-400 hover:underline"
+                        className="text-xs font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
                       >
-                        All Practice Problems
+                        All Practice Problems →
                       </button>
                     </div>
 
@@ -959,33 +959,33 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                         <div
                           key={pIdx}
                           onClick={() => navigate("problems")}
-                          className="group cursor-pointer p-3.5 rounded-2xl border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] bg-white dark:bg-[#0F172A] hover:bg-slate-50 dark:hover:bg-[#090D16] transition-all flex items-center justify-between gap-3 shadow-xs"
+                          className="group cursor-pointer p-3.5 rounded-xl border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] bg-slate-50 dark:bg-[#090D16] transition-all flex items-center justify-between gap-3 shadow-xs"
                         >
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <h5 className="text-xs font-black text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
+                              <h5 className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
                                 {area.title}
                               </h5>
                               <span
                                 className={cn(
-                                  "text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded",
+                                  "text-[9px] font-semibold uppercase px-1.5 py-0.2 rounded border",
                                   area.difficulty === "Easy" &&
-                                    "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                                    "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
                                   area.difficulty === "Medium" &&
-                                    "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                                    "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
                                   area.difficulty === "Hard" &&
-                                    "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                                    "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
                                 )}
                               >
                                 {area.difficulty}
                               </span>
                             </div>
-                            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 line-clamp-1">
+                            <p className="text-[11px] font-normal text-slate-500 dark:text-slate-400 line-clamp-1">
                               {area.description}
                             </p>
                           </div>
 
-                          <div className="shrink-0 flex items-center gap-1.5 text-xs font-bold text-slate-400 group-hover:text-[#6366F1] transition-colors">
+                          <div className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-slate-400 group-hover:text-[#6366F1] transition-colors">
                             <span>{area.problemCount} Qs</span>
                             <ChevronRight size={14} />
                           </div>
@@ -1002,57 +1002,67 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
             =============================================================== */}
             <div className="lg:col-span-4 space-y-6">
               {/* -------------------------------------------------------------
-                  STREAK TRACKER & CAMPFIRE CARD (Inspired by Image 2)
+                  STREAK TRACKER (LeetCode-Style Activity & Streak Tracker)
               ------------------------------------------------------------- */}
-              <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-6 space-y-5 shadow-sm text-center">
-                {/* Campfire / Flame Graphic */}
-                <div className="relative mx-auto w-24 h-24 rounded-full bg-gradient-to-b from-amber-500/20 via-orange-500/10 to-transparent flex items-center justify-center border border-amber-500/30">
-                  <div className="text-4xl animate-bounce">🔥</div>
+              <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-500 flex items-center justify-center shrink-0">
+                      <Flame size={18} strokeWidth={2} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Daily Coding Streak</h3>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">Consistency tracker</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-lg font-semibold text-slate-900 dark:text-white">{currentStreakDays}</span>
+                    <span className="text-xs text-slate-400 font-normal"> / 50 days</span>
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <div className="text-2xl font-black text-slate-900 dark:text-white">
-                    {currentStreakDays} / 50 days
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden mt-2">
+                {/* Progress Bar */}
+                <div className="space-y-1.5">
+                  <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
-                      style={{ width: `${Math.min(100, Math.max(10, (currentStreakDays / 50) * 100))}%` }}
+                      style={{ width: `${Math.min(100, Math.max(8, (currentStreakDays / 50) * 100))}%` }}
                     />
                   </div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 pt-2 leading-relaxed">
-                    Don't let your hard work go to waste! Code today to keep your streak alive!
+                  <p className="text-[11px] font-normal text-slate-500 dark:text-slate-400 leading-snug">
+                    Solve at least 1 coding problem today to extend your streak.
                   </p>
                 </div>
 
-                {/* Weekday Streak Days (S M T W T F S) */}
-                <div className="pt-2 border-t border-slate-100 dark:border-[#1E293B]">
+                {/* Weekday Streak Days (S M T W T F S) - Clean LeetCode style */}
+                <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B]/80">
                   <div className="grid grid-cols-7 gap-1 text-center">
                     {weekDays.map((wd, wIdx) => {
                       const isCompleted = wd.status === "completed";
                       const isActive = wd.status === "active";
                       return (
                         <div key={wIdx} className="flex flex-col items-center gap-1.5">
-                          <span className="text-[11px] font-bold text-slate-400">{wd.label}</span>
+                          <span className="text-[10px] font-semibold text-slate-400">{wd.label}</span>
                           <div
                             className={cn(
-                              "w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black transition-all",
+                              "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-semibold transition-all",
                               isCompleted &&
-                                "bg-amber-500 text-white shadow-sm shadow-amber-500/30",
+                                "bg-amber-500 text-white shadow-xs",
                               isActive &&
-                                "bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white ring-2 ring-indigo-400 ring-offset-2 dark:ring-offset-[#0F172A]",
+                                "bg-indigo-600 text-white ring-2 ring-indigo-400 ring-offset-2 dark:ring-offset-[#0F172A]",
                               wd.status === "upcoming" &&
                                 "bg-slate-100 dark:bg-[#090D16] text-slate-400 border border-slate-200/60 dark:border-[#1E293B]"
                             )}
                           >
-                            {isCompleted ? "🔥" : wd.dayNum}
+                            {isCompleted ? <Check size={13} strokeWidth={2.5} /> : wd.dayNum}
                           </div>
                         </div>
                       );
                     })}
                   </div>
-                  <div className="text-[11px] font-extrabold text-slate-400 pt-3">
-                    Total Freeze Count: 3
+                  <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 pt-3 text-center">
+                    3 Freeze Days Available
                   </div>
                 </div>
               </div>
@@ -1064,40 +1074,40 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <TrendingUp size={16} className="text-[#6366F1]" />
-                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                       Learning Analytics
                     </h3>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#090D16] text-slate-500">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#090D16] text-slate-500">
                     Weekly
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">
+                    <div className="text-[10px] font-semibold uppercase text-slate-400">
                       Total XP Earned
                     </div>
-                    <div className="text-lg font-black text-[#6366F1] mt-0.5">
+                    <div className="text-lg font-bold text-[#6366F1] mt-0.5">
                       +{effectivePoints}
                     </div>
-                    <div className="text-[10px] font-semibold text-slate-400">All time</div>
+                    <div className="text-[10px] font-medium text-slate-400">All time</div>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">
+                    <div className="text-[10px] font-semibold uppercase text-slate-400">
                       Solved Tasks
                     </div>
-                    <div className="text-lg font-black text-emerald-500 mt-0.5">
+                    <div className="text-lg font-bold text-emerald-500 mt-0.5">
                       {solvedTasksCount} / {totalTasksCount}
                     </div>
-                    <div className="text-[10px] font-semibold text-slate-400">Verified</div>
+                    <div className="text-[10px] font-medium text-slate-400">Verified</div>
                   </div>
                 </div>
 
                 <button
                   onClick={() => navigate("compiler")}
-                  className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-[#090D16] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-between transition-all"
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-[#090D16] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center justify-between transition-all"
                 >
                   <span className="flex items-center gap-2">
                     <Terminal size={14} className="text-[#6366F1]" />
@@ -1114,13 +1124,13 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Trophy size={16} className="text-amber-500" />
-                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                       Top Performers
                     </h3>
                   </div>
                   <button
                     onClick={() => navigate("leaderboard")}
-                    className="text-xs font-bold text-[#6366F1] dark:text-indigo-400 hover:underline"
+                    className="text-xs font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
                   >
                     Full board
                   </button>
@@ -1138,7 +1148,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                         <div
                           key={entry.user_id}
                           className={cn(
-                            "flex items-center justify-between p-2.5 rounded-xl border text-xs font-bold transition-all",
+                            "flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition-all",
                             isCurrentUser
                               ? "bg-indigo-500/10 border-[#6366F1]/40 text-slate-900 dark:text-white"
                               : "bg-slate-50 dark:bg-[#090D16] border-slate-200/60 dark:border-[#1E293B] text-slate-700 dark:text-slate-300"
@@ -1147,7 +1157,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                           <div className="flex items-center gap-2.5 truncate">
                             <span
                               className={cn(
-                                "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0",
+                                "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
                                 idx === 0
                                   ? "bg-amber-500 text-white"
                                   : idx === 1
@@ -1164,7 +1174,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                               {isCurrentUser && " (You)"}
                             </span>
                           </div>
-                          <span className="text-amber-500 font-extrabold shrink-0">
+                          <span className="text-amber-500 font-semibold shrink-0">
                             {entry.points} XP
                           </span>
                         </div>

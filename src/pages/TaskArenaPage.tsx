@@ -7,7 +7,8 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  Sparkles,
+  Zap,
+  Lightbulb,
   HelpCircle,
   Copy,
   Check,
@@ -1373,8 +1374,8 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
             {task.difficulty}
           </span>
 
-          <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[11px] font-bold font-mono shrink-0">
-            <Sparkles size={11} />
+          <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[11px] font-semibold font-mono shrink-0">
+            <Zap size={11} className="fill-amber-500/20" />
             <span>+{task.points || 10} XP</span>
           </span>
         </div>
@@ -1499,8 +1500,8 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
               {task.title}
             </h1>
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-              <span className="flex items-center gap-1 text-amber-500 font-bold font-mono">
-                <Sparkles size={13} />
+              <span className="flex items-center gap-1 text-amber-500 font-semibold font-mono">
+                <Zap size={13} className="fill-amber-500/20" />
                 <span>+{task.points || 10} XP</span>
               </span>
               <span>•</span>
@@ -1593,7 +1594,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                       className="w-full px-4 py-3 flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
                     >
                       <span className="flex items-center gap-2">
-                        <Sparkles size={12} className="text-amber-500" />
+                        <Lightbulb size={12} className="text-amber-500" />
                         <span>Hint {hIdx + 1}</span>
                       </span>
                       {isHintOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
@@ -1638,7 +1639,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
           <div className="h-11 sm:h-12 border-b border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#0F172A] px-3 sm:px-4 flex items-center justify-between shrink-0">
             {/* Left: { } Your Solution title + solution.ext */}
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#6366F1]/10 text-[#6366F1] flex items-center justify-center font-mono font-black text-xs">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#6366F1]/10 text-[#6366F1] flex items-center justify-center font-mono font-semibold text-xs">
                 {"{ }"}
               </div>
               <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 hidden xs:inline">
@@ -1783,7 +1784,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                     : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                 )}
               >
-                <Sparkles size={13} className={judgeResult?.status === "passed" ? "text-emerald-500" : ""} />
+                <CheckCircle2 size={13} className={judgeResult?.status === "passed" ? "text-emerald-500" : ""} />
                 <span>Evaluation Result</span>
                 {isRunning || isSubmitting ? (
                   <Loader2 size={11} className="animate-spin text-[#6366F1]" />
@@ -1985,7 +1986,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                   <div className="rounded-2xl border border-amber-500/20 bg-amber-50/50 dark:bg-amber-950/20 p-4 flex items-center justify-between shadow-xs">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
-                        <Sparkles size={20} />
+                        <Award size={20} />
                       </div>
                       <div>
                         <h4 className="text-xs font-bold text-slate-900 dark:text-white">
@@ -2347,8 +2348,8 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-sm">
-              <Sparkles size={18} />
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-sm">
+              <Zap size={18} className="fill-amber-500/20" />
               <span>+{judgeResult?.pointsEarned || 10} XP Awarded to Profile</span>
             </div>
 

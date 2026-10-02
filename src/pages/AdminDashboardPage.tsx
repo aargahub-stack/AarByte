@@ -12,7 +12,6 @@ import {
   Code2,
   Eye,
   EyeOff,
-  Sparkles,
   BarChart3,
   Loader2,
   ChevronRight,
@@ -929,10 +928,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     </div>
                   </div>
                   <div className="flex items-baseline justify-between">
-                    <span className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                    <span className="text-2xl font-bold text-slate-900 dark:text-white">
                       {metrics.usersCount || users.length}
                     </span>
-                    <span className="text-xs text-emerald-500 font-bold">Profiles Synced</span>
+                    <span className="text-xs text-emerald-500 font-semibold">Profiles Synced</span>
                   </div>
                 </div>
 
@@ -944,7 +943,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     </div>
                   </div>
                   <div className="flex items-baseline justify-between">
-                    <span className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                    <span className="text-2xl font-bold text-slate-900 dark:text-white">
                       {metrics.coursesCount || courses.length}
                     </span>
                     <span className="text-xs text-slate-400 font-mono">Curriculums</span>
@@ -959,10 +958,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     </div>
                   </div>
                   <div className="flex items-baseline justify-between">
-                    <span className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                    <span className="text-2xl font-bold text-slate-900 dark:text-white">
                       {metrics.tasksCount || allTasks.length}
                     </span>
-                    <span className="text-xs text-amber-500 font-bold">Algorithms</span>
+                    <span className="text-xs text-amber-500 font-semibold">Algorithms</span>
                   </div>
                 </div>
 
@@ -974,10 +973,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     </div>
                   </div>
                   <div className="flex items-baseline justify-between">
-                    <span className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                    <span className="text-2xl font-bold text-slate-900 dark:text-white">
                       {metrics.submissionsCount || submissions.length}
                     </span>
-                    <span className="text-xs font-bold font-mono text-emerald-500">
+                    <span className="text-xs font-semibold font-mono text-emerald-500">
                       {passRate}% Pass Rate
                     </span>
                   </div>
@@ -1976,9 +1975,9 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 <button
                   onClick={handleQuickSeed}
                   disabled={isSeeding}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold shadow-md shadow-amber-500/20 transition-all disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold shadow-md shadow-amber-500/20 transition-all disabled:opacity-50"
                 >
-                  {isSeeding ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                  {isSeeding ? <Loader2 size={14} className="animate-spin" /> : <Database size={14} />}
                   <span>Seed Default Curriculum</span>
                 </button>
               </div>
@@ -2193,8 +2192,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
             <form onSubmit={handleSaveModuleContent} className="space-y-4">
               {/* About Topic Markdown Guide */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                  <span>📖 About Topic / Study Material (Markdown Supported)</span>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                  <span>About Topic / Study Material (Markdown Supported)</span>
                   <span className="text-[11px] font-normal text-slate-400">
                     What is it, where to use, time/space complexity, etc.
                   </span>
@@ -2211,8 +2210,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               {/* YouTube Video URL & Title */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    🎥 YouTube Video URL
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    YouTube Video URL
                   </label>
                   <input
                     type="url"
@@ -2224,7 +2223,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Video Lecture Title
                   </label>
                   <input
@@ -2240,8 +2239,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               {/* Reading Duration & Key Takeaways */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    ⏱️ Reading Duration (Minutes)
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Reading Duration (Minutes)
                   </label>
                   <input
                     type="number"
@@ -2254,8 +2253,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 </div>
 
                 <div className="sm:col-span-2 space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                    💡 Key Takeaways (One per line)
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Key Takeaways (One per line)
                   </label>
                   <textarea
                     rows={3}

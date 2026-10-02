@@ -7,7 +7,7 @@ import {
   Lock,
   PlayCircle,
   Clock,
-  Sparkles,
+  Zap,
   ArrowRight,
   Code2,
   BookOpen,
@@ -140,7 +140,7 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
       enrollmentStorage.enroll(course.id);
       if (course.slug) enrollmentStorage.enroll(course.slug);
       setIsEnrolled(true);
-      showToast("success", `🎉 Successfully enrolled in "${course.title}"!`);
+      showToast("success", `Successfully enrolled in "${course.title}"!`);
     }
   };
 
@@ -287,8 +287,8 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
               </div>
               <div className="flex justify-between items-center text-xs text-gray-600 dark:text-gray-400 pt-1 font-semibold">
                 <span>{solvedCount} of {allTasks.length} Solved</span>
-                <span className="flex items-center gap-1 text-amber-500 font-bold">
-                  <Sparkles size={12} />
+                <span className="flex items-center gap-1 text-amber-500 font-semibold">
+                  <Zap size={12} className="fill-amber-500/20" />
                   {allTasks.reduce((acc, t) => acc + (t.points || 10), 0)} XP
                 </span>
               </div>
