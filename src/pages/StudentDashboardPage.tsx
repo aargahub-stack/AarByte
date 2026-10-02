@@ -307,6 +307,8 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
   const [progressMap, setProgressMap] = useState<Record<string, UserTaskProgress>>({});
   const [enrolledIds, setEnrolledIds] = useState<string[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [sidebarLeaderboardMode, setSidebarLeaderboardMode] = useState<"overall" | "course">("overall");
+  const [courseLeaderboard, setCourseLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Manual roadmap tab override if student wants to explore other language roadmaps
@@ -631,6 +633,29 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
       ? Math.round((roadmapSolvedCount / roadmapTotalCount) * 100)
       : 0;
 
+  // Load course track leaderboard for the active roadmap
+  useEffect(() => {
+    async function loadTrackLeaderboard() {
+      if (activeRoadmapConfig?.courseSlug) {
+        const { data } = await courseService.getCourseLeaderboard(activeRoadmapConfig.courseSlug, 5);
+        if (data && data.length > 0) {
+          setCourseLeaderboard(data);
+        }
+      }
+    }
+    loadTrackLeaderboard();
+  }, [activeRoadmapConfig?.courseSlug]);
+
+  const getCourseMonogram = (title: string) => {
+    const t = title.toLowerCase();
+    if (t.includes("python")) return "PY";
+    if (t.includes("c++") || t.includes("cpp")) return "C++";
+    if (t.includes("java") && !t.includes("script")) return "JAVA";
+    if (t.includes("javascript") || t.includes("frontend")) return "JS";
+    if (t.includes("c ") || t.startsWith("c ")) return "C";
+    return title.slice(0, 3).toUpperCase();
+  };
+
   // Streak status and weekly streak days
   const currentStreakDays = solvedTasksCount > 0 ? Math.max(1, solvedTasksCount) : 1;
   const weekDays = [
@@ -747,7 +772,141 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
         ) : (
           <div className="space-y-8">
             {/* -------------------------------------------------------------
-                SECTION 1: CONTINUE YOUR ROADMAP (FULL WIDTH HERO TRACK)
+                SECTION 1: CONTINUE LEARNING (LIST TYPE ONLY - NO GRID TYPE)
+            ------------------------------------------------------------- */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                    <BookOpen size={19} className="text-indigo-500" />
+                    <span>Continue Learning</span>
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300">
+                      {enrolledCourses.length > 0 ? `${enrolledCourses.length} Registered Tracks` : "Available Tracks"}
+                    </span>
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {enrolledCourses.length > 0
+                      ? "Resume your enrolled curricula and practice modules right where you left off"
+                      : "Explore core programming and algorithmic curricula to start your engineering journey"}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => navigate("courses")}
+                  className="text-xs sm:text-sm font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline inline-flex items-center gap-1 shrink-0 self-start sm:self-auto"
+                >
+                  <span>Explore all curricula</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+
+              {/* LIST TYPE PRESENTATION (flex-col rows, clean horizontal cards) */}
+              <div className="flex flex-col gap-3">
+                {(enrolledCourses.length > 0 ? enrolledCourses : courses.slice(0, 3)).map((course, idx) => {
+                  const courseTasks = course.modules.flatMap((m) => m.tasks || []);
+                  const courseSolved = courseTasks.filter(
+                    (t) => progressMap[t.id]?.is_completed
+                  ).length;
+                  const courseTotal = courseTasks.length;
+                  const coursePct =
+                    courseTotal > 0 ? Math.round((courseSolved / courseTotal) * 100) : 0;
+                  const courseSlugOrId =
+                    course.slug && course.slug !== "#" ? course.slug : course.id;
+
+                  const rowStyles = [
+                    {
+                      bg: "bg-indigo-500/10 text-[#6366F1] dark:text-indigo-400 border-indigo-500/25",
+                      bar: "from-[#6366F1] to-[#7C3AED]",
+                    },
+                    {
+                      bg: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25",
+                      bar: "from-sky-500 to-indigo-500",
+                    },
+                    {
+                      bg: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25",
+                      bar: "from-amber-500 to-orange-500",
+                    },
+                    {
+                      bg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25",
+                      bar: "from-emerald-500 to-teal-500",
+                    },
+                  ];
+                  const style = rowStyles[idx % rowStyles.length];
+
+                  return (
+                    <div
+                      key={course.id}
+                      onClick={() => navigate("course", { slug: courseSlugOrId })}
+                      className="group cursor-pointer rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] hover:border-indigo-500/50 dark:hover:border-indigo-500/50 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs hover:shadow-md transition-all duration-200"
+                    >
+                      {/* Left: Monogram and Course Info */}
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div
+                          className={cn(
+                            "w-12 h-12 rounded-xl border flex items-center justify-center font-mono font-bold text-xs sm:text-sm shrink-0 shadow-xs",
+                            style.bg
+                          )}
+                        >
+                          {getCourseMonogram(course.title)}
+                        </div>
+
+                        <div className="min-w-0 space-y-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors truncate">
+                              {course.title}
+                            </h3>
+                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#1E293B] text-slate-600 dark:text-slate-300">
+                              {course.modules.length} Modules
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xl">
+                            {course.description ||
+                              "Master core algorithmic patterns, data structures, and technical interview problems."}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Right: Progress Telemetry and Action Button */}
+                      <div className="flex flex-wrap sm:flex-nowrap items-center justify-between md:justify-end gap-4 shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-[#1E293B]">
+                        <div className="flex flex-col gap-1.5 min-w-[150px] sm:min-w-[190px]">
+                          <div className="flex items-center justify-between text-xs font-semibold">
+                            <span className="text-slate-500 dark:text-slate-400">
+                              {courseSolved} of {courseTotal} tasks
+                            </span>
+                            <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                              {coursePct}%
+                            </span>
+                          </div>
+                          <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
+                            <div
+                              className={cn(
+                                "h-full rounded-full bg-gradient-to-r transition-all duration-500",
+                                style.bar
+                              )}
+                              style={{ width: `${Math.max(coursePct, 5)}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate("course", { slug: courseSlugOrId });
+                          }}
+                          className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-[#1E293B] group-hover:bg-gradient-to-r group-hover:from-[#6366F1] group-hover:to-[#7C3AED] text-slate-700 dark:text-slate-200 group-hover:text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-xs"
+                        >
+                          <span>{courseSolved > 0 ? "Resume Track" : "Start Learning"}</span>
+                          <ArrowRight size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* -------------------------------------------------------------
+                SECTION 2: CONTINUE YOUR ROADMAP (FULL WIDTH HERO TRACK)
             ------------------------------------------------------------- */}
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -756,7 +915,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                     <Compass size={19} className="text-indigo-500" />
                     <span>Continue Your Roadmap</span>
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                     Personalized engineering curriculum analyzing your programming language &amp; problem submissions
                     {analyzedPreference.hasUserActivity && (
                       <span className="inline-flex items-center gap-1 ml-1 text-emerald-600 dark:text-emerald-400 font-medium">
@@ -808,13 +967,13 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                         {isTopUsed && (
                           <span
                             className={cn(
-                              "text-[9px] font-mono tracking-tight px-1.5 py-0.5 rounded-md font-semibold uppercase shrink-0 transition-colors",
+                              "text-xs font-mono tracking-tight px-1.5 py-0.5 rounded-md font-semibold uppercase shrink-0 transition-colors",
                               isSelected
                                 ? "bg-indigo-500/10 dark:bg-indigo-500/20 text-[#4F46E5] dark:text-indigo-300 border border-indigo-500/20"
                                 : "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                             )}
                           >
-                            {solvedCount > 0 ? `${solvedCount} Solved` : "Most Used"}
+                            {solvedCount > 0 ? `${solvedCount} Solved` : "Top"}
                           </span>
                         )}
                       </button>
@@ -825,16 +984,16 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
               {/* Primary Recommended Roadmap Card (Full Width) */}
               <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 space-y-5 shadow-xs">
-                {/* Sub-badge: Roadmap Recommendation & Auto-Selected Details */}
+                {/* Sub-badge: Roadmap Recommendation & Auto-Selected Details (Comfortable readability) */}
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold">
-                    <Target size={13} className="text-indigo-500" />
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold">
+                    <Target size={14} className="text-indigo-500" />
                     <span>
                       {activeRoadmapLang === analyzedPreference.topLang
                         ? "Auto-Selected for You"
                         : "Previewing Track"}
                     </span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">
+                    <span className="text-xs text-slate-600 dark:text-slate-300 font-normal">
                       {activeRoadmapLang === analyzedPreference.topLang
                         ? `(${analyzedPreference.matchConfidence}% Match • ${
                             analyzedPreference.totalSolvedInTop > 0
@@ -850,15 +1009,15 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       selectedRoadmapLang !== analyzedPreference.topLang && (
                         <button
                           onClick={() => setSelectedRoadmapLang(null)}
-                          className="text-[11px] font-medium text-[#6366F1] dark:text-indigo-400 hover:underline flex items-center gap-1 transition-all"
+                          className="text-xs font-medium text-[#6366F1] dark:text-indigo-400 hover:underline flex items-center gap-1 transition-all"
                         >
-                          <RotateCcw size={11} />
+                          <RotateCcw size={13} />
                           <span>
                             Back to {ROADMAP_PRESETS[analyzedPreference.topLang].label} (Auto)
                           </span>
                         </button>
                       )}
-                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    <span className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
                       {activeRoadmapConfig.durationEst} Est.
                     </span>
                   </div>
@@ -867,26 +1026,26 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 {/* Main Roadmap Banner */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B]">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-[#6366F1] flex items-center justify-center font-mono font-bold text-sm shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-[#6366F1] flex items-center justify-center font-mono font-bold text-sm shrink-0">
                       {activeRoadmapConfig.iconLabel}
                     </div>
                     <div>
-                      <h4 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
+                      <h4 className="text-base sm:text-xl font-semibold text-slate-900 dark:text-white">
                         {activeRoadmapConfig.title}
                       </h4>
-                      <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                        <span className="flex items-center gap-1">
-                          <BookOpen size={13} className="text-[#6366F1]" />
+                      <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+                        <span className="flex items-center gap-1.5">
+                          <BookOpen size={14} className="text-[#6366F1]" />
                           <span>{activeRoadmapConfig.modulesCount} Modules</span>
                         </span>
                         <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <Clock size={13} className="text-slate-400" />
+                        <span className="flex items-center gap-1.5">
+                          <Clock size={14} className="text-slate-400" />
                           <span>{activeRoadmapConfig.durationEst}</span>
                         </span>
                         <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <Target size={13} className="text-emerald-500" />
+                        <span className="flex items-center gap-1.5">
+                          <Target size={14} className="text-emerald-500" />
                           <span>{activeRoadmapConfig.totalProblems} Problems</span>
                         </span>
                       </div>
@@ -901,13 +1060,13 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                   </button>
                 </div>
 
-                {/* Practice Areas Grid - Full Width 4-Column Layout */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    <span>PRACTICE TRACKS &amp; CURATED TOPICS</span>
+                {/* Practice Areas Grid - Full Width 4-Column Layout with High Readability */}
+                <div className="space-y-3.5">
+                  <div className="flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <span className="tracking-wide">PRACTICE TRACKS &amp; CURATED TOPICS</span>
                     <button
                       onClick={() => navigate("problems")}
-                      className="text-xs font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
+                      className="text-xs sm:text-sm font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
                     >
                       All Practice Problems →
                     </button>
@@ -918,16 +1077,16 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       <div
                         key={pIdx}
                         onClick={() => navigate("problems")}
-                        className="group cursor-pointer p-4 rounded-xl border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] bg-slate-50 dark:bg-[#090D16] transition-all flex flex-col justify-between gap-3 shadow-xs"
+                        className="group cursor-pointer p-4 sm:p-4.5 rounded-xl border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] bg-slate-50 dark:bg-[#090D16] transition-all flex flex-col justify-between gap-3.5 shadow-xs"
                       >
-                        <div className="space-y-1.5">
+                        <div className="space-y-2">
                           <div className="flex items-center justify-between gap-2">
-                            <h5 className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
+                            <h5 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
                               {area.title}
                             </h5>
                             <span
                               className={cn(
-                                "text-[9px] font-semibold uppercase px-1.5 py-0.2 rounded border shrink-0",
+                                "text-xs font-semibold uppercase px-2.5 py-0.5 rounded-md border shrink-0",
                                 area.difficulty === "Easy" &&
                                   "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
                                 area.difficulty === "Medium" &&
@@ -939,16 +1098,14 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                               {area.difficulty}
                             </span>
                           </div>
-                          <p className="text-[11px] font-normal text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                          <p className="text-xs sm:text-sm font-normal text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
                             {area.description}
                           </p>
                         </div>
 
-                        <div className="pt-2 border-t border-slate-200/60 dark:border-[#1E293B] flex items-center justify-between text-xs font-medium text-slate-400 group-hover:text-[#6366F1] transition-colors">
-                          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                            {area.problemCount} Problems
-                          </span>
-                          <ChevronRight size={14} />
+                        <div className="pt-2.5 border-t border-slate-200/60 dark:border-[#1E293B] flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 group-hover:text-[#6366F1] transition-colors">
+                          <span>{area.problemCount} Problems</span>
+                          <ChevronRight size={16} />
                         </div>
                       </div>
                     ))}
@@ -958,475 +1115,375 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
             </div>
 
             {/* ===============================================================
-                MAIN 2-COLUMN GRID (8 Col Main Workspaces + 4 Col Sidebar Tracker)
+                SECTION 3: 2-COLUMN GRID (8 Col Main Workspaces + 4 Col Sidebar Tracker)
             =============================================================== */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
-            {/* ===============================================================
-                LEFT MAIN STREAM (8 COLUMNS)
-            =============================================================== */}
-            <div className="lg:col-span-8 space-y-7">
-              {/* -------------------------------------------------------------
-                  SECTION 2: CONTINUE LEARNING (ONLY THE REGISTERED COURSES)
-              ------------------------------------------------------------- */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
+              {/* ===============================================================
+                  LEFT MAIN STREAM (8 COLUMNS)
+              =============================================================== */}
+              <div className="lg:col-span-8 space-y-7">
+                {/* -------------------------------------------------------------
+                    FEATURED TRACK OF THE MONTH (Dynamic from DB)
+                ------------------------------------------------------------- */}
+                <div className="space-y-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-indigo-500/10 text-[#6366F1] flex items-center justify-center font-bold">
-                      <BookOpen size={16} />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                        <span>Continue Learning</span>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300">
-                          {enrolledCourses.length} Registered
-                        </span>
-                      </h2>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Courses you have currently enrolled and are making progress in
-                      </p>
-                    </div>
+                    <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Award size={19} className="text-indigo-500" />
+                      <span>Featured Track of the Month</span>
+                    </h2>
+                    <span className="text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400">
+                      Spotlight
+                    </span>
                   </div>
 
-                  <button
-                    onClick={() => navigate("courses")}
-                    className="text-xs sm:text-sm font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline inline-flex items-center gap-1 shrink-0"
-                  >
-                    <span>View all</span>
-                    <ArrowRight size={14} />
-                  </button>
-                </div>
-
-                {enrolledCourses.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {enrolledCourses.map((course, idx) => {
-                      const courseTasks = course.modules.flatMap((m) => m.tasks || []);
-                      const courseSolved = courseTasks.filter(
-                        (t) => progressMap[t.id]?.is_completed
-                      ).length;
-                      const courseTotal = courseTasks.length;
-                      const coursePct =
-                        courseTotal > 0 ? Math.round((courseSolved / courseTotal) * 100) : 0;
-
-                      // Distinct pastel accents inspired by Image 1
-                      const cardStyles = [
-                        {
-                          border: "border-pink-200/80 dark:border-pink-900/30",
-                          badge: "bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300",
-                          bar: "from-pink-500 to-rose-500",
-                        },
-                        {
-                          border: "border-sky-200/80 dark:border-sky-900/30",
-                          badge: "bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300",
-                          bar: "from-sky-500 to-indigo-500",
-                        },
-                        {
-                          border: "border-amber-200/80 dark:border-amber-900/30",
-                          badge: "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300",
-                          bar: "from-amber-500 to-orange-500",
-                        },
-                        {
-                          border: "border-emerald-200/80 dark:border-emerald-900/30",
-                          badge: "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300",
-                          bar: "from-emerald-500 to-teal-500",
-                        },
-                      ];
-                      const style = cardStyles[idx % cardStyles.length];
-
-                      return (
-                        <div
-                          key={course.id}
-                          onClick={() =>
-                            navigate("course", {
-                              slug: course.slug && course.slug !== "#" ? course.slug : course.id,
-                            })
-                          }
-                          className={cn(
-                            "group cursor-pointer rounded-2xl bg-white dark:bg-[#0F172A] border p-5 flex flex-col justify-between gap-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200",
-                            style.border
-                          )}
-                        >
-                          <div className="space-y-2.5">
-                            <div className="flex items-center justify-between">
-                              <span
-                                className={cn(
-                                  "text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full inline-flex items-center gap-1",
-                                  style.badge
-                                )}
-                              >
-                                <BookOpen size={10} />
-                                <span>Course</span>
-                              </span>
-
-                              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                                {course.modules.length} Modules
-                              </span>
-                            </div>
-
-                            <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
-                              {course.title}
-                            </h3>
-
-                            <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                              {courseSolved} / {courseTotal} activities
-                            </div>
-                          </div>
-
-                          <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-[#1E293B]">
-                            <div className="flex items-center justify-between text-xs font-semibold">
-                              <span className="text-slate-500 dark:text-slate-400">Progress</span>
-                              <span className="font-semibold text-slate-800 dark:text-slate-200">
-                                {coursePct}%
-                              </span>
-                            </div>
-                            <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
-                              <div
-                                className={cn(
-                                  "h-full rounded-full bg-gradient-to-r transition-all duration-500",
-                                  style.bar
-                                )}
-                                style={{ width: `${Math.max(coursePct, 6)}%` }}
-                              />
-                            </div>
-                          </div>
+                  <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 shadow-xs hover:border-indigo-500/40 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-5">
+                    <div className="flex items-start gap-4">
+                      {/* Visual Track Badge / Thumbnail */}
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex flex-col items-center justify-center shrink-0">
+                        <div className="text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400 tracking-wider font-mono">
+                          {featuredCourse.title.slice(0, 3).toUpperCase()}
                         </div>
-                      );
-                    })}
-                  </div>
-                ) : courses.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {courses.map((course, idx) => {
-                      const courseTasks = course.modules.flatMap((m) => m.tasks || []);
-                      const courseSlugOrId =
-                        course.slug && course.slug !== "#" ? course.slug : course.id;
-                      const cardStyles = [
-                        {
-                          border: "border-sky-200/80 dark:border-sky-900/30",
-                          badge: "bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300",
-                        },
-                        {
-                          border: "border-amber-200/80 dark:border-amber-900/30",
-                          badge: "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300",
-                        },
-                        {
-                          border: "border-emerald-200/80 dark:border-emerald-900/30",
-                          badge: "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300",
-                        },
-                      ];
-                      const style = cardStyles[idx % cardStyles.length];
-
-                      return (
-                        <div
-                          key={course.id}
-                          onClick={() => navigate("course", { slug: courseSlugOrId })}
-                          className={cn(
-                            "group cursor-pointer rounded-2xl bg-white dark:bg-[#0F172A] border p-5 flex flex-col justify-between gap-4 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200",
-                            style.border
-                          )}
-                        >
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span
-                                className={cn(
-                                  "text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full inline-flex items-center gap-1",
-                                  style.badge
-                                )}
-                              >
-                                <BookOpen size={10} />
-                                <span>Track</span>
-                              </span>
-                              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                                {course.modules.length} Modules • {courseTasks.length} Tasks
-                              </span>
-                            </div>
-
-                            <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
-                              {course.title}
-                            </h3>
-
-                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
-                              {course.description || "Master algorithmic problem solving, clean code patterns, and interview readiness."}
-                            </p>
-                          </div>
-
-                          <div className="pt-2 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between">
-                            <span className="text-xs font-semibold text-emerald-500">Available Track</span>
-                            <span className="text-xs font-semibold text-[#6366F1] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                              <span>Start Learning</span>
-                              <ArrowRight size={13} />
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border border-dashed border-slate-200 dark:border-[#1E293B] bg-white/50 dark:bg-[#0F172A]/50 p-6 text-center space-y-3">
-                    <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-                      No courses found in database catalog.
-                    </p>
-                    <p className="text-xs text-slate-400 max-w-md mx-auto">
-                      Explore available curricula or seed sample problem modules in the admin dashboard.
-                    </p>
-                    <button
-                      onClick={() => navigate("courses")}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#6366F1] hover:bg-[#4F46E5] text-white text-xs font-bold shadow-md transition-all"
-                    >
-                      <Compass size={14} />
-                      <span>Explore Tracks</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* -------------------------------------------------------------
-                  SECTION 3: FEATURED COURSE OF THE MONTH (Dynamic from DB)
-              ------------------------------------------------------------- */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2.5">
-                  <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Award size={19} className="text-indigo-500" />
-                    <span>Featured Track of the Month</span>
-                  </h2>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400">
-                    Spotlight
-                  </span>
-                </div>
-
-                <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 shadow-xs hover:border-indigo-500/40 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-5">
-                  <div className="flex items-start gap-4">
-                    {/* Visual Track Badge / Thumbnail */}
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex flex-col items-center justify-center shrink-0">
-                      <div className="text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400 tracking-wider font-mono">
-                        {featuredCourse.title.slice(0, 3).toUpperCase()}
+                        <Layers size={17} className="text-indigo-500 mt-1" />
                       </div>
-                      <Layers size={17} className="text-indigo-500 mt-1" />
-                    </div>
 
-                    <div className="space-y-1.5 max-w-xl">
-                      <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
-                        {featuredCourse.title}
-                      </h3>
-                      <p className="text-xs sm:text-sm font-normal text-slate-600 dark:text-slate-300 leading-relaxed">
-                        {featuredCourse.description ||
-                          "Master algorithmic problem solving, clean code patterns, and interview readiness with live sandbox evaluation."}
-                      </p>
+                      <div className="space-y-1.5 max-w-xl">
+                        <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
+                          {featuredCourse.title}
+                        </h3>
+                        <p className="text-xs sm:text-sm font-normal text-slate-600 dark:text-slate-300 leading-relaxed">
+                          {featuredCourse.description ||
+                            "Master algorithmic problem solving, clean code patterns, and interview readiness with live sandbox evaluation."}
+                        </p>
 
-                      <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                        <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B]">
-                          {featuredCourse.modules.length} Modules
-                        </span>
-                        <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B]">
-                          {featuredTasksCount} Practice Tasks
-                        </span>
-                        <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                          Curated Curriculum
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="shrink-0 flex sm:flex-col items-center gap-2">
-                    <button
-                      onClick={() => navigate("course", { slug: featuredSlug })}
-                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs active:scale-[0.98] transition-all"
-                    >
-                      <span>Start Track</span>
-                      <ArrowRight size={14} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* ===============================================================
-                RIGHT SIDEBAR (4 COLUMNS - STREAK, GOALS & LEADERBOARD)
-            =============================================================== */}
-            <div className="lg:col-span-4 space-y-6">
-              {/* -------------------------------------------------------------
-                  STREAK TRACKER (LeetCode-Style Activity & Streak Tracker)
-              ------------------------------------------------------------- */}
-              <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-500 flex items-center justify-center shrink-0">
-                      <Flame size={18} strokeWidth={2} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Daily Coding Streak</h3>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">Consistency tracker</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-lg font-semibold text-slate-900 dark:text-white">{currentStreakDays}</span>
-                    <span className="text-xs text-slate-400 font-normal"> / 50 days</span>
-                  </div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="space-y-1.5">
-                  <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
-                      style={{ width: `${Math.min(100, Math.max(8, (currentStreakDays / 50) * 100))}%` }}
-                    />
-                  </div>
-                  <p className="text-[11px] font-normal text-slate-500 dark:text-slate-400 leading-snug">
-                    Solve at least 1 coding problem today to extend your streak.
-                  </p>
-                </div>
-
-                {/* Weekday Streak Days (S M T W T F S) - Clean LeetCode style */}
-                <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B]/80">
-                  <div className="grid grid-cols-7 gap-1 text-center">
-                    {weekDays.map((wd, wIdx) => {
-                      const isCompleted = wd.status === "completed";
-                      const isActive = wd.status === "active";
-                      return (
-                        <div key={wIdx} className="flex flex-col items-center gap-1.5">
-                          <span className="text-[10px] font-semibold text-slate-400">{wd.label}</span>
-                          <div
-                            className={cn(
-                              "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-semibold transition-all",
-                              isCompleted &&
-                                "bg-amber-500 text-white shadow-xs",
-                              isActive &&
-                                "bg-indigo-600 text-white ring-2 ring-indigo-400 ring-offset-2 dark:ring-offset-[#0F172A]",
-                              wd.status === "upcoming" &&
-                                "bg-slate-100 dark:bg-[#090D16] text-slate-400 border border-slate-200/60 dark:border-[#1E293B]"
-                            )}
-                          >
-                            {isCompleted ? <Check size={13} strokeWidth={2.5} /> : wd.dayNum}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="text-[11px] font-medium text-slate-500 dark:text-slate-400 pt-3 text-center">
-                    3 Freeze Days Available
-                  </div>
-                </div>
-              </div>
-
-              {/* -------------------------------------------------------------
-                  LEARNING ANALYTICS SUMMARY (Inspired by Image 1)
-              ------------------------------------------------------------- */}
-              <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp size={16} className="text-[#6366F1]" />
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                      Learning Analytics
-                    </h3>
-                  </div>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#090D16] text-slate-500">
-                    Weekly
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]">
-                    <div className="text-[10px] font-semibold uppercase text-slate-400">
-                      Total XP Earned
-                    </div>
-                    <div className="text-lg font-bold text-[#6366F1] mt-0.5">
-                      +{effectivePoints}
-                    </div>
-                    <div className="text-[10px] font-medium text-slate-400">All time</div>
-                  </div>
-
-                  <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]">
-                    <div className="text-[10px] font-semibold uppercase text-slate-400">
-                      Solved Tasks
-                    </div>
-                    <div className="text-lg font-bold text-emerald-500 mt-0.5">
-                      {solvedTasksCount} / {totalTasksCount}
-                    </div>
-                    <div className="text-[10px] font-medium text-slate-400">Verified</div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => navigate("compiler")}
-                  className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-[#090D16] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center justify-between transition-all"
-                >
-                  <span className="flex items-center gap-2">
-                    <Terminal size={14} className="text-[#6366F1]" />
-                    <span>Launch Compiler Playground</span>
-                  </span>
-                  <ArrowRight size={13} />
-                </button>
-              </div>
-
-              {/* -------------------------------------------------------------
-                  LEADERBOARD PREVIEW (Inspired by Image 1)
-              ------------------------------------------------------------- */}
-              <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Trophy size={16} className="text-amber-500" />
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                      Top Performers
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => navigate("leaderboard")}
-                    className="text-xs font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
-                  >
-                    Full board
-                  </button>
-                </div>
-
-                {leaderboard.length === 0 ? (
-                  <p className="text-xs font-medium text-slate-400 py-3 text-center">
-                    Solve challenges to appear on the leaderboard!
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {leaderboard.map((entry, idx) => {
-                      const isCurrentUser = entry.user_id === user?.id;
-                      return (
-                        <div
-                          key={entry.user_id}
-                          className={cn(
-                            "flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition-all",
-                            isCurrentUser
-                              ? "bg-indigo-500/10 border-[#6366F1]/40 text-slate-900 dark:text-white"
-                              : "bg-slate-50 dark:bg-[#090D16] border-slate-200/60 dark:border-[#1E293B] text-slate-700 dark:text-slate-300"
-                          )}
-                        >
-                          <div className="flex items-center gap-2.5 truncate">
-                            <span
-                              className={cn(
-                                "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
-                                idx === 0
-                                  ? "bg-amber-500 text-white"
-                                  : idx === 1
-                                  ? "bg-slate-400 text-white"
-                                  : idx === 2
-                                  ? "bg-amber-700 text-white"
-                                  : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                              )}
-                            >
-                              #{idx + 1}
-                            </span>
-                            <span className="truncate">
-                              {entry.full_name || "Developer"}
-                              {isCurrentUser && " (You)"}
-                            </span>
-                          </div>
-                          <span className="text-amber-500 font-semibold shrink-0">
-                            {entry.points} XP
+                        <div className="flex flex-wrap items-center gap-2 pt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
+                          <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B]">
+                            {featuredCourse.modules.length} Modules
+                          </span>
+                          <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B]">
+                            {featuredTasksCount} Practice Tasks
+                          </span>
+                          <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            Curated Curriculum
                           </span>
                         </div>
-                      );
-                    })}
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 flex sm:flex-col items-center gap-2">
+                      <button
+                        onClick={() => navigate("course", { slug: featuredSlug })}
+                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs active:scale-[0.98] transition-all"
+                      >
+                        <span>Start Track</span>
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* -------------------------------------------------------------
+                    RECOMMENDED NEXT CHALLENGE (Quick Action Card)
+                ------------------------------------------------------------- */}
+                {nextTask && (
+                  <div className="rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-5 sm:p-6 shadow-sm border border-indigo-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1.5 max-w-xl">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                          Next Coding Challenge
+                        </span>
+                        <span className="text-xs text-slate-300 font-medium">
+                          {nextTask.difficulty || "Medium"}
+                        </span>
+                      </div>
+                      <h4 className="text-base sm:text-lg font-semibold text-white">
+                        {nextTask.title}
+                      </h4>
+                      <p className="text-xs text-slate-300 line-clamp-2">
+                        {nextTask.description ||
+                          "Solve this challenge to level up your engineering skills and increase your streak score."}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => navigate("task", { taskId: nextTask.id })}
+                      className="px-5 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 shadow-sm shrink-0 transition-all"
+                    >
+                      <Play size={13} className="fill-white" />
+                      <span>Solve Now</span>
+                      <ArrowRight size={13} />
+                    </button>
                   </div>
                 )}
+              </div>
+
+              {/* ===============================================================
+                  RIGHT SIDEBAR (4 COLUMNS - STREAK, GOALS & 2-MODE LEADERBOARD)
+              =============================================================== */}
+              <div className="lg:col-span-4 space-y-6">
+                {/* -------------------------------------------------------------
+                    STREAK TRACKER
+                ------------------------------------------------------------- */}
+                <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-500 flex items-center justify-center shrink-0">
+                        <Flame size={18} strokeWidth={2} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Daily Coding Streak</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Consistency tracker</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-lg font-semibold text-slate-900 dark:text-white">{currentStreakDays}</span>
+                      <span className="text-xs text-slate-400 font-normal"> / 50 days</span>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="space-y-1.5">
+                    <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
+                        style={{ width: `${Math.min(100, Math.max(8, (currentStreakDays / 50) * 100))}%` }}
+                      />
+                    </div>
+                    <p className="text-xs font-normal text-slate-500 dark:text-slate-400 leading-snug">
+                      Solve at least 1 coding problem today to extend your streak.
+                    </p>
+                  </div>
+
+                  {/* Weekday Streak Days (S M T W T F S) */}
+                  <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B]/80">
+                    <div className="grid grid-cols-7 gap-1 text-center">
+                      {weekDays.map((wd, wIdx) => {
+                        const isCompleted = wd.status === "completed";
+                        const isActive = wd.status === "active";
+                        return (
+                          <div key={wIdx} className="flex flex-col items-center gap-1.5">
+                            <span className="text-xs font-semibold text-slate-400">{wd.label}</span>
+                            <div
+                              className={cn(
+                                "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-semibold transition-all",
+                                isCompleted &&
+                                  "bg-amber-500 text-white shadow-xs",
+                                isActive &&
+                                  "bg-indigo-600 text-white ring-2 ring-indigo-400 ring-offset-2 dark:ring-offset-[#0F172A]",
+                                wd.status === "upcoming" &&
+                                  "bg-slate-100 dark:bg-[#090D16] text-slate-400 border border-slate-200/60 dark:border-[#1E293B]"
+                              )}
+                            >
+                              {isCompleted ? <Check size={13} strokeWidth={2.5} /> : wd.dayNum}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="text-xs font-medium text-slate-500 dark:text-slate-400 pt-3 text-center">
+                      3 Freeze Days Available
+                    </div>
+                  </div>
+                </div>
+
+                {/* -------------------------------------------------------------
+                    LEARNING ANALYTICS SUMMARY
+                ------------------------------------------------------------- */}
+                <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp size={16} className="text-[#6366F1]" />
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                        Learning Analytics
+                      </h3>
+                    </div>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#090D16] text-slate-500">
+                      Weekly
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]">
+                      <div className="text-xs font-semibold uppercase text-slate-400">
+                        Total XP Earned
+                      </div>
+                      <div className="text-lg font-bold text-[#6366F1] mt-0.5">
+                        +{effectivePoints}
+                      </div>
+                      <div className="text-xs font-medium text-slate-400">All time</div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]">
+                      <div className="text-xs font-semibold uppercase text-slate-400">
+                        Solved Tasks
+                      </div>
+                      <div className="text-lg font-bold text-emerald-500 mt-0.5">
+                        {solvedTasksCount} / {totalTasksCount}
+                      </div>
+                      <div className="text-xs font-medium text-slate-400">Verified</div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => navigate("compiler")}
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-[#090D16] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center justify-between transition-all"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Terminal size={14} className="text-[#6366F1]" />
+                      <span>Launch Compiler Playground</span>
+                    </span>
+                    <ArrowRight size={13} />
+                  </button>
+                </div>
+
+                {/* -------------------------------------------------------------
+                    LEADERBOARD PREVIEW (WITH 2-MODE SWITCHER)
+                ------------------------------------------------------------- */}
+                <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Trophy size={16} className="text-amber-500" />
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                        Top Performers
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => navigate("leaderboard")}
+                      className="text-xs font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
+                    >
+                      Full board
+                    </button>
+                  </div>
+
+                  {/* Dual Mode Switcher: Overall vs Within Track */}
+                  <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B]">
+                    <button
+                      onClick={() => setSidebarLeaderboardMode("overall")}
+                      className={cn(
+                        "flex-1 py-1 text-xs font-semibold rounded-lg transition-all",
+                        sidebarLeaderboardMode === "overall"
+                          ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                      )}
+                    >
+                      1st: Overall
+                    </button>
+                    <button
+                      onClick={() => setSidebarLeaderboardMode("course")}
+                      className={cn(
+                        "flex-1 py-1 text-xs font-semibold rounded-lg transition-all",
+                        sidebarLeaderboardMode === "course"
+                          ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                      )}
+                    >
+                      2nd: In Track ({activeRoadmapConfig.label})
+                    </button>
+                  </div>
+
+                  {/* Board List */}
+                  {sidebarLeaderboardMode === "overall" ? (
+                    leaderboard.length === 0 ? (
+                      <p className="text-xs font-medium text-slate-400 py-3 text-center">
+                        Solve challenges to appear on the leaderboard!
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {leaderboard.slice(0, 5).map((entry, idx) => {
+                          const isCurrentUser = entry.user_id === user?.id;
+                          return (
+                            <div
+                              key={entry.user_id}
+                              className={cn(
+                                "flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition-all",
+                                isCurrentUser
+                                  ? "bg-indigo-500/10 border-[#6366F1]/40 text-slate-900 dark:text-white font-semibold"
+                                  : "bg-slate-50 dark:bg-[#090D16] border-slate-200/60 dark:border-[#1E293B] text-slate-700 dark:text-slate-300"
+                              )}
+                            >
+                              <div className="flex items-center gap-2.5 truncate">
+                                <span
+                                  className={cn(
+                                    "w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
+                                    idx === 0
+                                      ? "bg-amber-500 text-white"
+                                      : idx === 1
+                                      ? "bg-slate-400 text-white"
+                                      : idx === 2
+                                      ? "bg-amber-700 text-white"
+                                      : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                                  )}
+                                >
+                                  #{idx + 1}
+                                </span>
+                                <span className="truncate">
+                                  {entry.full_name || "Developer"}
+                                  {isCurrentUser && " (You)"}
+                                </span>
+                              </div>
+                              <span className="text-amber-500 font-semibold shrink-0">
+                                {entry.points} XP
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )
+                  ) : courseLeaderboard.length === 0 ? (
+                    <p className="text-xs font-medium text-slate-400 py-3 text-center">
+                      No track records yet for {activeRoadmapConfig.label}.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {courseLeaderboard.slice(0, 5).map((entry, idx) => {
+                        const isCurrentUser = entry.user_id === user?.id;
+                        return (
+                          <div
+                            key={entry.user_id}
+                            className={cn(
+                              "flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition-all",
+                              isCurrentUser
+                                ? "bg-indigo-500/10 border-[#6366F1]/40 text-slate-900 dark:text-white font-semibold"
+                                : "bg-slate-50 dark:bg-[#090D16] border-slate-200/60 dark:border-[#1E293B] text-slate-700 dark:text-slate-300"
+                            )}
+                          >
+                            <div className="flex items-center gap-2.5 truncate">
+                              <span
+                                className={cn(
+                                  "w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
+                                  idx === 0
+                                    ? "bg-amber-500 text-white"
+                                    : idx === 1
+                                    ? "bg-slate-400 text-white"
+                                    : idx === 2
+                                    ? "bg-amber-700 text-white"
+                                    : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                                )}
+                              >
+                                #{idx + 1}
+                              </span>
+                              <div className="truncate flex flex-col">
+                                <span className="truncate">
+                                  {entry.full_name || "Developer"}
+                                  {isCurrentUser && " (You)"}
+                                </span>
+                                <span className="text-[10px] text-slate-400">
+                                  {entry.solved_tasks_count} Solved in Track
+                                </span>
+                              </div>
+                            </div>
+                            <span className="text-indigo-500 font-semibold shrink-0">
+                              {entry.points} XP
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
       )}
       </div>
     </div>
