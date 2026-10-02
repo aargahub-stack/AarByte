@@ -8,7 +8,7 @@ import {
   ShieldAlert,
   LogOut,
   ChevronDown,
-  Sparkles,
+  Zap,
   ArrowRight,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -166,7 +166,7 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                   className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-600 dark:text-indigo-400 text-xs font-bold"
                   title="Your AarCode Points"
                 >
-                  <Sparkles size={14} className="text-indigo-500 animate-pulse" />
+                  <Zap size={13} className="text-amber-500 fill-amber-500/20" />
                   <span>{points} XP</span>
                 </div>
 

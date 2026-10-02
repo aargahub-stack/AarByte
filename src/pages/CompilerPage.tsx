@@ -14,7 +14,6 @@ import {
   Copy,
   Check,
   Code2,
-  Sparkles,
   Terminal as TerminalIcon,
 } from "lucide-react";
 import { getLanguageById } from "@/config/languages";
@@ -551,7 +550,7 @@ export function CompilerPage({
                 <span>Spaces: {settings.tabSize}</span>
               </div>
               <div className="flex items-center gap-1.5 text-indigo-500 dark:text-indigo-400 font-sans font-semibold">
-                <Sparkles size={11} />
+                <TerminalIcon size={11} />
                 <span>AarCode Engine</span>
               </div>
             </div>

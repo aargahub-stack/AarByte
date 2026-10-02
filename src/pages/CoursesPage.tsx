@@ -3,7 +3,6 @@ import {
   BookOpen,
   CheckCircle2,
   Clock,
-  Sparkles,
   ArrowRight,
   Code2,
   Terminal,
@@ -139,7 +138,7 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
       enrollmentStorage.enroll(course.slug);
     }
     setEnrolledIds((prev) => [...prev, course.id, course.slug]);
-    showToast("success", `🎉 Successfully enrolled in "${course.title}"!`);
+    showToast("success", `Successfully enrolled in "${course.title}"!`);
   };
 
   // Calculate task completion progress for each course
@@ -183,8 +182,8 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-[#6366F1] dark:text-[#818CF8] text-xs font-bold border border-indigo-200/70 dark:border-indigo-500/25">
-                <Sparkles size={13} />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-[#6366F1] dark:text-[#818CF8] text-xs font-semibold border border-indigo-200/70 dark:border-indigo-500/25">
+                <Compass size={13} />
                 <span>Interactive Learning Roadmaps</span>
                 <span>•</span>
                 <span className="font-semibold text-slate-600 dark:text-slate-300">Curated DSA Tracks</span>

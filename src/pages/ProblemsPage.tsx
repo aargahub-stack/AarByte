@@ -3,7 +3,6 @@ import {
   Code2,
   CheckCircle2,
   Search,
-  Sparkles,
   ArrowRight,
   Filter,
   Loader2,

@@ -3,7 +3,6 @@ import {
   Trophy,
   Medal,
   Award,
-  Sparkles,
   CheckCircle2,
   TrendingUp,
   Loader2,
@@ -127,7 +126,7 @@ export function LeaderboardPage() {
             <Trophy size={14} className="text-amber-500" />
             <span>AarByte Global Rankings</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             Coder Hall of Fame
           </h1>
           <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
@@ -144,15 +143,15 @@ export function LeaderboardPage() {
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-slate-400 to-slate-200 text-slate-800 font-bold flex items-center justify-center text-lg sm:text-xl shadow-lg shadow-slate-500/20 border-2 border-slate-300">
                   {getInitials(topThree[1].full_name)}
                 </div>
-                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-slate-300 text-slate-900 text-xs font-extrabold flex items-center justify-center shadow">
+                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-slate-300 text-slate-900 text-xs font-semibold flex items-center justify-center shadow">
                   2
                 </div>
               </div>
               <div className="text-center">
-                <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-gray-100 truncate max-w-[100px] sm:max-w-[140px]">
+                <h3 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100 truncate max-w-[100px] sm:max-w-[140px]">
                   {topThree[1].full_name}
                 </h3>
-                <p className="text-[11px] text-amber-500 font-bold">
+                <p className="text-[11px] text-amber-500 font-semibold">
                   {topThree[1].points} XP
                 </p>
                 <p className="text-[10px] text-gray-400">
@@ -165,28 +164,28 @@ export function LeaderboardPage() {
             {/* #1 Rank: Gold */}
             <div className="flex flex-col items-center space-y-3 -mt-6">
               <div className="relative">
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-yellow-500 animate-bounce">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-yellow-500 drop-shadow-sm">
                   <Crown size={28} />
                 </div>
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-yellow-500 to-amber-300 text-amber-950 font-bold flex items-center justify-center text-xl sm:text-2xl shadow-xl shadow-yellow-500/30 border-4 border-yellow-300">
                   {getInitials(topThree[0].full_name)}
                 </div>
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-yellow-400 text-yellow-950 text-xs font-black flex items-center justify-center shadow-md">
+                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-yellow-400 text-yellow-950 text-xs font-bold flex items-center justify-center shadow-md">
                   1
                 </div>
               </div>
               <div className="text-center">
-                <h3 className="text-sm sm:text-base font-extrabold text-gray-900 dark:text-gray-100 truncate max-w-[120px] sm:max-w-[160px]">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 truncate max-w-[120px] sm:max-w-[160px]">
                   {topThree[0].full_name}
                 </h3>
-                <p className="text-xs text-yellow-600 dark:text-yellow-400 font-extrabold">
+                <p className="text-xs text-yellow-600 dark:text-yellow-400 font-semibold">
                   {topThree[0].points} XP
                 </p>
                 <p className="text-[10px] text-gray-400">
                   {topThree[0].solved_tasks_count} Solved
                 </p>
               </div>
-              <div className="w-full h-32 sm:h-36 rounded-t-2xl bg-gradient-to-t from-amber-200 to-yellow-100 dark:from-amber-950 dark:to-yellow-900/40 border border-amber-300 dark:border-amber-700/50 flex items-center justify-center font-black text-amber-500 text-2xl shadow-inner" />
+              <div className="w-full h-32 sm:h-36 rounded-t-2xl bg-gradient-to-t from-amber-200 to-yellow-100 dark:from-amber-950 dark:to-yellow-900/40 border border-amber-300 dark:border-amber-700/50 flex items-center justify-center font-bold text-amber-500 text-2xl shadow-inner" />
             </div>
 
             {/* #3 Rank: Bronze */}
@@ -195,12 +194,12 @@ export function LeaderboardPage() {
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-amber-700 to-amber-500 text-white font-bold flex items-center justify-center text-lg sm:text-xl shadow-lg shadow-amber-700/20 border-2 border-amber-600">
                   {getInitials(topThree[2].full_name)}
                 </div>
-                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-extrabold flex items-center justify-center shadow">
+                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-semibold flex items-center justify-center shadow">
                   3
                 </div>
               </div>
               <div className="text-center">
-                <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-gray-100 truncate max-w-[100px] sm:max-w-[140px]">
+                <h3 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100 truncate max-w-[100px] sm:max-w-[140px]">
                   {topThree[2].full_name}
                 </h3>
                 <p className="text-[11px] text-amber-500 font-bold">
@@ -270,19 +269,19 @@ export function LeaderboardPage() {
                         {/* Rank Badge */}
                         <td className="py-3.5 px-6 text-center">
                           {rank === 1 ? (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-400/20 text-yellow-600 dark:text-yellow-400 font-black">
-                              🥇
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-400/20 text-yellow-600 dark:text-yellow-400">
+                              <Medal size={14} className="text-amber-500" />
                             </span>
                           ) : rank === 2 ? (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-300/20 text-slate-500 font-black">
-                              🥈
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-300/20 text-slate-500">
+                              <Medal size={14} className="text-slate-400" />
                             </span>
                           ) : rank === 3 ? (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-600/20 text-amber-700 dark:text-amber-500 font-black">
-                              🥉
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-600/20 text-amber-700 dark:text-amber-500">
+                              <Medal size={14} className="text-amber-600 dark:text-amber-500" />
                             </span>
                           ) : (
-                            <span className="font-mono font-bold text-gray-500">
+                            <span className="font-mono font-semibold text-gray-500 text-xs">
                               #{rank}
                             </span>
                           )}

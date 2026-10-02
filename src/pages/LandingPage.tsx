@@ -2,7 +2,6 @@ import {
   ArrowRight,
   ArrowUpRight,
   Check,
-  Sparkles,
   Terminal,
   ShieldCheck,
   Compass,
@@ -477,7 +476,7 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
       {/* Centered Header */}
       <div className="text-center max-w-2xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold uppercase tracking-wider">
-          <Sparkles size={13} className="text-[#6366F1]" />
+          <Layers size={13} className="text-[#6366F1]" />
           <span>Flexible Plans</span>
         </div>
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white">
