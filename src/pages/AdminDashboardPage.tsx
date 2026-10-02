@@ -29,6 +29,8 @@ import {
   Copy,
   Settings,
   HelpCircle,
+  Menu,
+  X,
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { adminService } from "@/services/adminService";
@@ -58,6 +60,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   // Navigation & layout state
   const [activeSection, setActiveSection] = useState<AdminSection>("overview");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Platform metrics
   const [metrics, setMetrics] = useState({
@@ -643,12 +646,22 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
   return (
     <div className="h-full w-full flex bg-[#F8FAFC] dark:bg-[#070A12] text-slate-900 dark:text-white font-urbanist overflow-hidden">
+      {/* Mobile Drawer Backdrop */}
+      {mobileSidebarOpen && (
+        <div
+          onClick={() => setMobileSidebarOpen(false)}
+          className="fixed inset-0 bg-black/60 z-30 md:hidden backdrop-blur-xs animate-in fade-in"
+        />
+      )}
+
       {/* =====================================================================
-          1. SLEEK ADMIN SIDEBAR
+          1. SLEEK ADMIN SIDEBAR (Responsive drawer on mobile)
       ===================================================================== */}
       <aside
         className={cn(
-          "h-full border-r border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0B101D] flex flex-col shrink-0 transition-all duration-300 z-30 select-none",
+          "h-full border-r border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0B101D] flex flex-col shrink-0 transition-all duration-300 z-40 select-none",
+          "fixed inset-y-0 left-0 md:relative",
+          mobileSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0",
           isSidebarCollapsed ? "w-20" : "w-64"
         )}
       >
@@ -693,7 +706,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
           {/* Nav Item: Overview */}
           <button
-            onClick={() => setActiveSection("overview")}
+            onClick={() => {
+              setActiveSection("overview");
+              setMobileSidebarOpen(false);
+            }}
             className={cn(
               "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
               activeSection === "overview"
@@ -708,7 +724,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
           {/* Nav Item: Courses */}
           <button
-            onClick={() => setActiveSection("courses")}
+            onClick={() => {
+              setActiveSection("courses");
+              setMobileSidebarOpen(false);
+            }}
             className={cn(
               "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
               activeSection === "courses"
@@ -733,7 +752,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
           {/* Nav Item: Tasks */}
           <button
-            onClick={() => setActiveSection("tasks")}
+            onClick={() => {
+              setActiveSection("tasks");
+              setMobileSidebarOpen(false);
+            }}
             className={cn(
               "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
               activeSection === "tasks"
@@ -760,6 +782,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
           <button
             onClick={() => {
               setActiveSection("submissions");
+              setMobileSidebarOpen(false);
               loadSubmissions();
             }}
             className={cn(
@@ -786,7 +809,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
           {/* Nav Item: Users */}
           <button
-            onClick={() => setActiveSection("users")}
+            onClick={() => {
+              setActiveSection("users");
+              setMobileSidebarOpen(false);
+            }}
             className={cn(
               "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
               activeSection === "users"
@@ -811,7 +837,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
           {/* Nav Item: System */}
           <button
-            onClick={() => setActiveSection("system")}
+            onClick={() => {
+              setActiveSection("system");
+              setMobileSidebarOpen(false);
+            }}
             className={cn(
               "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
               activeSection === "system"
@@ -830,7 +859,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               {isSidebarCollapsed ? "•••" : "Live Site Jump"}
             </div>
             <button
-              onClick={() => navigate("problems")}
+              onClick={() => {
+                navigate("problems");
+                setMobileSidebarOpen(false);
+              }}
               className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
               title="Practice Arena"
             >
@@ -838,7 +870,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               {!isSidebarCollapsed && <span>Practice Arena</span>}
             </button>
             <button
-              onClick={() => navigate("compiler")}
+              onClick={() => {
+                navigate("compiler");
+                setMobileSidebarOpen(false);
+              }}
               className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
               title="Online Compiler"
             >
@@ -882,9 +917,16 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       ===================================================================== */}
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Top Control Bar */}
-        <header className="h-16 px-6 border-b border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] flex items-center justify-between shrink-0 z-20">
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white capitalize">
+        <header className="h-16 px-4 sm:px-6 border-b border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] flex items-center justify-between shrink-0 z-20">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <button
+              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+              className="md:hidden p-2 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-slate-50 dark:bg-[#090D16] text-slate-600 dark:text-slate-300 hover:text-[#6366F1] transition-colors"
+              aria-label="Toggle admin navigation menu"
+            >
+              {mobileSidebarOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+            <h1 className="text-sm sm:text-lg font-bold text-slate-900 dark:text-white capitalize truncate max-w-[180px] xs:max-w-none">
               {activeSection === "overview" && "Dashboard Overview"}
               {activeSection === "courses" && "Course & Module Management"}
               {activeSection === "tasks" && "Problem Bank & Task Creator"}

@@ -264,11 +264,11 @@ export function LeaderboardPage() {
 
           {/* Dual-Mode Selector Tabs */}
           <div className="pt-3 flex justify-center">
-            <div className="inline-flex items-center p-1.5 rounded-2xl bg-slate-200/70 dark:bg-[#0F172A] border border-slate-300/80 dark:border-[#1E293B] shadow-inner">
+            <div className="w-full sm:w-auto flex flex-col xs:flex-row items-stretch p-1.5 rounded-2xl bg-slate-200/70 dark:bg-[#0F172A] border border-slate-300/80 dark:border-[#1E293B] shadow-inner gap-1">
               <button
                 onClick={() => setActiveMode("overall")}
                 className={cn(
-                  "px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2",
+                  "flex-1 justify-center px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2",
                   activeMode === "overall"
                     ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-sm border border-slate-200/80 dark:border-slate-700"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
@@ -281,14 +281,14 @@ export function LeaderboardPage() {
               <button
                 onClick={() => setActiveMode("course")}
                 className={cn(
-                  "px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2",
+                  "flex-1 justify-center px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2",
                   activeMode === "course"
                     ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-sm border border-slate-200/80 dark:border-slate-700"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 )}
               >
                 <BookOpen size={15} className={cn(activeMode === "course" ? "text-indigo-500" : "text-slate-400")} />
-                <span>2nd Mode: Within the Course</span>
+                <span>2nd Mode: Within Course</span>
               </button>
             </div>
           </div>
@@ -300,7 +300,7 @@ export function LeaderboardPage() {
         {activeMode === "course" && (
           <div className="space-y-4 animate-in fade-in duration-200">
             {/* Horizontal Track Selector */}
-            <div className="flex items-center justify-center gap-2 overflow-x-auto pb-1">
+            <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full">
               {AVAILABLE_COURSE_TRACKS.map((track) => {
                 const isSelected = selectedCourseSlug === track.slug;
                 return (
@@ -370,7 +370,7 @@ export function LeaderboardPage() {
             {/* #2 Rank: Silver */}
             <div className="flex flex-col items-center space-y-2 sm:space-y-3">
               <div className="relative">
-                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-slate-400 to-slate-200 text-slate-800 font-bold flex items-center justify-center text-base sm:text-xl shadow-md border-2 border-slate-300">
+                <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-slate-400 to-slate-200 text-slate-800 font-bold flex items-center justify-center text-sm sm:text-xl shadow-md border-2 border-slate-300">
                   {getInitials(topThree[1].full_name)}
                 </div>
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-300 text-slate-900 text-[10px] sm:text-xs font-semibold flex items-center justify-center shadow">
@@ -378,50 +378,50 @@ export function LeaderboardPage() {
                 </div>
               </div>
               <div className="text-center">
-                <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[90px] sm:max-w-[140px]">
+                <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[75px] sm:max-w-[140px]">
                   {topThree[1].full_name}
                 </h3>
-                <p className="text-[11px] text-amber-500 font-semibold">
+                <p className="text-[10px] sm:text-[11px] text-amber-500 font-semibold">
                   {topThree[1].points} {activeMode === "course" ? "Track XP" : "XP"}
                 </p>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[9px] sm:text-[10px] text-slate-400">
                   {topThree[1].solved_tasks_count} Solved
                 </p>
               </div>
-              <div className="w-full h-20 sm:h-28 rounded-t-2xl bg-gradient-to-t from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800/80 border border-slate-300 dark:border-slate-700/60 flex items-center justify-center font-bold text-slate-400 text-lg sm:text-xl shadow-inner" />
+              <div className="w-full h-16 sm:h-28 rounded-t-2xl bg-gradient-to-t from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800/80 border border-slate-300 dark:border-slate-700/60 flex items-center justify-center font-bold text-slate-400 text-base sm:text-xl shadow-inner" />
             </div>
 
             {/* #1 Rank: Gold */}
             <div className="flex flex-col items-center space-y-2 sm:space-y-3 -mt-4 sm:-mt-6">
               <div className="relative">
                 <div className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 text-yellow-500 drop-shadow-sm">
-                  <Crown size={26} />
+                  <Crown size={22} className="sm:w-6 sm:h-6" />
                 </div>
-                <div className="w-18 h-18 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-yellow-500 to-amber-300 text-amber-950 font-bold flex items-center justify-center text-lg sm:text-2xl shadow-lg shadow-yellow-500/20 border-4 border-yellow-300">
+                <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-yellow-500 to-amber-300 text-amber-950 font-bold flex items-center justify-center text-base sm:text-2xl shadow-lg shadow-yellow-500/20 border-3 sm:border-4 border-yellow-300">
                   {getInitials(topThree[0].full_name)}
                 </div>
-                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-yellow-400 text-yellow-950 text-xs font-bold flex items-center justify-center shadow-md">
+                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-5.5 h-5.5 sm:w-7 sm:h-7 rounded-full bg-yellow-400 text-yellow-950 text-[11px] sm:text-xs font-bold flex items-center justify-center shadow-md">
                   1
                 </div>
               </div>
               <div className="text-center">
-                <h3 className="text-xs sm:text-base font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[100px] sm:max-w-[160px]">
+                <h3 className="text-xs sm:text-base font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[85px] sm:max-w-[160px]">
                   {topThree[0].full_name}
                 </h3>
-                <p className="text-xs text-yellow-600 dark:text-yellow-400 font-semibold">
+                <p className="text-[10px] sm:text-xs text-yellow-600 dark:text-yellow-400 font-semibold">
                   {topThree[0].points} {activeMode === "course" ? "Track XP" : "XP"}
                 </p>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[9px] sm:text-[10px] text-slate-400">
                   {topThree[0].solved_tasks_count} Solved
                 </p>
               </div>
-              <div className="w-full h-28 sm:h-36 rounded-t-2xl bg-gradient-to-t from-amber-200 to-yellow-100 dark:from-amber-950/80 dark:to-yellow-900/40 border border-amber-300 dark:border-amber-700/50 flex items-center justify-center font-bold text-amber-500 text-xl sm:text-2xl shadow-inner" />
+              <div className="w-full h-24 sm:h-36 rounded-t-2xl bg-gradient-to-t from-amber-200 to-yellow-100 dark:from-amber-950/80 dark:to-yellow-900/40 border border-amber-300 dark:border-amber-700/50 flex items-center justify-center font-bold text-amber-500 text-lg sm:text-2xl shadow-inner" />
             </div>
 
             {/* #3 Rank: Bronze */}
             <div className="flex flex-col items-center space-y-2 sm:space-y-3">
               <div className="relative">
-                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-amber-700 to-amber-500 text-white font-bold flex items-center justify-center text-base sm:text-xl shadow-md border-2 border-amber-600">
+                <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-amber-700 to-amber-500 text-white font-bold flex items-center justify-center text-sm sm:text-xl shadow-md border-2 border-amber-600">
                   {getInitials(topThree[2].full_name)}
                 </div>
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-amber-600 text-white text-[10px] sm:text-xs font-semibold flex items-center justify-center shadow">
@@ -429,17 +429,17 @@ export function LeaderboardPage() {
                 </div>
               </div>
               <div className="text-center">
-                <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[90px] sm:max-w-[140px]">
+                <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[75px] sm:max-w-[140px]">
                   {topThree[2].full_name}
                 </h3>
-                <p className="text-[11px] text-amber-500 font-semibold">
+                <p className="text-[10px] sm:text-[11px] text-amber-500 font-semibold">
                   {topThree[2].points} {activeMode === "course" ? "Track XP" : "XP"}
                 </p>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[9px] sm:text-[10px] text-slate-400">
                   {topThree[2].solved_tasks_count} Solved
                 </p>
               </div>
-              <div className="w-full h-16 sm:h-24 rounded-t-2xl bg-gradient-to-t from-amber-100 to-orange-50 dark:from-stone-900 dark:to-amber-950/40 border border-amber-300/50 dark:border-amber-900/50 flex items-center justify-center font-bold text-amber-700 text-lg sm:text-xl shadow-inner" />
+              <div className="w-full h-14 sm:h-24 rounded-t-2xl bg-gradient-to-t from-amber-100 to-orange-50 dark:from-stone-900 dark:to-amber-950/40 border border-amber-300/50 dark:border-amber-900/50 flex items-center justify-center font-bold text-amber-700 text-base sm:text-xl shadow-inner" />
             </div>
           </div>
         )}
@@ -482,12 +482,12 @@ export function LeaderboardPage() {
               <table className="w-full text-left text-xs">
                 <thead className="border-b border-slate-200 dark:border-[#1E293B] text-slate-400 uppercase tracking-wider text-[10px] bg-slate-50/50 dark:bg-[#090D16]/50">
                   <tr>
-                    <th className="py-3 px-5 w-16 text-center">Rank</th>
-                    <th className="py-3 px-4">Coder</th>
-                    <th className="py-3 px-4 text-center">
+                    <th className="py-3 px-3 sm:px-5 w-12 sm:w-16 text-center">Rank</th>
+                    <th className="py-3 px-3 sm:px-4">Coder</th>
+                    <th className="hidden sm:table-cell py-3 px-4 text-center">
                       {activeMode === "overall" ? "Total Tasks Solved" : `Solved in ${selectedTrackInfo.shortName}`}
                     </th>
-                    <th className="py-3 px-6 text-right">
+                    <th className="py-3 px-4 sm:px-6 text-right">
                       {activeMode === "overall" ? "AarCode XP" : "Course Track XP"}
                     </th>
                   </tr>
@@ -508,7 +508,7 @@ export function LeaderboardPage() {
                         )}
                       >
                         {/* Rank Badge */}
-                        <td className="py-3.5 px-5 text-center">
+                        <td className="py-3.5 px-3 sm:px-5 text-center">
                           {rank === 1 ? (
                             <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-400/20 text-yellow-600 dark:text-yellow-400">
                               <Medal size={14} className="text-amber-500" />
@@ -529,26 +529,31 @@ export function LeaderboardPage() {
                         </td>
 
                         {/* Name and Avatar */}
-                        <td className="py-3.5 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-bold flex items-center justify-center text-xs shadow-sm">
+                        <td className="py-3.5 px-3 sm:px-4">
+                          <div className="flex items-center gap-2.5 sm:gap-3">
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-bold flex items-center justify-center text-[11px] sm:text-xs shadow-sm shrink-0">
                               {getInitials(entry.full_name)}
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-slate-900 dark:text-slate-100 font-semibold">
-                                {entry.full_name}
-                              </span>
-                              {isCurrentUser && (
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-600 text-white">
-                                  You
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5 truncate">
+                                <span className="text-slate-900 dark:text-slate-100 font-semibold truncate text-xs sm:text-sm">
+                                  {entry.full_name}
                                 </span>
-                              )}
+                                {isCurrentUser && (
+                                  <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-indigo-600 text-white shrink-0">
+                                    You
+                                  </span>
+                                )}
+                              </div>
+                              <span className="sm:hidden text-[10px] text-slate-400 font-normal block">
+                                {entry.solved_tasks_count} solved
+                              </span>
                             </div>
                           </div>
                         </td>
 
-                        {/* Solved Tasks */}
-                        <td className="py-3.5 px-4 text-center">
+                        {/* Solved Tasks (hidden on mobile, shown under name) */}
+                        <td className="hidden sm:table-cell py-3.5 px-4 text-center">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
                             <CheckCircle2 size={13} />
                             <span>
@@ -559,7 +564,7 @@ export function LeaderboardPage() {
                         </td>
 
                         {/* Points */}
-                        <td className="py-3.5 px-6 text-right">
+                        <td className="py-3.5 px-4 sm:px-6 text-right">
                           <span className="font-mono font-bold text-amber-500 text-xs sm:text-sm">
                             ★ {entry.points.toLocaleString()}
                           </span>

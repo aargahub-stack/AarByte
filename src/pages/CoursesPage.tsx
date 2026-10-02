@@ -217,22 +217,22 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
             </div>
 
             {/* Quick Metrics Badge */}
-            <div className="flex sm:flex-row flex-col gap-3 shrink-0">
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-200/80 dark:border-[#1E293B] min-w-[140px]">
+            <div className="grid grid-cols-2 gap-3 w-full lg:w-auto shrink-0">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-200/80 dark:border-[#1E293B]">
                 <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
                   Enrolled Tracks
                 </div>
-                <div className="text-2xl font-bold text-emerald-500">
+                <div className="text-xl sm:text-2xl font-bold text-emerald-500">
                   {totalEnrolledCount}
                   <span className="text-slate-400 text-xs font-normal"> / {courses.length}</span>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-200/80 dark:border-[#1E293B] min-w-[140px]">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-200/80 dark:border-[#1E293B]">
                 <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
                   Available Tracks
                 </div>
-                <div className="text-2xl font-bold text-[#6366F1]">
+                <div className="text-xl sm:text-2xl font-bold text-[#6366F1]">
                   {courses.length}
                   <span className="text-slate-400 text-xs font-normal"> Tracks</span>
                 </div>

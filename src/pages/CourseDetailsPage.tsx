@@ -360,13 +360,13 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
                     {/* =========================================================
                         3 MODE TABS SELECTOR (About Topic | YouTube | Practice / Solve)
                     ========================================================= */}
-                    <div className="flex flex-wrap items-center gap-2 p-1.5 bg-gray-100 dark:bg-[#0F172A] border border-gray-200 dark:border-[#1E293B] rounded-2xl w-fit">
+                    <div className="flex items-center gap-2 p-1.5 bg-gray-100 dark:bg-[#0F172A] border border-gray-200 dark:border-[#1E293B] rounded-2xl w-full sm:w-fit overflow-x-auto scrollbar-none max-w-full">
                       {/* Tab 1: About Topic (Read & Gain) */}
                       <button
                         type="button"
                         onClick={() => setModuleTab(mod.id, "about")}
                         className={cn(
-                          "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all",
+                          "flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap",
                           activeTab === "about"
                             ? "bg-white dark:bg-[#1E293B] text-[#6366F1] dark:text-indigo-300 shadow-sm border border-gray-200/80 dark:border-indigo-500/30"
                             : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -384,7 +384,7 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
                         type="button"
                         onClick={() => setModuleTab(mod.id, "youtube")}
                         className={cn(
-                          "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all",
+                          "flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap",
                           activeTab === "youtube"
                             ? "bg-white dark:bg-[#1E293B] text-rose-600 dark:text-rose-400 shadow-sm border border-gray-200/80 dark:border-rose-500/30"
                             : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -402,7 +402,7 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
                         type="button"
                         onClick={() => setModuleTab(mod.id, "tasks")}
                         className={cn(
-                          "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all",
+                          "flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap",
                           activeTab === "tasks"
                             ? "bg-white dark:bg-[#1E293B] text-emerald-600 dark:text-emerald-400 shadow-sm border border-gray-200/80 dark:border-emerald-500/30"
                             : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
@@ -725,12 +725,12 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
                                 </div>
 
                                 {/* Action Button (Practice Again / Solve Challenge as in image) */}
-                                <div className="flex items-center justify-end">
+                                <div className="flex items-center justify-end w-full sm:w-auto pt-2.5 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-[#1E293B]">
                                   <button
                                     type="button"
                                     onClick={() => navigate("task", { taskId: task.id })}
                                     className={cn(
-                                      "flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold transition-all shrink-0",
+                                      "w-full sm:w-auto justify-center flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold transition-all shrink-0 min-h-[38px]",
                                       isSolved
                                         ? "bg-slate-100 dark:bg-[#070A12] border border-slate-200 dark:border-[#1E293B] text-slate-700 dark:text-slate-300 hover:border-[#6366F1] hover:text-[#6366F1]"
                                         : "bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white shadow-md shadow-indigo-500/25 active:scale-95"
