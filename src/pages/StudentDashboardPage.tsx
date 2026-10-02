@@ -368,15 +368,12 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
         setProgressMap(mergedProgress);
 
-        // 3. Read current enrolled courses - auto-enroll active database courses if empty so tracks are immediately available
-        let storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
-        if (storedEnrolled.length === 0 && activeCourses.length > 0) {
-          activeCourses.forEach((c) => {
-            enrollmentStorage.enroll(c.id);
-            if (c.slug && c.slug !== "#") enrollmentStorage.enroll(c.slug);
-          });
-          storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
-        }
+        // 3. Sync all active database courses into enrollment so all curriculum tracks are immediately accessible
+        activeCourses.forEach((c) => {
+          enrollmentStorage.enroll(c.id);
+          if (c.slug && c.slug !== "#") enrollmentStorage.enroll(c.slug);
+        });
+        const storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
         setEnrolledIds(storedEnrolled);
       } catch (err) {
         console.error("[StudentDashboard] Error loading data:", err);
@@ -426,14 +423,25 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
   // Filter ONLY enrolled courses for the "Continue Learning" section
   const enrolledCourses = useMemo(() => {
-    return courses.filter((course) => {
-      const taskIds = course.modules.flatMap((m) => (m.tasks || []).map((t) => t.id));
-      return (
-        enrolledIds.includes(course.id) ||
-        (course.slug && enrolledIds.includes(course.slug)) ||
-        enrollmentStorage.isEnrolled(course.id, course.slug, taskIds)
-      );
-    });
+    return courses
+      .filter((course) => {
+        const taskIds = course.modules.flatMap((m) => (m.tasks || []).map((t) => t.id));
+        const hasSolvedAny = taskIds.some((t) => progressMap[t]?.is_completed);
+        return (
+          hasSolvedAny ||
+          enrolledIds.includes(course.id) ||
+          (course.slug && enrolledIds.includes(course.slug)) ||
+          enrollmentStorage.isEnrolled(course.id, course.slug, taskIds)
+        );
+      })
+      .sort((a, b) => {
+        const aTasks = a.modules.flatMap((m) => (m.tasks || []).map((t) => t.id));
+        const bTasks = b.modules.flatMap((m) => (m.tasks || []).map((t) => t.id));
+        const aSolved = aTasks.filter((t) => progressMap[t]?.is_completed).length;
+        const bSolved = bTasks.filter((t) => progressMap[t]?.is_completed).length;
+        if (bSolved !== aSolved) return bSolved - aSolved;
+        return a.title.localeCompare(b.title);
+      });
   }, [courses, enrolledIds, progressMap]);
 
   // Dynamic Featured Course from real database courses
