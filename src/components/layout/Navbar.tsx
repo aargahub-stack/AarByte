@@ -278,25 +278,60 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-slate-200 dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#090D16] px-4 py-4 space-y-2 animate-in">
+        <div className="md:hidden border-t border-slate-200 dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#090D16] px-4 py-4 space-y-2 animate-in max-h-[calc(100vh-4rem)] overflow-y-auto">
+          {/* Mobile User Profile & XP Badge if signed in */}
+          {user && (
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] mb-3 shadow-xs">
+              <div className="flex items-center gap-2.5 min-w-0">
+                {profile?.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.full_name}
+                    className="w-8 h-8 rounded-full object-cover shrink-0"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6366F1] to-[#7C3AED] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                    {getInitials(profile?.full_name || user.email)}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                    {profile?.full_name || user.email?.split("@")[0]}
+                  </p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                    {user.email}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-600 dark:text-indigo-400 text-xs font-bold shrink-0">
+                <Zap size={13} className="text-amber-500 fill-amber-500/20" />
+                <span>{points} XP</span>
+              </div>
+            </div>
+          )}
+
           {navItems.map((item) => {
             const isActive =
               !item.isAnchor &&
               (route === item.route ||
-                (item.route === "dashboard" && route === "landing" && Boolean(user)));
+                (item.route === "dashboard" && route === "landing" && Boolean(user)) ||
+                (item.route === "courses" && route === "course") ||
+                (item.route === "problems" && route === "task"));
+
             return (
               <button
                 key={item.label}
                 onClick={() => handleNav(item)}
                 className={cn(
-                  "flex items-center justify-between w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-colors",
+                  "flex items-center justify-between w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all min-h-[44px]",
                   isActive
-                    ? "bg-[#6366F1] text-white"
+                    ? "bg-[#6366F1] text-white shadow-sm shadow-indigo-500/20"
                     : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-[#0F172A]"
                 )}
               >
                 <span>{item.label}</span>
-                <ArrowRight size={15} className="opacity-60" />
+                <ArrowRight size={15} className={isActive ? "text-white" : "opacity-40"} />
               </button>
             );
           })}
@@ -304,18 +339,35 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
           {isAdmin && (
             <button
               onClick={() => handleNav({ route: "admin" })}
-              className="flex items-center gap-2.5 w-full text-left px-4 py-3 rounded-xl text-sm font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40"
+              className="flex items-center justify-between w-full text-left px-4 py-3 rounded-xl text-sm font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 min-h-[44px]"
             >
-              <ShieldAlert size={16} />
-              <span>Admin Dashboard</span>
+              <span className="flex items-center gap-2.5">
+                <ShieldAlert size={16} />
+                <span>Admin Dashboard</span>
+              </span>
+              <ArrowRight size={15} className="opacity-40" />
             </button>
           )}
 
-          {!user && (
+          {user ? (
+            <div className="pt-2 border-t border-slate-200/80 dark:border-[#1E293B]">
+              <button
+                onClick={() => {
+                  signOut();
+                  setMobileOpen(false);
+                  navigate("landing");
+                }}
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors min-h-[44px]"
+              >
+                <LogOut size={16} />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          ) : (
             <div className="pt-2">
               <button
                 onClick={() => handleNav({ route: "login" })}
-                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white rounded-full shadow-md shadow-indigo-500/25"
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white rounded-full shadow-md shadow-indigo-500/25 min-h-[44px]"
               >
                 <span>Login</span>
                 <ArrowRight size={15} />

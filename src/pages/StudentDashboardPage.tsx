@@ -722,36 +722,36 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
             </div>
 
             {/* Right Telemetry Stat Badges (Clean LeetCode-style stat boxes) */}
-            <div className="flex items-center gap-3 sm:gap-4 shrink-0 flex-wrap sm:flex-nowrap">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full sm:w-auto shrink-0">
               {/* Current Streak */}
-              <div className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
-                <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1">
-                  <Flame size={17} strokeWidth={2} />
+              <div className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1">
+                  <Flame size={16} strokeWidth={2} />
                 </div>
-                <div className="text-lg sm:text-xl font-semibold text-white">{currentStreakDays}</div>
-                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                <div className="text-base sm:text-xl font-semibold text-white">{currentStreakDays}</div>
+                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   Streak Days
                 </div>
               </div>
 
               {/* Solved Problems */}
-              <div className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1">
-                  <CheckCircle2 size={17} strokeWidth={2} />
+              <div className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1">
+                  <CheckCircle2 size={16} strokeWidth={2} />
                 </div>
-                <div className="text-lg sm:text-xl font-semibold text-white">{solvedTasksCount}</div>
-                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                <div className="text-base sm:text-xl font-semibold text-white">{solvedTasksCount}</div>
+                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   Solved
                 </div>
               </div>
 
               {/* XP Points */}
-              <div className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
-                <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center mb-1">
-                  <Zap size={17} strokeWidth={2} />
+              <div className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center mb-1">
+                  <Zap size={16} strokeWidth={2} />
                 </div>
-                <div className="text-lg sm:text-xl font-semibold text-white">{effectivePoints}</div>
-                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                <div className="text-base sm:text-xl font-semibold text-white">{effectivePoints}</div>
+                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   XP Points
                 </div>
               </div>
@@ -1301,7 +1301,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 </div>
 
                 {/* Modern Segmented Language Switcher Tabs */}
-                <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-slate-100 dark:bg-[#0B132B]/80 border border-slate-200/80 dark:border-slate-800 shadow-xs shrink-0">
+                <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-slate-100 dark:bg-[#0B132B]/80 border border-slate-200/80 dark:border-slate-800 shadow-xs shrink-0 max-w-full scrollbar-none">
                   {(Object.keys(ROADMAP_PRESETS) as SupportedLanguage[]).map((langKey) => {
                     const isSelected = activeRoadmapLang === langKey;
                     const isTopUsed = analyzedPreference.topLang === langKey;

@@ -747,14 +747,14 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead className="border-b border-slate-200/80 dark:border-[#1E293B] text-slate-400 font-semibold uppercase tracking-wider text-[11px] bg-slate-50/70 dark:bg-[#0B1120]/70">
                   <tr>
-                    <th className="py-3.5 px-4 w-12 text-center">Status</th>
-                    <th className="py-3.5 px-4">Challenge</th>
-                    <th className="py-3.5 px-4">Topic / Category</th>
-                    <th className="py-3.5 px-4">Difficulty</th>
-                    <th className="py-3.5 px-4">Track</th>
-                    <th className="py-3.5 px-4 text-center">Acceptance</th>
-                    <th className="py-3.5 px-4 text-right">Points</th>
-                    <th className="py-3.5 px-5 text-right">Action</th>
+                    <th className="py-3.5 px-2.5 sm:px-4 w-9 sm:w-12 text-center">Status</th>
+                    <th className="py-3.5 px-2.5 sm:px-4">Challenge</th>
+                    <th className="hidden md:table-cell py-3.5 px-4">Topic / Category</th>
+                    <th className="py-3.5 px-2 sm:px-4">Difficulty</th>
+                    <th className="hidden sm:table-cell py-3.5 px-4">Track</th>
+                    <th className="hidden lg:table-cell py-3.5 px-4 text-center">Acceptance</th>
+                    <th className="hidden sm:table-cell py-3.5 px-4 text-right">Points</th>
+                    <th className="py-3.5 px-2.5 sm:px-5 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]/60 font-sans">
@@ -774,7 +774,7 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
                         onClick={() => navigate("task", { taskId: t.id })}
                       >
                         {/* Status Checkmark */}
-                        <td className="py-4 px-4 text-center">
+                        <td className="py-3.5 px-2.5 sm:px-4 text-center">
                           {isSolved ? (
                             <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/20">
                               <Check size={12} strokeWidth={3} />
@@ -785,25 +785,25 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
                         </td>
 
                         {/* Title & Short Preview */}
-                        <td className="py-4 px-4 font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-[#818CF8] transition-colors">
-                          <div className="font-bold text-sm">{t.title}</div>
-                          <div className="text-[11px] text-slate-400 font-normal line-clamp-1 max-w-sm mt-0.5">
+                        <td className="py-3.5 px-2.5 sm:px-4 font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-[#818CF8] transition-colors">
+                          <div className="font-bold text-xs sm:text-sm">{t.title}</div>
+                          <div className="text-[11px] text-slate-400 font-normal line-clamp-1 max-w-sm mt-0.5 hidden xs:block">
                             {t.description}
                           </div>
                         </td>
 
                         {/* Category */}
-                        <td className="py-4 px-4 text-slate-600 dark:text-slate-300 text-xs font-medium">
+                        <td className="hidden md:table-cell py-3.5 px-4 text-slate-600 dark:text-slate-300 text-xs font-medium">
                           <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#0B1120] text-slate-600 dark:text-slate-400 text-[11px] font-semibold">
                             {t.category || t.courseTitle || "General Practice"}
                           </span>
                         </td>
 
                         {/* Difficulty */}
-                        <td className="py-4 px-4">
+                        <td className="py-3.5 px-2 sm:px-4">
                           <span
                             className={cn(
-                              "px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+                              "px-2 sm:px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider border",
                               diffBadge
                             )}
                           >
@@ -812,35 +812,36 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
                         </td>
 
                         {/* Language Track */}
-                        <td className="py-4 px-4 font-mono uppercase text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                        <td className="hidden sm:table-cell py-3.5 px-4 font-mono uppercase text-xs text-slate-500 dark:text-slate-400 font-semibold">
                           {t.language}
                         </td>
 
                         {/* Acceptance Rate */}
-                        <td className="py-4 px-4 text-center font-mono text-xs text-slate-500 dark:text-slate-400">
+                        <td className="hidden lg:table-cell py-3.5 px-4 text-center font-mono text-xs text-slate-500 dark:text-slate-400">
                           {t.acceptanceRate || "60.4%"}
                         </td>
 
                         {/* XP Points */}
-                        <td className="py-4 px-4 text-right font-bold text-amber-500 text-xs sm:text-sm font-mono">
+                        <td className="hidden sm:table-cell py-3.5 px-4 text-right font-bold text-amber-500 text-xs sm:text-sm font-mono">
                           +{t.points || 10} XP
                         </td>
 
                         {/* Action CTA */}
-                        <td className="py-4 px-5 text-right">
+                        <td className="py-3.5 px-2.5 sm:px-5 text-right">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate("task", { taskId: t.id });
                             }}
                             className={cn(
-                              "inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs",
+                              "inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0",
                               isSolved
                                 ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700"
                                 : "bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white shadow-indigo-500/20 hover:shadow-indigo-500/35 hover:scale-[1.02]"
                             )}
                           >
-                            <span>{isSolved ? "Practice Again" : "Solve Challenge"}</span>
+                            <span className="hidden sm:inline">{isSolved ? "Practice Again" : "Solve Challenge"}</span>
+                            <span className="sm:hidden">{isSolved ? "Review" : "Solve"}</span>
                             <ArrowRight size={12} />
                           </button>
                         </td>
