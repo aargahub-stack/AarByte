@@ -745,7 +745,222 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+          <div className="space-y-8">
+            {/* -------------------------------------------------------------
+                SECTION 1: CONTINUE YOUR ROADMAP (FULL WIDTH HERO TRACK)
+            ------------------------------------------------------------- */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Compass size={19} className="text-indigo-500" />
+                    <span>Continue Your Roadmap</span>
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Personalized engineering curriculum analyzing your programming language &amp; problem submissions
+                    {analyzedPreference.hasUserActivity && (
+                      <span className="inline-flex items-center gap-1 ml-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                        • Auto-selected {ROADMAP_PRESETS[analyzedPreference.topLang].label} (
+                        {analyzedPreference.totalSolvedInTop > 0
+                          ? `${analyzedPreference.totalSolvedInTop} solved`
+                          : "most active"}
+                        )
+                      </span>
+                    )}
+                  </p>
+                </div>
+
+                {/* Modern Segmented Language Switcher Tabs */}
+                <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-slate-100 dark:bg-[#0B132B]/80 border border-slate-200/80 dark:border-slate-800 shadow-xs shrink-0">
+                  {(Object.keys(ROADMAP_PRESETS) as SupportedLanguage[]).map((langKey) => {
+                    const isSelected = activeRoadmapLang === langKey;
+                    const isTopUsed = analyzedPreference.topLang === langKey;
+                    const solvedCount = analyzedPreference.solvedCounts[langKey] || 0;
+
+                    return (
+                      <button
+                        key={langKey}
+                        onClick={() => {
+                          if (langKey === analyzedPreference.topLang) {
+                            setSelectedRoadmapLang(null);
+                          } else {
+                            setSelectedRoadmapLang(langKey);
+                          }
+                        }}
+                        className={cn(
+                          "px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 select-none",
+                          isSelected
+                            ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-slate-700/80 font-semibold"
+                            : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50 border border-transparent"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "w-2 h-2 rounded-full shrink-0",
+                            langKey === "python" && "bg-sky-500",
+                            langKey === "cpp" && "bg-blue-600",
+                            langKey === "java" && "bg-amber-500",
+                            langKey === "javascript" && "bg-yellow-400",
+                            langKey === "c" && "bg-slate-400"
+                          )}
+                        />
+                        <span>{ROADMAP_PRESETS[langKey].label}</span>
+                        {isTopUsed && (
+                          <span
+                            className={cn(
+                              "text-[9px] font-mono tracking-tight px-1.5 py-0.5 rounded-md font-semibold uppercase shrink-0 transition-colors",
+                              isSelected
+                                ? "bg-indigo-500/10 dark:bg-indigo-500/20 text-[#4F46E5] dark:text-indigo-300 border border-indigo-500/20"
+                                : "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                            )}
+                          >
+                            {solvedCount > 0 ? `${solvedCount} Solved` : "Most Used"}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Primary Recommended Roadmap Card (Full Width) */}
+              <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 space-y-5 shadow-xs">
+                {/* Sub-badge: Roadmap Recommendation & Auto-Selected Details */}
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold">
+                    <Target size={13} className="text-indigo-500" />
+                    <span>
+                      {activeRoadmapLang === analyzedPreference.topLang
+                        ? "Auto-Selected for You"
+                        : "Previewing Track"}
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">
+                      {activeRoadmapLang === analyzedPreference.topLang
+                        ? `(${analyzedPreference.matchConfidence}% Match • ${
+                            analyzedPreference.totalSolvedInTop > 0
+                              ? `${analyzedPreference.totalSolvedInTop} solved problems`
+                              : "Based on your activity"
+                          })`
+                        : `(Your top language is ${ROADMAP_PRESETS[analyzedPreference.topLang].label})`}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    {selectedRoadmapLang !== null &&
+                      selectedRoadmapLang !== analyzedPreference.topLang && (
+                        <button
+                          onClick={() => setSelectedRoadmapLang(null)}
+                          className="text-[11px] font-medium text-[#6366F1] dark:text-indigo-400 hover:underline flex items-center gap-1 transition-all"
+                        >
+                          <RotateCcw size={11} />
+                          <span>
+                            Back to {ROADMAP_PRESETS[analyzedPreference.topLang].label} (Auto)
+                          </span>
+                        </button>
+                      )}
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      {activeRoadmapConfig.durationEst} Est.
+                    </span>
+                  </div>
+                </div>
+
+                {/* Main Roadmap Banner */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B]">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-[#6366F1] flex items-center justify-center font-mono font-bold text-sm shrink-0">
+                      {activeRoadmapConfig.iconLabel}
+                    </div>
+                    <div>
+                      <h4 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
+                        {activeRoadmapConfig.title}
+                      </h4>
+                      <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                        <span className="flex items-center gap-1">
+                          <BookOpen size={13} className="text-[#6366F1]" />
+                          <span>{activeRoadmapConfig.modulesCount} Modules</span>
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <Clock size={13} className="text-slate-400" />
+                          <span>{activeRoadmapConfig.durationEst}</span>
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <Target size={13} className="text-emerald-500" />
+                          <span>{activeRoadmapConfig.totalProblems} Problems</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => navigate("course", { slug: activeRoadmapConfig.courseSlug })}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs sm:text-sm shadow-xs active:scale-[0.98] transition-all shrink-0 text-center"
+                  >
+                    <span>Resume Roadmap</span>
+                  </button>
+                </div>
+
+                {/* Practice Areas Grid - Full Width 4-Column Layout */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-300">
+                    <span>PRACTICE TRACKS &amp; CURATED TOPICS</span>
+                    <button
+                      onClick={() => navigate("problems")}
+                      className="text-xs font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
+                    >
+                      All Practice Problems →
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    {activeRoadmapConfig.practiceAreas.map((area, pIdx) => (
+                      <div
+                        key={pIdx}
+                        onClick={() => navigate("problems")}
+                        className="group cursor-pointer p-4 rounded-xl border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] bg-slate-50 dark:bg-[#090D16] transition-all flex flex-col justify-between gap-3 shadow-xs"
+                      >
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <h5 className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
+                              {area.title}
+                            </h5>
+                            <span
+                              className={cn(
+                                "text-[9px] font-semibold uppercase px-1.5 py-0.2 rounded border shrink-0",
+                                area.difficulty === "Easy" &&
+                                  "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+                                area.difficulty === "Medium" &&
+                                  "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+                                area.difficulty === "Hard" &&
+                                  "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                              )}
+                            >
+                              {area.difficulty}
+                            </span>
+                          </div>
+                          <p className="text-[11px] font-normal text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                            {area.description}
+                          </p>
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-200/60 dark:border-[#1E293B] flex items-center justify-between text-xs font-medium text-slate-400 group-hover:text-[#6366F1] transition-colors">
+                          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                            {area.problemCount} Problems
+                          </span>
+                          <ChevronRight size={14} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ===============================================================
+                MAIN 2-COLUMN GRID (8 Col Main Workspaces + 4 Col Sidebar Tracker)
+            =============================================================== */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
             {/* ===============================================================
                 LEFT MAIN STREAM (8 COLUMNS)
             =============================================================== */}
@@ -1021,215 +1236,6 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                   </div>
                 </div>
               </div>
-
-              {/* -------------------------------------------------------------
-                  SECTION 4: CONTINUE YOUR ROADMAP (AI LANGUAGE ANALYZED)
-              ------------------------------------------------------------- */}
-              <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="space-y-0.5">
-                    <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                      <Compass size={19} className="text-indigo-500" />
-                      <span>Continue Your Roadmap</span>
-                    </h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Personalized engineering curriculum analyzing your programming language &amp; problem submissions
-                      {analyzedPreference.hasUserActivity && (
-                        <span className="inline-flex items-center gap-1 ml-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                          • Auto-selected {ROADMAP_PRESETS[analyzedPreference.topLang].label} (
-                          {analyzedPreference.totalSolvedInTop > 0
-                            ? `${analyzedPreference.totalSolvedInTop} solved`
-                            : "most active"}
-                          )
-                        </span>
-                      )}
-                    </p>
-                  </div>
-
-                  {/* Modern Segmented Language Switcher Tabs */}
-                  <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-slate-100 dark:bg-[#0B132B]/80 border border-slate-200/80 dark:border-slate-800 shadow-xs shrink-0">
-                    {(Object.keys(ROADMAP_PRESETS) as SupportedLanguage[]).map((langKey) => {
-                      const isSelected = activeRoadmapLang === langKey;
-                      const isTopUsed = analyzedPreference.topLang === langKey;
-                      const solvedCount = analyzedPreference.solvedCounts[langKey] || 0;
-
-                      return (
-                        <button
-                          key={langKey}
-                          onClick={() => {
-                            if (langKey === analyzedPreference.topLang) {
-                              setSelectedRoadmapLang(null);
-                            } else {
-                              setSelectedRoadmapLang(langKey);
-                            }
-                          }}
-                          className={cn(
-                            "px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 select-none",
-                            isSelected
-                              ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-slate-700/80 font-semibold"
-                              : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50 border border-transparent"
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              "w-2 h-2 rounded-full shrink-0",
-                              langKey === "python" && "bg-sky-500",
-                              langKey === "cpp" && "bg-blue-600",
-                              langKey === "java" && "bg-amber-500",
-                              langKey === "javascript" && "bg-yellow-400",
-                              langKey === "c" && "bg-slate-400"
-                            )}
-                          />
-                          <span>{ROADMAP_PRESETS[langKey].label}</span>
-                          {isTopUsed && (
-                            <span
-                              className={cn(
-                                "text-[9px] font-mono tracking-tight px-1.5 py-0.5 rounded-md font-semibold uppercase shrink-0 transition-colors",
-                                isSelected
-                                  ? "bg-indigo-500/10 dark:bg-indigo-500/20 text-[#4F46E5] dark:text-indigo-300 border border-indigo-500/20"
-                                  : "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                              )}
-                            >
-                              {solvedCount > 0 ? `${solvedCount} Solved` : "Most Used"}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Primary Recommended Roadmap Card */}
-                <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 space-y-5 shadow-xs">
-                  {/* Sub-badge: Roadmap Recommendation & Auto-Selected Details */}
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold">
-                      <Target size={13} className="text-indigo-500" />
-                      <span>
-                        {activeRoadmapLang === analyzedPreference.topLang
-                          ? "Auto-Selected for You"
-                          : "Previewing Track"}
-                      </span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">
-                        {activeRoadmapLang === analyzedPreference.topLang
-                          ? `(${analyzedPreference.matchConfidence}% Match • ${
-                              analyzedPreference.totalSolvedInTop > 0
-                                ? `${analyzedPreference.totalSolvedInTop} solved problems`
-                                : "Based on your activity"
-                            })`
-                          : `(Your top language is ${ROADMAP_PRESETS[analyzedPreference.topLang].label})`}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      {selectedRoadmapLang !== null &&
-                        selectedRoadmapLang !== analyzedPreference.topLang && (
-                          <button
-                            onClick={() => setSelectedRoadmapLang(null)}
-                            className="text-[11px] font-medium text-[#6366F1] dark:text-indigo-400 hover:underline flex items-center gap-1 transition-all"
-                          >
-                            <RotateCcw size={11} />
-                            <span>
-                              Back to {ROADMAP_PRESETS[analyzedPreference.topLang].label} (Auto)
-                            </span>
-                          </button>
-                        )}
-                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                        {activeRoadmapConfig.durationEst} Est.
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Main Roadmap Banner */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B]">
-                    <div className="flex items-center gap-3.5">
-                      <div className="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-[#6366F1] flex items-center justify-center font-mono font-bold text-sm shrink-0">
-                        {activeRoadmapConfig.iconLabel}
-                      </div>
-                      <div>
-                        <h4 className="text-base font-semibold text-slate-900 dark:text-white">
-                          {activeRoadmapConfig.title}
-                        </h4>
-                        <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                          <span className="flex items-center gap-1">
-                            <BookOpen size={13} className="text-[#6366F1]" />
-                            <span>{activeRoadmapConfig.modulesCount} Modules</span>
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Clock size={13} className="text-slate-400" />
-                            <span>{activeRoadmapConfig.durationEst}</span>
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Target size={13} className="text-emerald-500" />
-                            <span>{activeRoadmapConfig.totalProblems} Problems</span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => navigate("course", { slug: activeRoadmapConfig.courseSlug })}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs shadow-xs active:scale-[0.98] transition-all shrink-0"
-                    >
-                      <span>Resume Roadmap</span>
-                    </button>
-                  </div>
-
-                  {/* Practice Areas Grid */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-300">
-                      <span>PRACTICE TRACKS &amp; CURATED TOPICS</span>
-                      <button
-                        onClick={() => navigate("problems")}
-                        className="text-xs font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
-                      >
-                        All Practice Problems →
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {activeRoadmapConfig.practiceAreas.map((area, pIdx) => (
-                        <div
-                          key={pIdx}
-                          onClick={() => navigate("problems")}
-                          className="group cursor-pointer p-3.5 rounded-xl border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] bg-slate-50 dark:bg-[#090D16] transition-all flex items-center justify-between gap-3 shadow-xs"
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <h5 className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
-                                {area.title}
-                              </h5>
-                              <span
-                                className={cn(
-                                  "text-[9px] font-semibold uppercase px-1.5 py-0.2 rounded border",
-                                  area.difficulty === "Easy" &&
-                                    "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-                                  area.difficulty === "Medium" &&
-                                    "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-                                  area.difficulty === "Hard" &&
-                                    "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-                                )}
-                              >
-                                {area.difficulty}
-                              </span>
-                            </div>
-                            <p className="text-[11px] font-normal text-slate-500 dark:text-slate-400 line-clamp-1">
-                              {area.description}
-                            </p>
-                          </div>
-
-                          <div className="shrink-0 flex items-center gap-1.5 text-xs font-medium text-slate-400 group-hover:text-[#6366F1] transition-colors">
-                            <span>{area.problemCount} Qs</span>
-                            <ChevronRight size={14} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* ===============================================================
@@ -1420,7 +1426,8 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
       </div>
     </div>
   );
