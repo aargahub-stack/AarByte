@@ -7,49 +7,49 @@ type FooterProps = {
 
 export function Footer({ navigate }: FooterProps) {
   return (
-    <footer className="font-urbanist bg-[#090D16] text-slate-400 border-t border-[#1E293B]">
+    <footer className="font-urbanist bg-[#0C0D0E] text-[#8A9099] border-t border-[#202425]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-10 border-b border-[#1E293B]">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-10 border-b border-[#202425]">
           {/* Brand Logo & Tagline */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <button
               onClick={() => navigate("landing")}
-              className="flex items-center gap-3 group focus:outline-none text-left"
+              className="flex items-center gap-3 group focus:outline-none text-left cursor-pointer"
             >
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 p-1.5 group-hover:scale-105 transition-transform">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#151718] border border-[#202425] p-1.5 group-hover:scale-105 group-hover:border-[#00F076]/40 transition-all">
                 <img
                   src="/AarCode.png"
                   alt="AarCode Logo"
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="font-bold text-2xl tracking-tight text-white">
+              <span className="font-bold text-2xl tracking-tight text-[#ECEDEE]">
                 AarCode
               </span>
             </button>
-            <span className="hidden sm:inline text-slate-700">|</span>
-            <p className="text-sm text-slate-400 font-medium max-w-md">
-              Next-Gen Developer Platform — Master DSA, execute code in real-time, and scale your engineering skills.
+            <span className="hidden sm:inline text-[#202425]">|</span>
+            <p className="text-sm text-[#8A9099] font-normal max-w-md">
+              Engineered for serious developers — Master DSA, execute code in real-time, and scale your engineering skills.
             </p>
           </div>
 
           {/* Quick Navigation */}
-          <div className="flex flex-wrap items-center gap-6 text-sm font-semibold">
+          <div className="flex flex-wrap items-center gap-6 text-sm font-medium">
             <button
               onClick={() => navigate("courses")}
-              className="text-slate-400 hover:text-white transition-colors"
+              className="text-[#8A9099] hover:text-[#ECEDEE] transition-colors cursor-pointer"
             >
               Courses
             </button>
             <button
               onClick={() => navigate("problems")}
-              className="text-slate-400 hover:text-white transition-colors"
+              className="text-[#8A9099] hover:text-[#ECEDEE] transition-colors cursor-pointer"
             >
               Practice Arena
             </button>
             <button
               onClick={() => navigate("compiler")}
-              className="text-slate-400 hover:text-white transition-colors"
+              className="text-[#8A9099] hover:text-[#ECEDEE] transition-colors cursor-pointer"
             >
               Compiler
             </button>
@@ -60,7 +60,7 @@ export function Footer({ navigate }: FooterProps) {
                   document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
                 }, 100);
               }}
-              className="text-slate-400 hover:text-white transition-colors"
+              className="text-[#8A9099] hover:text-[#ECEDEE] transition-colors cursor-pointer"
             >
               Pricing
             </button>
@@ -69,56 +69,56 @@ export function Footer({ navigate }: FooterProps) {
 
         {/* Bottom Bar: Copyright, Terms, Privacy, Social/GitHub Links */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-6 text-xs sm:text-sm font-medium text-slate-500">
+          <div className="flex flex-wrap items-center gap-6 text-xs sm:text-sm font-normal text-[#5B626A]">
             <span>© {new Date().getFullYear()} AarCode. All rights reserved.</span>
             <button
               onClick={() => navigate("terms")}
-              className="hover:text-slate-300 transition-colors"
+              className="hover:text-[#ECEDEE] transition-colors cursor-pointer"
             >
               Terms of Service
             </button>
             <button
               onClick={() => navigate("privacy")}
-              className="hover:text-slate-300 transition-colors"
+              className="hover:text-[#ECEDEE] transition-colors cursor-pointer"
             >
               Privacy Policy
             </button>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <a
               href="https://github.com"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-[#0F172A] border border-[#1E293B] text-slate-400 hover:text-white hover:border-indigo-500/50 transition-all"
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#151718] border border-[#202425] text-[#8A9099] hover:text-[#ECEDEE] hover:border-[#00F076]/50 transition-all cursor-pointer"
               aria-label="GitHub"
             >
-              <Github size={17} />
+              <Github size={15} />
             </a>
             <a
               href="https://twitter.com"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-[#0F172A] border border-[#1E293B] text-slate-400 hover:text-white hover:border-indigo-500/50 transition-all"
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#151718] border border-[#202425] text-[#8A9099] hover:text-[#ECEDEE] hover:border-[#00F076]/50 transition-all cursor-pointer"
               aria-label="Twitter"
             >
-              <Twitter size={17} />
+              <Twitter size={15} />
             </a>
             <a
               href="https://linkedin.com"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-[#0F172A] border border-[#1E293B] text-slate-400 hover:text-white hover:border-indigo-500/50 transition-all"
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#151718] border border-[#202425] text-[#8A9099] hover:text-[#ECEDEE] hover:border-[#00F076]/50 transition-all cursor-pointer"
               aria-label="LinkedIn"
             >
-              <Linkedin size={17} />
+              <Linkedin size={15} />
             </a>
             <button
               onClick={() => navigate("compiler")}
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-[#0F172A] border border-[#1E293B] text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 transition-all"
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#151718] border border-[#202425] text-[#8A9099] hover:text-[#00F076] hover:border-[#00F076]/50 transition-all cursor-pointer"
               aria-label="Compiler"
             >
-              <Code2 size={17} />
+              <Code2 size={15} />
             </button>
           </div>
         </div>
