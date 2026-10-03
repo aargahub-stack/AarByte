@@ -30,6 +30,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/services/supabase";
 import { courseService } from "@/services/courseService";
 import { progressStorage } from "@/services/storage/progressStorage";
+import { calculateStreak } from "@/services/streakService";
 import { enrollmentStorage } from "@/services/storage/enrollmentStorage";
 import { loadPrograms } from "@/services/storage/programStorage";
 import { loadSettings } from "@/services/storage/settingsStorage";
@@ -656,17 +657,16 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
     return title.slice(0, 3).toUpperCase();
   };
 
-  // Streak status and weekly streak days
-  const currentStreakDays = solvedTasksCount > 0 ? Math.max(1, solvedTasksCount) : 1;
-  const weekDays = [
-    { label: "S", dayNum: 27, status: "completed" },
-    { label: "M", dayNum: 28, status: "completed" },
-    { label: "T", dayNum: 29, status: "completed" },
-    { label: "W", dayNum: 30, status: "completed" },
-    { label: "T", dayNum: 1, status: "completed" },
-    { label: "F", dayNum: 2, status: "active" },
-    { label: "S", dayNum: 3, status: "upcoming" },
-  ];
+  // Streak calculation based on real completion timestamps and dynamic calendar
+  const completionTimestamps = useMemo(() => {
+    return Object.values(progressMap)
+      .filter((p) => p.is_completed && p.completed_at)
+      .map((p) => p.completed_at as string);
+  }, [progressMap]);
+
+  const streakData = useMemo(() => {
+    return calculateStreak(completionTimestamps);
+  }, [completionTimestamps]);
 
   return (
     <div className="min-h-screen font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-white py-6 sm:py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
@@ -725,10 +725,17 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
             <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full sm:w-auto shrink-0">
               {/* Current Streak */}
               <div className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1">
+                <div
+                  className={cn(
+                    "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mb-1 transition-colors",
+                    streakData.currentStreak > 0
+                      ? "bg-amber-500/20 text-amber-400"
+                      : "bg-slate-700/40 text-slate-400"
+                  )}
+                >
                   <Flame size={16} strokeWidth={2} />
                 </div>
-                <div className="text-base sm:text-xl font-semibold text-white">{currentStreakDays}</div>
+                <div className="text-base sm:text-xl font-semibold text-white">{streakData.currentStreak}</div>
                 <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   Streak Days
                 </div>
@@ -1019,7 +1026,14 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                   {/* Header */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-500 flex items-center justify-center shrink-0">
+                      <div
+                        className={cn(
+                          "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-colors",
+                          streakData.currentStreak > 0
+                            ? "bg-amber-500/10 border-amber-500/25 text-amber-500"
+                            : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400"
+                        )}
+                      >
                         <Flame size={18} strokeWidth={2} />
                       </div>
                       <div>
@@ -1028,8 +1042,8 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-lg font-semibold text-slate-900 dark:text-white">{currentStreakDays}</span>
-                      <span className="text-xs text-slate-400 font-normal"> / 50 days</span>
+                      <span className="text-lg font-semibold text-slate-900 dark:text-white">{streakData.currentStreak}</span>
+                      <span className="text-xs text-slate-400 font-normal"> / {streakData.nextMilestone} days</span>
                     </div>
                   </div>
 
@@ -1038,42 +1052,65 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                     <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
-                        style={{ width: `${Math.min(100, Math.max(8, (currentStreakDays / 50) * 100))}%` }}
+                        style={{ width: `${Math.min(100, Math.max(8, streakData.milestoneProgressPct))}%` }}
                       />
                     </div>
                     <p className="text-xs font-normal text-slate-500 dark:text-slate-400 leading-snug">
-                      Solve at least 1 coding problem today to extend your streak.
+                      {streakData.statusMessage}
                     </p>
                   </div>
 
-                  {/* Weekday Streak Days (S M T W T F S) */}
+                  {/* Dynamic Weekday Streak Days (S M T W T F S) */}
                   <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B]/80">
                     <div className="grid grid-cols-7 gap-1 text-center">
-                      {weekDays.map((wd, wIdx) => {
+                      {streakData.weekDays.map((wd, wIdx) => {
                         const isCompleted = wd.status === "completed";
                         const isActive = wd.status === "active";
+                        const isMissed = wd.status === "missed";
                         return (
-                          <div key={wIdx} className="flex flex-col items-center gap-1.5">
-                            <span className="text-xs font-semibold text-slate-400">{wd.label}</span>
+                          <div
+                            key={wIdx}
+                            className="flex flex-col items-center gap-1.5"
+                            title={`${wd.fullDayName}, ${wd.monthName} ${wd.dayNum} - ${isCompleted ? "Solved" : wd.isToday ? "Today (Pending)" : isMissed ? "No activity" : "Upcoming"}`}
+                          >
+                            <span
+                              className={cn(
+                                "text-xs font-semibold",
+                                wd.isToday
+                                  ? "text-indigo-600 dark:text-indigo-400 font-bold"
+                                  : "text-slate-400"
+                              )}
+                            >
+                              {wd.label}
+                            </span>
                             <div
                               className={cn(
-                                "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-semibold transition-all",
+                                "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-semibold transition-all relative select-none",
                                 isCompleted &&
-                                  "bg-amber-500 text-white shadow-xs",
+                                  "bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xs font-bold",
                                 isActive &&
-                                  "bg-indigo-600 text-white ring-2 ring-indigo-400 ring-offset-2 dark:ring-offset-[#0F172A]",
+                                  "bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500 ring-2 ring-indigo-400/30 ring-offset-1 dark:ring-offset-[#0F172A]",
+                                isMissed &&
+                                  "bg-slate-100/70 dark:bg-[#090D16]/60 text-slate-400/80 border border-slate-200/50 dark:border-[#1E293B]/50",
                                 wd.status === "upcoming" &&
-                                  "bg-slate-100 dark:bg-[#090D16] text-slate-400 border border-slate-200/60 dark:border-[#1E293B]"
+                                  "bg-slate-50 dark:bg-[#090D16] text-slate-300 dark:text-slate-600 border border-dashed border-slate-200/80 dark:border-[#1E293B]"
                               )}
                             >
                               {isCompleted ? <Check size={13} strokeWidth={2.5} /> : wd.dayNum}
+                              {wd.isToday && !isCompleted && (
+                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-indigo-500 ring-2 ring-white dark:ring-[#0F172A] animate-pulse" />
+                              )}
                             </div>
                           </div>
                         );
                       })}
                     </div>
-                    <div className="text-xs font-medium text-slate-500 dark:text-slate-400 pt-3 text-center">
-                      3 Freeze Days Available
+                    <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-[#1E293B]/60 mt-3">
+                      <span>Best Streak: <strong className="text-slate-900 dark:text-white font-semibold">{streakData.longestStreak} {streakData.longestStreak === 1 ? "day" : "days"}</strong></span>
+                      <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium">
+                        <Flame size={12} />
+                        {streakData.freezeDaysAvailable} Freeze {streakData.freezeDaysAvailable === 1 ? "Day" : "Days"} Available
+                      </span>
                     </div>
                   </div>
                 </div>
