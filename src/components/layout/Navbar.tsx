@@ -121,8 +121,8 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
             </span>
           </button>
 
-          {/* Center: Navigation Links - Just Nav Links Without Full Oval Container */}
-          <nav className="hidden md:flex items-center gap-1 sm:gap-1.5 lg:gap-2">
+          {/* Center: Navigation Links - Clean Minimalist with Neat Underline on Hover & Active */}
+          <nav className="hidden md:flex items-center gap-1 sm:gap-2 lg:gap-3">
             {navItems.map((item) => {
               const isActive =
                 !item.isAnchor &&
@@ -136,13 +136,22 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                   key={item.label}
                   onClick={() => handleNav(item)}
                   className={cn(
-                    "px-3.5 py-2 rounded-xl text-sm transition-all duration-150",
+                    "relative px-3 py-2 text-sm transition-colors duration-200 group focus:outline-none select-none",
                     isActive
-                      ? "text-[#6366F1] dark:text-indigo-400 bg-indigo-500/10 dark:bg-indigo-500/15 font-semibold"
-                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-800/50 font-medium"
+                      ? "text-[#6366F1] dark:text-indigo-400 font-semibold"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium"
                   )}
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  {/* Neat Underline Indicator */}
+                  <span
+                    className={cn(
+                      "absolute bottom-0.5 left-2.5 right-2.5 h-[2px] rounded-full transition-all duration-200 origin-center",
+                      isActive
+                        ? "bg-[#6366F1] dark:bg-indigo-400 opacity-100 scale-x-100 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
+                        : "bg-[#6366F1] dark:bg-indigo-400 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100"
+                    )}
+                  />
                 </button>
               );
             })}
