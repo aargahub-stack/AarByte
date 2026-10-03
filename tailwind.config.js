@@ -9,6 +9,15 @@ export default {
         urbanist: ['Urbanist', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'SF Mono', 'Menlo', 'Monaco', 'monospace'],
       },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+      },
+      animation: {
+        marquee: 'marquee 25s linear infinite',
+      },
     },
   },
   plugins: [],

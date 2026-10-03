@@ -40,6 +40,24 @@
   .animate-in {
     animation: animate-in 0.15s ease-out;
   }
+  .animate-marquee {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    animation: marquee 25s linear infinite;
+  }
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate3d(0%, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
 @keyframes animate-in {
@@ -53,20 +71,17 @@
   }
 }
 
-/* Custom scrollbar */
+/* Hide scrollbar globally */
+html,
+body,
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgb(200 200 200 / 0.3);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgb(200 200 200 / 0.5);
+  display: none;
+  width: 0px;
+  height: 0px;
 }
 
 /* Monaco editor container */

@@ -6,11 +6,7 @@ import {
   Terminal,
   ShieldCheck,
   Compass,
-  Cpu,
-  Layers,
-  Sparkles,
-  CheckCircle2,
-  Zap,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import type { Route } from "@/types";
@@ -21,18 +17,19 @@ interface LandingPageProps {
 
 export function LandingPage({ navigate }: LandingPageProps) {
   return (
-    <div className="font-urbanist bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] transition-colors duration-300 overflow-x-hidden selection:bg-[#00F076]/25 selection:text-[#0C0D0E] dark:selection:text-[#00F076]">
+    <div className="font-urbanist bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] transition-colors duration-300 overflow-x-hidden selection:bg-[#10B981]/25 selection:text-[#0C0D0E] dark:selection:text-[#10B981]">
       {/* ===================================================================
           B. HERO SECTION
       =================================================================== */}
       <HeroSection navigate={navigate} />
 
+      {/* ===================================================================
+          C. SUPPORTED LANGUAGES CAROUSEL (EDGE-TO-EDGE VIEWPORT)
+      =================================================================== */}
+      <SupportedLanguagesCarousel navigate={navigate} />
+
       {/* Main Container for Subsequent Sections */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 space-y-24 sm:space-y-28 lg:space-y-36">
-        {/* ===================================================================
-            C. SUPPORTED LANGUAGES STRIP
-        =================================================================== */}
-        <SupportedLanguagesStrip navigate={navigate} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 lg:pt-10 pb-16 sm:pb-20 lg:pb-24 space-y-24 sm:space-y-28 lg:space-y-36">
 
         {/* ===================================================================
             D. EVALUATION METRICS (SPLIT LAYOUT)
@@ -48,6 +45,11 @@ export function LandingPage({ navigate }: LandingPageProps) {
             F. CORE PLATFORM FEATURES ("Everything You Need to Master Code")
         =================================================================== */}
         <CoreFeaturesSection navigate={navigate} />
+
+        {/* ===================================================================
+            G. FREQUENTLY ASKED QUESTIONS (ACCORDION)
+        =================================================================== */}
+        <FaqSection />
       </div>
     </div>
   );
@@ -155,25 +157,32 @@ function HeroSection({ navigate }: { navigate: (to: Route | string) => void }) {
 }
 
 /* ============================================================================
-   C. SUPPORTED LANGUAGES STRIP
+   C. SUPPORTED LANGUAGES CAROUSEL (INFINITE MARQUEE)
 ============================================================================ */
-const LANGUAGES = [
+interface LanguageItem {
+  name: string;
+  code: string;
+  icon: React.ReactNode;
+}
+
+const LANGUAGES: LanguageItem[] = [
   {
     name: "Python",
-    track: "Algorithms & AI",
     code: "py",
     icon: (
-      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M11.914 0C5.82 0 6.2 2.656 6.2 2.656l.006 2.752h5.81v.826H3.89S0 5.78 0 11.904c0 6.123 3.4 5.925 3.4 5.925h2.03v-2.853s-.11-3.4 3.344-3.4h5.753s3.238.053 3.238-3.14V3.14S18.232 0 11.914 0zM8.7 1.838a1.004 1.004 0 1 1 0 2.008 1.004 1.004 0 0 1 0-2.008zm3.386 22.162c6.094 0 5.714-2.656 5.714-2.656l-.006-2.752h-5.81v-.826h8.126s3.89.454 3.89-5.67c0-6.123-3.4-5.925-3.4-5.925h-2.03v2.853s.11 3.4-3.344 3.4H9.487s-3.238-.053-3.238 3.14v5.292s-.466 3.14 5.837 3.14zm3.214-1.838a1.004 1.004 0 1 1 0-2.008 1.004 1.004 0 0 1 0 2.008z"/>
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2c-3.3 0-6 1.2-6 3.5v2.5h6v1H4.5C2.5 9 1 10.7 1 13c0 2.5 1.7 4 4 4h2v-2c0-2 1.5-3.5 3.5-3.5h5c1.7 0 3-1.3 3-3V5.5C18.5 3.2 15.3 2 12 2z"/>
+        <circle cx="9" cy="5.5" r="0.75" fill="currentColor"/>
+        <path d="M12 22c3.3 0 6-1.2 6-3.5V16h-6v-1h7.5c2 0 3.5-1.7 3.5-4 0-2.5-1.7-4-4-4h-2v2c0 2-1.5 3.5-3.5 3.5h-5c-1.7 0-3 1.3-3 3v3c0 2.3 3.2 3.5 6.5 3.5z"/>
+        <circle cx="15" cy="18.5" r="0.75" fill="currentColor"/>
       </svg>
     ),
   },
   {
     name: "Java",
-    track: "Enterprise OOP",
     code: "java",
     icon: (
-      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
         <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
         <line x1="6" y1="1" x2="6" y2="4"/>
@@ -184,90 +193,130 @@ const LANGUAGES = [
   },
   {
     name: "C++",
-    track: "High-Performance",
     code: "cpp",
     icon: (
-      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/>
-        <line x1="12" y1="22" x2="12" y2="15.5"/>
-        <polyline points="22 8.5 12 15.5 2 8.5"/>
-        <polyline points="2 15.5 12 8.5 22 15.5"/>
-        <line x1="12" y1="2" x2="12" y2="8.5"/>
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 21.5 7.5 21.5 16.5 12 22 2.5 16.5 2.5 7.5 12 2"/>
+        <path d="M9.5 9.5a3.5 3.5 0 1 0 0 5"/>
+        <line x1="15" y1="12" x2="19" y2="12"/>
+        <line x1="17" y1="10" x2="17" y2="14"/>
       </svg>
     ),
   },
   {
     name: "JavaScript",
-    track: "Full-Stack Web",
     code: "js",
     icon: (
-      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-        <rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" strokeWidth="2"/>
-        <text x="6" y="16.5" fontSize="10" fontWeight="bold" fontFamily="monospace" fill="currentColor">JS</text>
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="4"/>
+        <path d="M16 8v8a2 2 0 0 1-2 2h-1"/>
+        <path d="M8 15a2 2 0 0 0 2 2h1a1.5 1.5 0 0 0 0-3H10a1.5 1.5 0 0 1 0-3h1a2 2 0 0 1 2 2"/>
       </svg>
     ),
   },
   {
     name: "TypeScript",
-    track: "Type-Safe Systems",
     code: "ts",
     icon: (
-      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-        <rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" strokeWidth="2"/>
-        <text x="6" y="16.5" fontSize="10" fontWeight="bold" fontFamily="monospace" fill="currentColor">TS</text>
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="4"/>
+        <path d="M7 9h6"/>
+        <path d="M10 9v9"/>
+        <path d="M14 15.5a1.5 1.5 0 0 0 1.5 1.5h1a1.5 1.5 0 0 0 0-3h-1a1.5 1.5 0 0 1 0-3h1A1.5 1.5 0 0 1 18 9.5"/>
       </svg>
     ),
   },
   {
     name: "HTML/CSS",
-    track: "Responsive UI",
     code: "html",
     icon: (
-      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="16 18 22 12 16 6"/>
         <polyline points="8 6 2 12 8 18"/>
+        <line x1="14" y1="4" x2="10" y2="20"/>
+      </svg>
+    ),
+  },
+  {
+    name: "SQL",
+    code: "sql",
+    icon: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <ellipse cx="12" cy="5" rx="9" ry="3"/>
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+      </svg>
+    ),
+  },
+  {
+    name: "Go",
+    code: "go",
+    icon: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 8h6a4 4 0 0 1 4 4v0a4 4 0 0 1-4 4H3"/>
+        <path d="M9 12H3"/>
+        <path d="M15 12h6"/>
+        <path d="M18 9l3 3-3 3"/>
       </svg>
     ),
   },
 ];
 
-function SupportedLanguagesStrip({ navigate }: { navigate: (to: Route | string) => void }) {
+function SupportedLanguagesCarousel({ navigate }: { navigate: (to: Route | string) => void }) {
+  const marqueeItems = [...LANGUAGES, ...LANGUAGES, ...LANGUAGES, ...LANGUAGES];
+
   return (
-    <section aria-label="Supported Languages" className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-2 text-xs font-mono uppercase tracking-wider text-[#6B7280] dark:text-[#8A9099]">
+    <section aria-label="Supported Languages" className="w-full pt-6 pb-2 sm:pt-8 sm:pb-3 overflow-hidden">
+      <style>{`
+        @keyframes infinite-marquee-scroll {
+          0% {
+            transform: translate3d(0, 0, 0);
+          }
+          100% {
+            transform: translate3d(-50%, 0, 0);
+          }
+        }
+        .running-marquee-track {
+          display: flex;
+          width: max-content;
+          will-change: transform;
+          animation: infinite-marquee-scroll 32s linear infinite;
+        }
+        .running-marquee-track:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-4 flex items-center justify-between flex-wrap gap-2 text-xs font-mono uppercase tracking-wider text-[#6B7280] dark:text-[#8A9099]">
         <span>Multi-Language Standard Execution</span>
         <span>Zero Local Setup Required</span>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        {LANGUAGES.map((lang) => (
-          <button
-            key={lang.name}
-            onClick={() => navigate("compiler")}
-            className="group p-4 rounded-xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] hover:border-[#00F076]/40 hover:bg-[#00F076]/[0.02] dark:hover:border-[#00F076]/40 dark:hover:bg-[#00F076]/[0.03] transition-all duration-300 text-left cursor-pointer shadow-xs hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(0,240,118,0.06)]"
-          >
-            <div className="flex items-center justify-between mb-2.5">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[#6B7280] dark:text-[#8A9099] group-hover:text-[#00F076] transition-colors">
-                  {lang.icon}
-                </span>
-                <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-[#F7F8FA] dark:bg-[#1E2022] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#2C3133]">
-                  .{lang.code}
-                </span>
-              </div>
+      {/* Full-width Marquee Track */}
+      <div className="w-full overflow-hidden py-2 select-none">
+        <div className="running-marquee-track flex gap-4 w-max">
+          {marqueeItems.map((item, idx) => (
+            <button
+              key={`${item.name}-${idx}`}
+              onClick={() => navigate("compiler")}
+              className="group/capsule shrink-0 inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-[#0C0D0E] border border-[#202425] hover:border-[#10B981]/50 hover:bg-[#151718] transition-all duration-300 text-left cursor-pointer shadow-sm hover:shadow-[0_0_20px_rgba(16,185,129,0.12)] hover:-translate-y-0.5 active:translate-y-0 select-none"
+            >
+              <span className="text-[#8A9099] group-hover/capsule:text-[#10B981] transition-colors">
+                {item.icon}
+              </span>
+              <span className="text-sm font-semibold text-[#ECEDEE] group-hover/capsule:text-white transition-colors">
+                {item.name}
+              </span>
+              <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded-full bg-[#181A1B] text-[#8A9099] border border-[#24282B] group-hover/capsule:border-[#10B981]/30 group-hover/capsule:text-[#10B981] transition-colors">
+                .{item.code}
+              </span>
               <ArrowUpRight
-                size={14}
-                className="text-[#8A9099] group-hover:text-[#00F076] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+                size={13}
+                className="text-[#525866] group-hover/capsule:text-[#10B981] group-hover/capsule:translate-x-0.5 group-hover/capsule:-translate-y-0.5 transition-all opacity-0 group-hover/capsule:opacity-100"
               />
-            </div>
-            <div className="text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-[#121314] dark:group-hover:text-[#00F076] transition-colors">
-              {lang.name}
-            </div>
-            <div className="text-[11px] font-normal text-[#6B7280] dark:text-[#8A9099] mt-0.5 truncate">
-              {lang.track}
-            </div>
-          </button>
-        ))}
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -304,8 +353,7 @@ function EvaluationMetricsSection({ navigate }: { navigate: (to: Route | string)
     <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
       {/* Left Column */}
       <div className="lg:col-span-5 space-y-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
-          <Cpu size={14} className="text-[#00F076]" />
+        <div className="inline-flex items-center px-3 py-1 rounded-md bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
           <span>Industrial Judge Engine</span>
         </div>
 
@@ -385,9 +433,9 @@ const PRICING_PLANS: PricingPlan[] = [
   },
   {
     name: "Pro Coder",
-    price: "₹499",
+    price: "₹49",
     period: "/ month",
-    tagline: "Unlock hidden test cases, full roadmaps, and deep debugging.",
+    tagline: "Unlock hidden test cases, curated roadmaps, and deep debugging.",
     popular: true,
     features: [
       "All Starter features",
@@ -400,15 +448,15 @@ const PRICING_PLANS: PricingPlan[] = [
   },
   {
     name: "Campus / Team",
-    price: "₹2,999",
+    price: "₹1,199",
     period: "/ month",
     tagline: "Built for coding clubs, bootcamps, and university cohorts.",
     features: [
       "Unlimited Student Accounts",
       "Custom Problem Creator",
       "College Contest Hosting",
-      "Batch Analytics",
-      "Priority Support",
+      "Batch Analytics & Reports",
+      "Dedicated Priority Support",
     ],
   },
 ];
@@ -418,8 +466,7 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
     <section id="pricing" className="scroll-mt-24 space-y-12">
       {/* Centered Header & Subtitle */}
       <div className="text-center max-w-2xl mx-auto space-y-3.5">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
-          <Layers size={13} className="text-[#00F076]" />
+        <div className="inline-flex items-center px-3 py-1 rounded-md bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
           <span>Transparent Pricing</span>
         </div>
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
@@ -438,14 +485,14 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
             className={cn(
               "relative rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-200",
               plan.popular
-                ? "bg-white dark:bg-[#151718] border-2 border-emerald-500/30 dark:border-emerald-500/40 shadow-[0_0_25px_rgba(16,185,129,0.08)] lg:-translate-y-2"
+                ? "bg-white dark:bg-[#151718] border-2 border-[#10B981] shadow-[0_0_25px_rgba(16,185,129,0.12)] dark:shadow-[0_0_40px_rgba(16,185,129,0.12)] lg:-translate-y-2 ring-1 ring-[#10B981]/20"
                 : "bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs hover:border-[#D1D5DB] dark:hover:border-[#2C3133]"
             )}
           >
-            {/* Highlighted Terminal Pill for Pro Coder */}
+            {/* Highlighted 'MOST POPULAR' Pill for Pro Coder */}
             {plan.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-semibold py-1 px-3 uppercase tracking-wider shadow-xs">
-                Most Popular
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#10B981] text-[#0C0D0E] rounded-full text-xs font-bold py-1 px-3.5 uppercase tracking-wider shadow-sm">
+                MOST POPULAR
               </div>
             )}
 
@@ -477,7 +524,7 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
                       className={cn(
                         "mt-0.5 w-4 h-4 rounded-full flex items-center justify-center shrink-0",
                         plan.popular
-                          ? "bg-[#00F076]/15 text-[#00F076]"
+                          ? "bg-[#10B981]/15 text-[#10B981]"
                           : "bg-[#E5E7EB] dark:bg-[#202425] text-[#121314] dark:text-[#ECEDEE]"
                       )}
                     >
@@ -494,10 +541,10 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
               <button
                 onClick={() => navigate("signup")}
                 className={cn(
-                  "w-full py-3 px-5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
+                  "w-full py-3 px-5 rounded-xl text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
                   plan.popular
-                    ? "bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] shadow-sm hover:-translate-y-0.5"
-                    : "bg-[#F7F8FA] dark:bg-[#1E2022] hover:bg-[#E5E7EB] dark:hover:bg-[#262A2D] text-[#121314] dark:text-[#ECEDEE] border border-[#E5E7EB] dark:border-[#202425]"
+                    ? "bg-[#10B981] hover:bg-[#059669] text-[#0C0D0E] font-bold shadow-[0_0_20px_rgba(16,185,129,0.25)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5 active:translate-y-0"
+                    : "bg-[#F7F8FA] dark:bg-[#1E2022] hover:bg-[#E5E7EB] dark:hover:bg-[#262A2D] text-[#121314] dark:text-[#ECEDEE] font-semibold border border-[#E5E7EB] dark:border-[#202425] hover:-translate-y-0.5 active:translate-y-0"
                 )}
               >
                 <span>Get Started</span>
@@ -544,8 +591,7 @@ function CoreFeaturesSection({ navigate }: { navigate: (to: Route | string) => v
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
         {/* Left Column: Headline and summary */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F7F8FA] dark:bg-[#1E2022] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
-            <Sparkles size={13} className="text-[#00F076]" />
+          <div className="inline-flex items-center px-3 py-1 rounded-md bg-[#F7F8FA] dark:bg-[#1E2022] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
             <span>Platform Capabilities</span>
           </div>
 
@@ -611,3 +657,122 @@ function CoreFeaturesSection({ navigate }: { navigate: (to: Route | string) => v
     </section>
   );
 }
+
+/* ============================================================================
+   G. FREQUENTLY ASKED QUESTIONS (ACCORDION)
+============================================================================ */
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+const FAQS: FaqItem[] = [
+  {
+    question: "Is AarCode completely free for students?",
+    answer:
+      "Yes! The Starter tier is 100% free forever, giving you full access to solve public algorithmic challenges, use the in-browser compiler, and participate in community discussions without any credit card required.",
+  },
+  {
+    question: "What programming languages are currently supported?",
+    answer:
+      "AarCode supports execution for Python, Java, C++, JavaScript, TypeScript, and HTML/CSS with isolated sub-second sandboxed evaluation.",
+  },
+  {
+    question: "How does the Pro Coder plan at ₹49/month work?",
+    answer:
+      "The Pro tier unlocks edge-case diagnostics, complete company-specific interview roadmaps, hidden test case inputs, and performance profiling to help you crack technical rounds faster.",
+  },
+  {
+    question: "Can colleges and clubs use the Campus tier for exams?",
+    answer:
+      "Yes. The Campus & Team plan (₹1,199/month) provides faculty and club admins with custom test creators, plagiarism checkers, real-time leaderboards, and downloadable batch performance reports.",
+  },
+];
+
+function FaqSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const toggleItem = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  return (
+    <section id="faq" className="scroll-mt-24 max-w-4xl mx-auto space-y-10">
+      {/* Centered Header & Subtitle */}
+      <div className="text-center max-w-2xl mx-auto space-y-3.5">
+        <div className="inline-flex items-center px-3 py-1 rounded-md bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
+          <span>Frequently Asked</span>
+        </div>
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
+          Frequently Asked Questions
+        </h2>
+        <p className="text-base sm:text-lg text-[#6B7280] dark:text-[#8A9099] font-normal">
+          Everything you need to know about AarCode, evaluation, and pricing.
+        </p>
+      </div>
+
+      {/* 4 Collapsible Accordion Items */}
+      <div className="space-y-3.5">
+        {FAQS.map((faq, index) => {
+          const isOpen = openIndex === index;
+          return (
+            <div
+              key={faq.question}
+              className={cn(
+                "rounded-2xl transition-all duration-300 border overflow-hidden",
+                isOpen
+                  ? "bg-white dark:bg-[#151718] border-[#10B981]/50 shadow-[0_0_25px_rgba(16,185,129,0.08)]"
+                  : "bg-white dark:bg-[#151718] border-[#E5E7EB] dark:border-[#202425] hover:border-[#D1D5DB] dark:hover:border-[#2C3133]"
+              )}
+            >
+              <button
+                type="button"
+                onClick={() => toggleItem(index)}
+                className="w-full flex items-center justify-between gap-4 p-5 sm:p-6 text-left cursor-pointer transition-colors focus:outline-none"
+                aria-expanded={isOpen}
+              >
+                <span
+                  className={cn(
+                    "text-base sm:text-lg font-semibold transition-colors duration-200",
+                    isOpen
+                      ? "text-[#10B981]"
+                      : "text-[#121314] dark:text-[#ECEDEE]"
+                  )}
+                >
+                  {faq.question}
+                </span>
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-all duration-300",
+                    isOpen
+                      ? "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30 rotate-180"
+                      : "bg-[#F7F8FA] dark:bg-[#1E2022] text-[#6B7280] dark:text-[#8A9099] border-[#E5E7EB] dark:border-[#2C3133]"
+                  )}
+                >
+                  <ChevronDown size={18} />
+                </div>
+              </button>
+
+              {/* Smooth Collapsible Content */}
+              <div
+                className={cn(
+                  "grid transition-all duration-300 ease-in-out",
+                  isOpen
+                    ? "grid-rows-[1fr] opacity-100"
+                    : "grid-rows-[0fr] opacity-0"
+                )}
+              >
+                <div className="overflow-hidden">
+                  <div className="px-5 sm:px-6 pb-6 pt-1 text-sm sm:text-base text-[#6B7280] dark:text-[#8A9099] leading-relaxed border-t border-[#E5E7EB]/60 dark:border-[#202425]/60 mt-1">
+                    {faq.answer}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
