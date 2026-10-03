@@ -724,10 +724,14 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
             {/* Right Telemetry Stat Badges (Clean LeetCode-style stat boxes) */}
             <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full sm:w-auto shrink-0">
               {/* Current Streak */}
-              <div className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
+              <button
+                onClick={() => navigate("streak")}
+                className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 hover:border-amber-500/40 hover:bg-white/10 backdrop-blur-md p-2 text-center shadow-inner transition-all group cursor-pointer"
+                title="View Daily Streak Breakdown"
+              >
                 <div
                   className={cn(
-                    "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mb-1 transition-colors",
+                    "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mb-1 transition-colors group-hover:scale-110",
                     streakData.currentStreak > 0
                       ? "bg-amber-500/20 text-amber-400"
                       : "bg-slate-700/40 text-slate-400"
@@ -736,32 +740,40 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                   <Flame size={16} strokeWidth={2} />
                 </div>
                 <div className="text-base sm:text-xl font-semibold text-white">{streakData.currentStreak}</div>
-                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Streak Days
+                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider group-hover:text-amber-300 transition-colors">
+                  Streak Days →
                 </div>
-              </div>
+              </button>
 
               {/* Solved Problems */}
-              <div className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1">
+              <button
+                onClick={() => navigate("analytics")}
+                className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/40 hover:bg-white/10 backdrop-blur-md p-2 text-center shadow-inner transition-all group cursor-pointer"
+                title="View Learning Analytics"
+              >
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                   <CheckCircle2 size={16} strokeWidth={2} />
                 </div>
                 <div className="text-base sm:text-xl font-semibold text-white">{solvedTasksCount}</div>
-                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  Solved
+                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider group-hover:text-emerald-300 transition-colors">
+                  Solved →
                 </div>
-              </div>
+              </button>
 
               {/* XP Points */}
-              <div className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-2 text-center shadow-inner">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center mb-1">
+              <button
+                onClick={() => navigate("analytics")}
+                className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 hover:border-indigo-500/40 hover:bg-white/10 backdrop-blur-md p-2 text-center shadow-inner transition-all group cursor-pointer"
+                title="View Experience Points & Stats"
+              >
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                   <Zap size={16} strokeWidth={2} />
                 </div>
                 <div className="text-base sm:text-xl font-semibold text-white">{effectivePoints}</div>
-                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                  XP Points
+                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider group-hover:text-indigo-300 transition-colors">
+                  XP Points →
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -1025,10 +1037,13 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
                   {/* Header */}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
+                    <button
+                      onClick={() => navigate("streak")}
+                      className="flex items-center gap-2.5 text-left group focus:outline-none cursor-pointer"
+                    >
                       <div
                         className={cn(
-                          "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-colors",
+                          "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-all group-hover:scale-105",
                           streakData.currentStreak > 0
                             ? "bg-amber-500/10 border-amber-500/25 text-amber-500"
                             : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400"
@@ -1037,14 +1052,20 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                         <Flame size={18} strokeWidth={2} />
                       </div>
                       <div>
-                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Daily Coding Streak</h3>
+                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] transition-colors flex items-center gap-1.5">
+                          <span>Daily Coding Streak</span>
+                          <ChevronRight size={14} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                        </h3>
                         <p className="text-xs text-slate-500 dark:text-slate-400">Consistency tracker</p>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-lg font-semibold text-slate-900 dark:text-white">{streakData.currentStreak}</span>
+                    </button>
+                    <button
+                      onClick={() => navigate("streak")}
+                      className="text-right group cursor-pointer"
+                    >
+                      <span className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] transition-colors">{streakData.currentStreak}</span>
                       <span className="text-xs text-slate-400 font-normal"> / {streakData.nextMilestone} days</span>
-                    </div>
+                    </button>
                   </div>
 
                   {/* Progress Bar */}
@@ -1060,7 +1081,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                     </p>
                   </div>
 
-                  {/* Dynamic Weekday Streak Days (S M T W T F S) */}
+                  {/* Dynamic Weekday Streak Days (S M T W T F S) - Clickable to open Streak Page */}
                   <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B]/80">
                     <div className="grid grid-cols-7 gap-1 text-center">
                       {streakData.weekDays.map((wd, wIdx) => {
@@ -1068,14 +1089,15 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                         const isActive = wd.status === "active";
                         const isMissed = wd.status === "missed";
                         return (
-                          <div
+                          <button
                             key={wIdx}
-                            className="flex flex-col items-center gap-1.5"
-                            title={`${wd.fullDayName}, ${wd.monthName} ${wd.dayNum} - ${isCompleted ? "Solved" : wd.isToday ? "Today (Pending)" : isMissed ? "No activity" : "Upcoming"}`}
+                            onClick={() => navigate("streak")}
+                            className="flex flex-col items-center gap-1.5 group cursor-pointer focus:outline-none"
+                            title={`${wd.fullDayName}, ${wd.monthName} ${wd.dayNum} - ${isCompleted ? "Solved" : wd.isToday ? "Today (Pending)" : isMissed ? "No activity" : "Upcoming"} (Click to view)`}
                           >
                             <span
                               className={cn(
-                                "text-xs font-semibold",
+                                "text-xs font-semibold group-hover:text-[#6366F1] transition-colors",
                                 wd.isToday
                                   ? "text-indigo-600 dark:text-indigo-400 font-bold"
                                   : "text-slate-400"
@@ -1085,7 +1107,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                             </span>
                             <div
                               className={cn(
-                                "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-semibold transition-all relative select-none",
+                                "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-semibold transition-all relative select-none group-hover:scale-105",
                                 isCompleted &&
                                   "bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xs font-bold",
                                 isActive &&
@@ -1101,17 +1123,20 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                                 <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-indigo-500 ring-2 ring-white dark:ring-[#0F172A] animate-pulse" />
                               )}
                             </div>
-                          </div>
+                          </button>
                         );
                       })}
                     </div>
-                    <div className="flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-[#1E293B]/60 mt-3">
+                    <button
+                      onClick={() => navigate("streak")}
+                      className="w-full flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-[#1E293B]/60 mt-3 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                    >
                       <span>Best Streak: <strong className="text-slate-900 dark:text-white font-semibold">{streakData.longestStreak} {streakData.longestStreak === 1 ? "day" : "days"}</strong></span>
                       <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium">
                         <Flame size={12} />
-                        {streakData.freezeDaysAvailable} Freeze {streakData.freezeDaysAvailable === 1 ? "Day" : "Days"} Available
+                        <span>View History →</span>
                       </span>
-                    </div>
+                    </button>
                   </div>
                 </div>
 
@@ -1120,49 +1145,75 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 ------------------------------------------------------------- */}
                 <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp size={16} className="text-[#6366F1]" />
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                        Learning Analytics
+                    <button
+                      onClick={() => navigate("analytics")}
+                      className="flex items-center gap-2 text-left group focus:outline-none cursor-pointer"
+                    >
+                      <TrendingUp size={16} className="text-[#6366F1] group-hover:scale-110 transition-transform" />
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] transition-colors flex items-center gap-1">
+                        <span>Learning Analytics</span>
+                        <ChevronRight size={14} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
                       </h3>
-                    </div>
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#090D16] text-slate-500">
-                      Weekly
-                    </span>
+                    </button>
+                    <button
+                      onClick={() => navigate("analytics")}
+                      className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/25 transition-colors cursor-pointer"
+                    >
+                      Full report →
+                    </button>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]">
-                      <div className="text-xs font-semibold uppercase text-slate-400">
+                    <button
+                      onClick={() => navigate("analytics")}
+                      className="p-3 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B] hover:border-indigo-500/40 text-left transition-all group cursor-pointer"
+                    >
+                      <div className="text-xs font-semibold uppercase text-slate-400 group-hover:text-[#6366F1] transition-colors">
                         Total XP Earned
                       </div>
                       <div className="text-lg font-bold text-[#6366F1] mt-0.5">
                         +{effectivePoints}
                       </div>
-                      <div className="text-xs font-medium text-slate-400">All time</div>
-                    </div>
+                      <div className="text-xs font-medium text-slate-400">All time →</div>
+                    </button>
 
-                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]">
-                      <div className="text-xs font-semibold uppercase text-slate-400">
+                    <button
+                      onClick={() => navigate("analytics")}
+                      className="p-3 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B] hover:border-emerald-500/40 text-left transition-all group cursor-pointer"
+                    >
+                      <div className="text-xs font-semibold uppercase text-slate-400 group-hover:text-emerald-500 transition-colors">
                         Solved Tasks
                       </div>
                       <div className="text-lg font-bold text-emerald-500 mt-0.5">
                         {solvedTasksCount} / {totalTasksCount}
                       </div>
-                      <div className="text-xs font-medium text-slate-400">Verified</div>
-                    </div>
+                      <div className="text-xs font-medium text-slate-400">Verified →</div>
+                    </button>
                   </div>
 
-                  <button
-                    onClick={() => navigate("compiler")}
-                    className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-[#090D16] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center justify-between transition-all"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Terminal size={14} className="text-[#6366F1]" />
-                      <span>Launch Compiler Playground</span>
-                    </span>
-                    <ArrowRight size={13} />
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => navigate("analytics")}
+                      className="w-full py-2.5 px-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-[#6366F1] dark:text-indigo-400 text-xs font-semibold flex items-center justify-between transition-all border border-indigo-500/20"
+                    >
+                      <span className="flex items-center gap-2">
+                        <TrendingUp size={14} />
+                        <span>Explore Full Analytics</span>
+                      </span>
+                      <ArrowRight size={13} />
+                    </button>
+
+                    <button
+                      onClick={() => navigate("compiler")}
+                      className="w-full py-2 px-4 rounded-xl bg-slate-100 dark:bg-[#090D16] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center justify-between transition-all"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Terminal size={13} className="text-slate-500" />
+                        <span>Launch Compiler Playground</span>
+                      </span>
+                      <ArrowRight size={13} />
+                    </button>
+                  </div>
                 </div>
 
                 {/* -------------------------------------------------------------

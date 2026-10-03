@@ -288,3 +288,108 @@ function generateCurrentWeek(refDate: Date, activeDatesSet: Set<string>): WeekDa
 
   return week;
 }
+
+export interface DailyCompletedProblem {
+  taskId: string;
+  title: string;
+  slug?: string;
+  difficulty: string;
+  language?: string;
+  completedAt: string;
+  formattedTime: string;
+  points: number;
+  courseTitle?: string;
+}
+
+/**
+ * Groups all solved tasks by their local date (YYYY-MM-DD)
+ */
+export function groupCompletedProblemsByDate(
+  progressMap: Record<string, { task_id?: string; completed_at?: string | null; points?: number; language?: string; is_completed?: boolean }>,
+  allTasks: Array<{ id: string; title: string; slug?: string; difficulty?: string; language?: string; points?: number; courseTitle?: string }> = []
+): Record<string, DailyCompletedProblem[]> {
+  const grouped: Record<string, DailyCompletedProblem[]> = {};
+
+  const taskLookup = new Map<string, (typeof allTasks)[0]>();
+  allTasks.forEach((t) => taskLookup.set(t.id, t));
+
+  Object.entries(progressMap).forEach(([taskId, progress]) => {
+    if (!progress || !progress.is_completed) return;
+
+    const rawTimestamp = progress.completed_at || new Date().toISOString();
+    const dateStr = parseDateToLocalStr(rawTimestamp);
+    if (!dateStr) return;
+
+    const meta = taskLookup.get(taskId);
+    const dateObj = new Date(rawTimestamp);
+    const formattedTime = !isNaN(dateObj.getTime())
+      ? dateObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      : "Completed";
+
+    // Clean human-readable title fallback if task metadata isn't in lookup
+    let cleanTitle = meta?.title;
+    if (!cleanTitle) {
+      cleanTitle = taskId
+        .replace(/^task-/, "")
+        .replace(/[-_]/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+
+    const problem: DailyCompletedProblem = {
+      taskId: taskId,
+      title: cleanTitle,
+      slug: meta?.slug || taskId,
+      difficulty: meta?.difficulty || "medium",
+      language: progress.language || meta?.language || "code",
+      completedAt: rawTimestamp,
+      formattedTime,
+      points: progress.points ?? meta?.points ?? 10,
+      courseTitle: meta?.courseTitle,
+    };
+
+    if (!grouped[dateStr]) {
+      grouped[dateStr] = [];
+    }
+    grouped[dateStr].push(problem);
+  });
+
+  // Sort tasks within each date descending (newest first)
+  Object.keys(grouped).forEach((dateStr) => {
+    grouped[dateStr].sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime());
+  });
+
+  return grouped;
+}
+
+/**
+ * Format a YYYY-MM-DD date into friendly readable string (e.g. "Today, Oct 3, 2026")
+ */
+export function formatFriendlyDate(dateStr: string): string {
+  try {
+    const today = formatLocalDate(new Date());
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = formatLocalDate(yesterday);
+
+    const parts = dateStr.split("-").map(Number);
+    if (parts.length !== 3) return dateStr;
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+
+    const formatted = d.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+
+    if (dateStr === today) {
+      return `Today (${formatted})`;
+    }
+    if (dateStr === yesterdayStr) {
+      return `Yesterday (${formatted})`;
+    }
+    return formatted;
+  } catch {
+    return dateStr;
+  }
+}

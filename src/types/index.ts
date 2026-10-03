@@ -74,6 +74,8 @@ export type Route =
   | "privacy"
   | "terms"
   | "reset-password"
+  | "streak"
+  | "analytics"
   | "login"
   | "signup";
 
