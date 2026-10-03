@@ -9,7 +9,6 @@ import {
   Cpu,
   Layers,
   Sparkles,
-  Code2,
   CheckCircle2,
   Zap,
 } from "lucide-react";
@@ -135,85 +134,18 @@ function HeroSection({ navigate }: { navigate: (to: Route | string) => void }) {
             </div>
           </div>
 
-          {/* Right Column: Clean Developer Workstation / Code Editor Card Preview */}
+          {/* Right Column: Hero Brand Illustration */}
           <div className="lg:col-span-6 relative flex items-center justify-center lg:justify-end">
-            <div className="w-full max-w-[560px] rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden transition-all duration-300 hover:border-[#D1D5DB] dark:hover:border-[#2C3133]">
-              {/* Window Titlebar */}
-              <div className="h-10 px-4 border-b border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#111213] flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]/80" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]/80" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]/80" />
-                </div>
-                <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
-                  <Code2 size={13} className="text-[#00F076]" />
-                  <span>two_sum.py</span>
-                </div>
-                <span className="text-[11px] font-mono text-[#6B7280] dark:text-[#8A9099]">Python 3.11</span>
-              </div>
+            {/* Ambient emerald glow behind illustration */}
+            <div className="absolute w-[85%] h-[85%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,240,118,0.25),transparent_70%)] blur-2xl -z-10 pointer-events-none dark:opacity-80 opacity-50" />
 
-              {/* Code Editor Body */}
-              <div className="p-4 sm:p-5 font-mono text-xs sm:text-[13px] leading-relaxed text-[#121314] dark:text-[#ECEDEE] overflow-x-auto bg-white dark:bg-[#151718]">
-                <div className="space-y-1">
-                  <p className="text-[#6B7280] dark:text-[#5B626A]"># Optimal O(N) Hash Map Lookup Pattern</p>
-                  <p>
-                    <span className="text-purple-600 dark:text-purple-400">def</span>{" "}
-                    <span className="text-blue-600 dark:text-blue-400 font-semibold">two_sum</span>
-                    (nums: List[int], target: int) -&gt; List[int]:
-                  </p>
-                  <p className="pl-4">
-                    seen = &#123;&#125;
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-purple-600 dark:text-purple-400">for</span> i, n{" "}
-                    <span className="text-purple-600 dark:text-purple-400">in</span>{" "}
-                    <span className="text-amber-600 dark:text-amber-400">enumerate</span>(nums):
-                  </p>
-                  <p className="pl-8">
-                    diff = target - n
-                  </p>
-                  <p className="pl-8">
-                    <span className="text-purple-600 dark:text-purple-400">if</span> diff{" "}
-                    <span className="text-purple-600 dark:text-purple-400">in</span> seen:
-                  </p>
-                  <p className="pl-12">
-                    <span className="text-purple-600 dark:text-purple-400">return</span> [seen[diff], i]
-                  </p>
-                  <p className="pl-8">
-                    seen[n] = i
-                  </p>
-                  <p className="pl-4">
-                    <span className="text-purple-600 dark:text-purple-400">return</span> []
-                  </p>
-                </div>
-              </div>
-
-              {/* Terminal Execution / Judge Status Bar */}
-              <div className="border-t border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#111213] p-3.5 sm:p-4 space-y-3">
-                {/* Passed Status Pill */}
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00B8A3]/10 border border-[#00B8A3]/25 text-[#00B8A3] text-xs font-semibold">
-                    <span className="w-2 h-2 rounded-full bg-[#00B8A3] animate-pulse" />
-                    <span>All Test Cases Passed (3/3)</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-[11px] font-mono text-[#6B7280] dark:text-[#8A9099]">
-                    <span>Runtime: <strong className="text-[#121314] dark:text-[#ECEDEE] font-semibold">18ms</strong></span>
-                    <span>Memory: <strong className="text-[#121314] dark:text-[#ECEDEE] font-semibold">14.2 MB</strong></span>
-                  </div>
-                </div>
-
-                {/* Test verification chips */}
-                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
-                  <div className="p-2 rounded-lg bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-[#6B7280] dark:text-[#8A9099]">
-                    <span>Test 1: target=9</span>
-                    <span className="text-[#00B8A3] font-semibold">Passed</span>
-                  </div>
-                  <div className="p-2 rounded-lg bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-[#6B7280] dark:text-[#8A9099]">
-                    <span>Test 2: Hidden Case</span>
-                    <span className="text-[#00B8A3] font-semibold">Passed</span>
-                  </div>
-                </div>
-              </div>
+            <div className="relative group w-full max-w-[560px] flex items-center justify-center">
+              <img
+                src="/hero.png"
+                alt="AarCode Developer"
+                className="w-full h-auto max-h-[440px] sm:max-h-[500px] lg:max-h-[560px] object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)] dark:drop-shadow-[0_25px_50px_rgba(0,0,0,0.7)] transition-transform duration-500 ease-out group-hover:scale-[1.02] select-none"
+                loading="eager"
+              />
             </div>
           </div>
         </div>
