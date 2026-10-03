@@ -9,6 +9,8 @@ import {
   LogOut,
   ChevronDown,
   Zap,
+  Flame,
+  TrendingUp,
   ArrowRight,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -170,14 +172,25 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
 
             {user ? (
               <div className="flex items-center gap-3">
+                {/* Streak Badge */}
+                <button
+                  onClick={() => handleNav({ route: "streak" })}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-xs font-bold transition-all cursor-pointer"
+                  title="View Daily Coding Streak & History"
+                >
+                  <Flame size={13} className="text-amber-500 fill-amber-500/20" />
+                  <span>Streak</span>
+                </button>
+
                 {/* Points Badge */}
-                <div
-                  className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-600 dark:text-indigo-400 text-xs font-bold"
-                  title="Your AarCode Points"
+                <button
+                  onClick={() => handleNav({ route: "analytics" })}
+                  className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 text-indigo-600 dark:text-indigo-400 text-xs font-bold transition-all cursor-pointer"
+                  title="View Learning Analytics"
                 >
                   <Zap size={13} className="text-amber-500 fill-amber-500/20" />
                   <span>{points} XP</span>
-                </div>
+                </button>
 
                 {/* Profile Dropdown */}
                 <div className="relative" ref={dropdownRef}>
@@ -237,6 +250,22 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                           <span>Admin Dashboard</span>
                         </button>
                       )}
+
+                      <button
+                        onClick={() => handleNav({ route: "streak" })}
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center gap-2.5 transition-colors font-medium"
+                      >
+                        <Flame size={16} className="text-amber-500" />
+                        <span>Daily Streak</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleNav({ route: "analytics" })}
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center gap-2.5 transition-colors font-medium"
+                      >
+                        <TrendingUp size={16} className="text-[#6366F1]" />
+                        <span>Learning Analytics</span>
+                      </button>
 
                       <button
                         onClick={() => handleNav({ route: "leaderboard" })}

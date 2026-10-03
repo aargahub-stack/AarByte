@@ -23,6 +23,8 @@ import { LeaderboardPage } from "@/pages/LeaderboardPage";
 import { PlaygroundPage, DocsPage, PricingPage } from "@/pages/ComingSoonPages";
 import { LegalPage } from "@/pages/LegalPage";
 import { ResetPasswordPage } from "@/pages/ResetPasswordPage";
+import { StreakPage } from "@/pages/StreakPage";
+import { AnalyticsPage } from "@/pages/AnalyticsPage";
 import type { Route } from "@/types";
 
 function MainApp() {
@@ -140,6 +142,9 @@ function MainApp() {
               onToggleTheme={toggleTheme}
             />
           )}
+
+          {route === "streak" && <StreakPage navigate={handleNavigate} />}
+          {route === "analytics" && <AnalyticsPage navigate={handleNavigate} />}
         </main>
 
         {/* Footer */}
