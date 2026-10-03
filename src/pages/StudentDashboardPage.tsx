@@ -669,28 +669,28 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
   }, [completionTimestamps]);
 
   return (
-    <div className="min-h-screen font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-white py-6 sm:py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+    <div className="min-h-screen font-urbanist bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto space-y-7">
         {/* ===================================================================
             SECTION 1: WELCOME BACK MESSAGE & LIVE TELEMETRY BANNER
         =================================================================== */}
-        <div className="relative rounded-3xl bg-gradient-to-r from-[#1E293B] via-[#0F172A] to-[#1E1B4B] dark:from-[#0F172A] dark:via-[#111827] dark:to-[#1E1B4B] text-white p-6 sm:p-8 lg:p-9 shadow-xl border border-slate-700/50 dark:border-indigo-900/30 overflow-hidden">
-          <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-gradient-to-br from-[#6366F1]/30 via-[#7C3AED]/20 to-transparent blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 left-1/3 w-80 h-80 rounded-full bg-indigo-500/10 blur-3xl" />
+        <div className="relative rounded-3xl bg-[#151718] text-[#ECEDEE] p-6 sm:p-8 lg:p-9 shadow-xl border border-[#202425] overflow-hidden">
+          <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-emerald-500/5 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 left-1/3 w-80 h-80 rounded-full bg-emerald-500/5 blur-3xl" />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             {/* Left Welcome Text */}
             <div className="space-y-2.5 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-400/25 text-indigo-300 text-xs font-semibold">
-                <Terminal size={13} className="text-indigo-400" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                <Terminal size={13} className="text-emerald-400" />
                 <span>Student Engineering Portal</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-white">
-                {timeGreeting}, <span className="text-indigo-300 font-semibold">{studentName}</span>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#ECEDEE]">
+                {timeGreeting}, <span className="text-emerald-400 font-bold">{studentName}</span>
               </h1>
 
-              <p className="text-xs sm:text-sm font-normal text-slate-300 leading-relaxed">
+              <p className="text-xs sm:text-sm font-normal text-[#8A9099] leading-relaxed">
                 Welcome back to AarCode. You've completed{" "}
                 <span className="text-emerald-400 font-semibold">
                   {solvedTasksCount > 0 ? "35%" : "0%"}
@@ -703,9 +703,9 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 {nextTask && (
                   <button
                     onClick={() => navigate("task", { taskId: nextTask.id })}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs sm:text-sm shadow-md shadow-indigo-500/20 active:scale-[0.98] transition-all"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all cursor-pointer"
                   >
-                    <Play size={14} className="fill-white" />
+                    <Play size={14} className="fill-[#0C0D0E]" />
                     <span>Resume: {nextTask.title}</span>
                     <ArrowRight size={14} />
                   </button>
@@ -713,9 +713,9 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                 <button
                   onClick={() => navigate("compiler")}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 text-white font-medium text-xs sm:text-sm transition-all"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#202425] hover:bg-[#2A2E30] border border-[#2A2E30] text-[#ECEDEE] font-medium text-xs sm:text-sm transition-all cursor-pointer"
                 >
-                  <Terminal size={14} className="text-indigo-300" />
+                  <Terminal size={14} className="text-emerald-400" />
                   <span>Open IDE Compiler</span>
                 </button>
               </div>
@@ -782,9 +782,9 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
             MAIN 2-COLUMN GRID (8 Col Main Workspaces + 4 Col Sidebar Tracker)
         =================================================================== */}
         {loading ? (
-          <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-16 flex flex-col items-center justify-center gap-3">
-            <Loader2 size={28} className="animate-spin text-[#6366F1]" />
-            <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+          <div className="rounded-3xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-16 flex flex-col items-center justify-center gap-3">
+            <Loader2 size={28} className="animate-spin text-emerald-500" />
+            <p className="text-sm font-semibold text-[#6B7280] dark:text-[#8A9099]">
               Synchronizing student roadmap &amp; learning metrics...
             </p>
           </div>
@@ -805,14 +805,14 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 <div className="space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="space-y-0.5">
-                      <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                        <BookOpen size={19} className="text-indigo-500" />
+                      <h2 className="text-lg sm:text-xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] flex items-center gap-2">
+                        <BookOpen size={19} className="text-emerald-500" />
                         <span>Continue Learning</span>
-                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300">
+                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-[#00F076]">
                           {enrolledCourses.length > 0 ? `${enrolledCourses.length} Registered Tracks` : "Available Tracks"}
                         </span>
                       </h2>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-xs text-[#6B7280] dark:text-[#8A9099]">
                         {enrolledCourses.length > 0
                           ? "Resume your enrolled curricula and practice modules right where you left off"
                           : "Explore core programming and algorithmic curricula to start your engineering journey"}
@@ -821,7 +821,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                     <button
                       onClick={() => navigate("courses")}
-                      className="text-xs sm:text-sm font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline inline-flex items-center gap-1 shrink-0 self-start sm:self-auto"
+                      className="text-xs sm:text-sm font-semibold text-emerald-600 dark:text-[#00F076] hover:underline inline-flex items-center gap-1 shrink-0 self-start sm:self-auto cursor-pointer"
                     >
                       <span>Explore all curricula</span>
                       <ArrowRight size={14} />
@@ -865,29 +865,24 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                         <div
                           key={course.id}
                           onClick={() => navigate("course", { slug: courseSlugOrId })}
-                          className="group cursor-pointer rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] hover:border-indigo-500/50 dark:hover:border-indigo-500/50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs hover:shadow-md transition-all duration-200"
+                          className="group cursor-pointer rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs hover:shadow-md transition-all duration-200"
                         >
                           {/* Left: Monogram and Course Info */}
                           <div className="flex items-center gap-3.5 min-w-0">
-                            <div
-                              className={cn(
-                                "w-11 h-11 sm:w-12 sm:h-12 rounded-xl border flex items-center justify-center font-mono font-bold text-xs sm:text-sm shrink-0 shadow-xs",
-                                style.bg
-                              )}
-                            >
+                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-mono font-bold text-xs sm:text-sm shrink-0 shadow-xs">
                               {getCourseMonogram(course.title)}
                             </div>
 
                             <div className="min-w-0 space-y-1">
                               <div className="flex flex-wrap items-center gap-2">
-                                <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors truncate">
+                                <h3 className="text-sm sm:text-base font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors truncate">
                                   {course.title}
                                 </h3>
-                                <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#1E293B] text-slate-600 dark:text-slate-300">
+                                <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#6B7280] dark:text-[#8A9099]">
                                   {course.modules.length} Modules
                                 </span>
                               </div>
-                              <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-md">
+                              <p className="text-xs text-[#6B7280] dark:text-[#8A9099] truncate max-w-md">
                                 {course.description ||
                                   "Master core algorithmic patterns, data structures, and technical interview problems."}
                               </p>
@@ -895,22 +890,19 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                           </div>
 
                           {/* Right: Progress Telemetry and Action Button */}
-                          <div className="flex items-center justify-between sm:justify-end gap-3.5 shrink-0 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-[#1E293B]">
+                          <div className="flex items-center justify-between sm:justify-end gap-3.5 shrink-0 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-[#E5E7EB] dark:border-[#202425]">
                             <div className="flex flex-col gap-1 min-w-[120px] sm:min-w-[150px]">
                               <div className="flex items-center justify-between text-xs font-semibold">
-                                <span className="text-slate-500 dark:text-slate-400">
+                                <span className="text-[#6B7280] dark:text-[#8A9099]">
                                   {courseSolved}/{courseTotal}
                                 </span>
-                                <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                                <span className="text-emerald-600 dark:text-[#00F076] font-bold">
                                   {coursePct}%
                                 </span>
                               </div>
-                              <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
+                              <div className="w-full h-2 rounded-full bg-[#E5E7EB] dark:border-[#202425] bg-[#E5E7EB] dark:bg-[#202425] overflow-hidden">
                                 <div
-                                  className={cn(
-                                    "h-full rounded-full bg-gradient-to-r transition-all duration-500",
-                                    style.bar
-                                  )}
+                                  className="h-full rounded-full bg-[#00F076] transition-all duration-500"
                                   style={{ width: `${Math.max(coursePct, 5)}%` }}
                                 />
                               </div>
@@ -921,7 +913,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                                 e.stopPropagation();
                                 navigate("course", { slug: courseSlugOrId });
                               }}
-                              className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-[#1E293B] group-hover:bg-gradient-to-r group-hover:from-[#6366F1] group-hover:to-[#7C3AED] text-slate-700 dark:text-slate-200 group-hover:text-white text-xs font-semibold inline-flex items-center gap-1 transition-all shadow-xs shrink-0"
+                              className="px-3.5 py-1.5 rounded-xl bg-[#F7F8FA] dark:bg-[#202425] group-hover:bg-[#00F076] text-[#121314] dark:text-[#ECEDEE] group-hover:text-[#0C0D0E] text-xs font-semibold inline-flex items-center gap-1 transition-all shadow-xs shrink-0 cursor-pointer"
                             >
                               <span>{courseSolved > 0 ? "Resume" : "Start"}</span>
                               <ArrowRight size={13} />
@@ -938,42 +930,42 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 ------------------------------------------------------------- */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2.5">
-                    <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                      <Award size={19} className="text-indigo-500" />
+                    <h2 className="text-lg sm:text-xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] flex items-center gap-2">
+                      <Award size={19} className="text-emerald-500" />
                       <span>Featured Track of the Month</span>
                     </h2>
-                    <span className="text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400">
+                    <span className="text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-[#00F076]">
                       Spotlight
                     </span>
                   </div>
 
-                  <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 shadow-xs hover:border-indigo-500/40 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-5">
+                  <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 sm:p-6 shadow-xs hover:border-emerald-500/40 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-5">
                     <div className="flex items-start gap-4">
                       {/* Visual Track Badge / Thumbnail */}
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex flex-col items-center justify-center shrink-0">
-                        <div className="text-xs sm:text-sm font-bold text-indigo-600 dark:text-indigo-400 tracking-wider font-mono">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col items-center justify-center shrink-0">
+                        <div className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-[#00F076] tracking-wider font-mono">
                           {featuredCourse.title.slice(0, 3).toUpperCase()}
                         </div>
-                        <Layers size={17} className="text-indigo-500 mt-1" />
+                        <Layers size={17} className="text-emerald-500 mt-1" />
                       </div>
 
                       <div className="space-y-1.5 max-w-xl">
-                        <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white">
+                        <h3 className="text-base sm:text-lg font-semibold text-[#121314] dark:text-[#ECEDEE]">
                           {featuredCourse.title}
                         </h3>
-                        <p className="text-xs sm:text-sm font-normal text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p className="text-xs sm:text-sm font-normal text-[#6B7280] dark:text-[#8A9099] leading-relaxed">
                           {featuredCourse.description ||
                             "Master algorithmic problem solving, clean code patterns, and interview readiness with live sandbox evaluation."}
                         </p>
 
-                        <div className="flex flex-wrap items-center gap-2 pt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-                          <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B]">
+                        <div className="flex flex-wrap items-center gap-2 pt-1 text-xs font-medium text-[#6B7280] dark:text-[#8A9099]">
+                          <span className="px-2.5 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
                             {featuredCourse.modules.length} Modules
                           </span>
-                          <span className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B]">
+                          <span className="px-2.5 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
                             {featuredTasksCount} Practice Tasks
                           </span>
-                          <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                          <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20">
                             Curated Curriculum
                           </span>
                         </div>
@@ -983,7 +975,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                     <div className="shrink-0 flex sm:flex-col items-center gap-2">
                       <button
                         onClick={() => navigate("course", { slug: featuredSlug })}
-                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs active:scale-[0.98] transition-all"
+                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all cursor-pointer"
                       >
                         <span>Start Track</span>
                         <ArrowRight size={14} />
@@ -996,20 +988,20 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                     RECOMMENDED NEXT CHALLENGE (Quick Action Card)
                 ------------------------------------------------------------- */}
                 {nextTask && (
-                  <div className="rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-5 sm:p-6 shadow-sm border border-indigo-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="rounded-2xl bg-[#151718] text-[#ECEDEE] p-5 sm:p-6 shadow-sm border border-[#202425] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="space-y-1.5 max-w-xl">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20">
                           Next Coding Challenge
                         </span>
-                        <span className="text-xs text-slate-300 font-medium">
+                        <span className="text-xs text-[#8A9099] font-medium">
                           {nextTask.difficulty || "Medium"}
                         </span>
                       </div>
-                      <h4 className="text-base sm:text-lg font-semibold text-white">
+                      <h4 className="text-base sm:text-lg font-semibold text-[#ECEDEE]">
                         {nextTask.title}
                       </h4>
-                      <p className="text-xs text-slate-300 line-clamp-2">
+                      <p className="text-xs text-[#8A9099] line-clamp-2">
                         {nextTask.description ||
                           "Solve this challenge to level up your engineering skills and increase your streak score."}
                       </p>
@@ -1017,9 +1009,9 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                     <button
                       onClick={() => navigate("task", { taskId: nextTask.id })}
-                      className="px-5 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 shadow-sm shrink-0 transition-all"
+                      className="px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,240,118,0.22)] shrink-0 transition-all cursor-pointer"
                     >
-                      <Play size={13} className="fill-white" />
+                      <Play size={13} className="fill-[#0C0D0E]" />
                       <span>Solve Now</span>
                       <ArrowRight size={13} />
                     </button>
@@ -1034,7 +1026,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 {/* -------------------------------------------------------------
                     STREAK TRACKER
                 ------------------------------------------------------------- */}
-                <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
+                <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 space-y-4 shadow-xs">
                   {/* Header */}
                   <div className="flex items-center justify-between">
                     <button
@@ -1046,43 +1038,43 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                           "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-all group-hover:scale-105",
                           streakData.currentStreak > 0
                             ? "bg-amber-500/10 border-amber-500/25 text-amber-500"
-                            : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400"
+                            : "bg-[#F7F8FA] dark:bg-[#0C0D0E] border-[#E5E7EB] dark:border-[#202425] text-[#8A9099]"
                         )}
                       >
                         <Flame size={18} strokeWidth={2} />
                       </div>
                       <div>
-                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] transition-colors flex items-center gap-1.5">
+                        <h3 className="text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors flex items-center gap-1.5">
                           <span>Daily Coding Streak</span>
-                          <ChevronRight size={14} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                          <ChevronRight size={14} className="text-[#8A9099] group-hover:translate-x-0.5 transition-transform" />
                         </h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Consistency tracker</p>
+                        <p className="text-xs text-[#6B7280] dark:text-[#8A9099]">Consistency tracker</p>
                       </div>
                     </button>
                     <button
                       onClick={() => navigate("streak")}
                       className="text-right group cursor-pointer"
                     >
-                      <span className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] transition-colors">{streakData.currentStreak}</span>
-                      <span className="text-xs text-slate-400 font-normal"> / {streakData.nextMilestone} days</span>
+                      <span className="text-lg font-bold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors">{streakData.currentStreak}</span>
+                      <span className="text-xs text-[#8A9099] font-normal"> / {streakData.nextMilestone} days</span>
                     </button>
                   </div>
 
                   {/* Progress Bar */}
                   <div className="space-y-1.5">
-                    <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-[#090D16] overflow-hidden">
+                    <div className="w-full h-2 rounded-full bg-[#E5E7EB] dark:bg-[#202425] overflow-hidden">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
                         style={{ width: `${Math.min(100, Math.max(8, streakData.milestoneProgressPct))}%` }}
                       />
                     </div>
-                    <p className="text-xs font-normal text-slate-500 dark:text-slate-400 leading-snug">
+                    <p className="text-xs font-normal text-[#6B7280] dark:text-[#8A9099] leading-snug">
                       {streakData.statusMessage}
                     </p>
                   </div>
 
-                  {/* Dynamic Weekday Streak Days (S M T W T F S) - Clickable to open Streak Page */}
-                  <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B]/80">
+                  {/* Dynamic Weekday Streak Days (S M T W T F S) */}
+                  <div className="pt-3 border-t border-[#E5E7EB] dark:border-[#202425]">
                     <div className="grid grid-cols-7 gap-1 text-center">
                       {streakData.weekDays.map((wd, wIdx) => {
                         const isCompleted = wd.status === "completed";
@@ -1097,10 +1089,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                           >
                             <span
                               className={cn(
-                                "text-xs font-semibold group-hover:text-[#6366F1] transition-colors",
+                                "text-xs font-semibold group-hover:text-emerald-500 transition-colors",
                                 wd.isToday
-                                  ? "text-indigo-600 dark:text-indigo-400 font-bold"
-                                  : "text-slate-400"
+                                  ? "text-emerald-600 dark:text-[#00F076] font-bold"
+                                  : "text-[#8A9099]"
                               )}
                             >
                               {wd.label}
@@ -1111,16 +1103,16 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                                 isCompleted &&
                                   "bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xs font-bold",
                                 isActive &&
-                                  "bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500 ring-2 ring-indigo-400/30 ring-offset-1 dark:ring-offset-[#0F172A]",
+                                  "bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500 ring-2 ring-emerald-400/30 ring-offset-1 dark:ring-offset-[#151718]",
                                 isMissed &&
-                                  "bg-slate-100/70 dark:bg-[#090D16]/60 text-slate-400/80 border border-slate-200/50 dark:border-[#1E293B]/50",
+                                  "bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#8A9099] border border-[#E5E7EB] dark:border-[#202425]",
                                 wd.status === "upcoming" &&
-                                  "bg-slate-50 dark:bg-[#090D16] text-slate-300 dark:text-slate-600 border border-dashed border-slate-200/80 dark:border-[#1E293B]"
+                                  "bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#8A9099] border border-dashed border-[#E5E7EB] dark:border-[#202425]"
                               )}
                             >
                               {isCompleted ? <Check size={13} strokeWidth={2.5} /> : wd.dayNum}
                               {wd.isToday && !isCompleted && (
-                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-indigo-500 ring-2 ring-white dark:ring-[#0F172A] animate-pulse" />
+                                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#151718] animate-pulse" />
                               )}
                             </div>
                           </button>
@@ -1129,10 +1121,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                     </div>
                     <button
                       onClick={() => navigate("streak")}
-                      className="w-full flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-[#1E293B]/60 mt-3 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                      className="w-full flex items-center justify-between text-xs font-medium text-[#6B7280] dark:text-[#8A9099] pt-3 border-t border-[#E5E7EB] dark:border-[#202425] mt-3 hover:text-[#121314] dark:hover:text-[#ECEDEE] transition-colors cursor-pointer"
                     >
-                      <span>Best Streak: <strong className="text-slate-900 dark:text-white font-semibold">{streakData.longestStreak} {streakData.longestStreak === 1 ? "day" : "days"}</strong></span>
-                      <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium">
+                      <span>Best Streak: <strong className="text-[#121314] dark:text-[#ECEDEE] font-semibold">{streakData.longestStreak} {streakData.longestStreak === 1 ? "day" : "days"}</strong></span>
+                      <span className="flex items-center gap-1 text-emerald-600 dark:text-[#00F076] font-semibold">
                         <Flame size={12} />
                         <span>View History →</span>
                       </span>
@@ -1143,21 +1135,21 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 {/* -------------------------------------------------------------
                     LEARNING ANALYTICS SUMMARY
                 ------------------------------------------------------------- */}
-                <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
+                <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 space-y-4 shadow-xs">
                   <div className="flex items-center justify-between">
                     <button
                       onClick={() => navigate("analytics")}
                       className="flex items-center gap-2 text-left group focus:outline-none cursor-pointer"
                     >
-                      <TrendingUp size={16} className="text-[#6366F1] group-hover:scale-110 transition-transform" />
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] transition-colors flex items-center gap-1">
+                      <TrendingUp size={16} className="text-emerald-500 group-hover:scale-110 transition-transform" />
+                      <h3 className="text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors flex items-center gap-1">
                         <span>Learning Analytics</span>
-                        <ChevronRight size={14} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                        <ChevronRight size={14} className="text-[#8A9099] group-hover:translate-x-0.5 transition-transform" />
                       </h3>
                     </button>
                     <button
                       onClick={() => navigate("analytics")}
-                      className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/25 transition-colors cursor-pointer"
+                      className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] hover:bg-emerald-500/20 transition-colors cursor-pointer"
                     >
                       Full report →
                     </button>
@@ -1166,35 +1158,35 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => navigate("analytics")}
-                      className="p-3 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B] hover:border-indigo-500/40 text-left transition-all group cursor-pointer"
+                      className="p-3 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/40 text-left transition-all group cursor-pointer"
                     >
-                      <div className="text-xs font-semibold uppercase text-slate-400 group-hover:text-[#6366F1] transition-colors">
+                      <div className="text-xs font-semibold uppercase text-[#8A9099] group-hover:text-emerald-500 transition-colors">
                         Total XP Earned
                       </div>
-                      <div className="text-lg font-bold text-[#6366F1] mt-0.5">
+                      <div className="text-lg font-bold text-emerald-500 mt-0.5">
                         +{effectivePoints}
                       </div>
-                      <div className="text-xs font-medium text-slate-400">All time →</div>
+                      <div className="text-xs font-medium text-[#8A9099]">All time →</div>
                     </button>
 
                     <button
                       onClick={() => navigate("analytics")}
-                      className="p-3 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B] hover:border-emerald-500/40 text-left transition-all group cursor-pointer"
+                      className="p-3 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/40 text-left transition-all group cursor-pointer"
                     >
-                      <div className="text-xs font-semibold uppercase text-slate-400 group-hover:text-emerald-500 transition-colors">
+                      <div className="text-xs font-semibold uppercase text-[#8A9099] group-hover:text-emerald-500 transition-colors">
                         Solved Tasks
                       </div>
                       <div className="text-lg font-bold text-emerald-500 mt-0.5">
                         {solvedTasksCount} / {totalTasksCount}
                       </div>
-                      <div className="text-xs font-medium text-slate-400">Verified →</div>
+                      <div className="text-xs font-medium text-[#8A9099]">Verified →</div>
                     </button>
                   </div>
 
                   <div className="space-y-2">
                     <button
                       onClick={() => navigate("analytics")}
-                      className="w-full py-2.5 px-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-[#6366F1] dark:text-indigo-400 text-xs font-semibold flex items-center justify-between transition-all border border-indigo-500/20"
+                      className="w-full py-2.5 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-[#00F076] text-xs font-semibold flex items-center justify-between transition-all border border-emerald-500/20 cursor-pointer"
                     >
                       <span className="flex items-center gap-2">
                         <TrendingUp size={14} />
@@ -1205,10 +1197,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                     <button
                       onClick={() => navigate("compiler")}
-                      className="w-full py-2 px-4 rounded-xl bg-slate-100 dark:bg-[#090D16] hover:bg-slate-200 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center justify-between transition-all"
+                      className="w-full py-2 px-4 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] hover:bg-[#E5E7EB] dark:hover:bg-[#202425] text-[#121314] dark:text-[#ECEDEE] text-xs font-semibold flex items-center justify-between transition-all border border-[#E5E7EB] dark:border-[#202425] cursor-pointer"
                     >
                       <span className="flex items-center gap-2">
-                        <Terminal size={13} className="text-slate-500" />
+                        <Terminal size={13} className="text-[#8A9099]" />
                         <span>Launch Compiler Playground</span>
                       </span>
                       <ArrowRight size={13} />
@@ -1219,31 +1211,31 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 {/* -------------------------------------------------------------
                     LEADERBOARD PREVIEW (WITH 2-MODE SWITCHER)
                 ------------------------------------------------------------- */}
-                <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
+                <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 space-y-4 shadow-xs">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Trophy size={16} className="text-amber-500" />
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                      <h3 className="text-sm font-semibold text-[#121314] dark:text-[#ECEDEE]">
                         Top Performers
                       </h3>
                     </div>
                     <button
                       onClick={() => navigate("leaderboard")}
-                      className="text-xs font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
+                      className="text-xs font-semibold text-emerald-600 dark:text-[#00F076] hover:underline cursor-pointer"
                     >
                       Full board
                     </button>
                   </div>
 
                   {/* Dual Mode Switcher: Overall vs Within Track */}
-                  <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B]">
+                  <div className="flex items-center p-1 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
                     <button
                       onClick={() => setSidebarLeaderboardMode("overall")}
                       className={cn(
-                        "flex-1 py-1 text-xs font-semibold rounded-lg transition-all",
+                        "flex-1 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer",
                         sidebarLeaderboardMode === "overall"
-                          ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                          ? "bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] shadow-xs"
+                          : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
                       )}
                     >
                       1st: Overall
@@ -1251,10 +1243,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                     <button
                       onClick={() => setSidebarLeaderboardMode("course")}
                       className={cn(
-                        "flex-1 py-1 text-xs font-semibold rounded-lg transition-all",
+                        "flex-1 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer",
                         sidebarLeaderboardMode === "course"
-                          ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                          ? "bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] shadow-xs"
+                          : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
                       )}
                     >
                       2nd: In Track ({activeRoadmapConfig.label})
@@ -1264,7 +1256,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                   {/* Board List */}
                   {sidebarLeaderboardMode === "overall" ? (
                     leaderboard.length === 0 ? (
-                      <p className="text-xs font-medium text-slate-400 py-3 text-center">
+                      <p className="text-xs font-medium text-[#8A9099] py-3 text-center">
                         Solve challenges to appear on the leaderboard!
                       </p>
                     ) : (
@@ -1277,8 +1269,8 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                               className={cn(
                                 "flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition-all",
                                 isCurrentUser
-                                  ? "bg-indigo-500/10 border-[#6366F1]/40 text-slate-900 dark:text-white font-semibold"
-                                  : "bg-slate-50 dark:bg-[#090D16] border-slate-200/60 dark:border-[#1E293B] text-slate-700 dark:text-slate-300"
+                                  ? "bg-emerald-500/10 border-emerald-500/30 text-[#121314] dark:text-[#ECEDEE] font-semibold"
+                                  : "bg-[#F7F8FA] dark:bg-[#0C0D0E] border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE]"
                               )}
                             >
                               <div className="flex items-center gap-2.5 truncate">
@@ -1291,7 +1283,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                                       ? "bg-slate-400 text-white"
                                       : idx === 2
                                       ? "bg-amber-700 text-white"
-                                      : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                                      : "bg-[#E5E7EB] dark:bg-[#202425] text-[#6B7280] dark:text-[#8A9099]"
                                   )}
                                 >
                                   #{idx + 1}
@@ -1310,7 +1302,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       </div>
                     )
                   ) : courseLeaderboard.length === 0 ? (
-                    <p className="text-xs font-medium text-slate-400 py-3 text-center">
+                    <p className="text-xs font-medium text-[#8A9099] py-3 text-center">
                       No track records yet for {activeRoadmapConfig.label}.
                     </p>
                   ) : (
@@ -1323,8 +1315,8 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                             className={cn(
                               "flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition-all",
                               isCurrentUser
-                                ? "bg-indigo-500/10 border-[#6366F1]/40 text-slate-900 dark:text-white font-semibold"
-                                : "bg-slate-50 dark:bg-[#090D16] border-slate-200/60 dark:border-[#1E293B] text-slate-700 dark:text-slate-300"
+                                ? "bg-emerald-500/10 border-emerald-500/30 text-[#121314] dark:text-[#ECEDEE] font-semibold"
+                                : "bg-[#F7F8FA] dark:bg-[#0C0D0E] border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE]"
                             )}
                           >
                             <div className="flex items-center gap-2.5 truncate">
@@ -1337,7 +1329,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                                     ? "bg-slate-400 text-white"
                                     : idx === 2
                                     ? "bg-amber-700 text-white"
-                                    : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                                    : "bg-[#E5E7EB] dark:bg-[#202425] text-[#6B7280] dark:text-[#8A9099]"
                                 )}
                               >
                                 #{idx + 1}
@@ -1347,12 +1339,12 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                                   {entry.full_name || "Developer"}
                                   {isCurrentUser && " (You)"}
                                 </span>
-                                <span className="text-[10px] text-slate-400">
+                                <span className="text-[10px] text-[#8A9099]">
                                   {entry.solved_tasks_count} Solved in Track
                                 </span>
                               </div>
                             </div>
-                            <span className="text-indigo-500 font-semibold shrink-0">
+                            <span className="text-emerald-500 font-semibold shrink-0">
                               {entry.points} XP
                             </span>
                           </div>
@@ -1389,7 +1381,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 </div>
 
                 {/* Modern Segmented Language Switcher Tabs */}
-                <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-slate-100 dark:bg-[#0B132B]/80 border border-slate-200/80 dark:border-slate-800 shadow-xs shrink-0 max-w-full scrollbar-none">
+                <div className="flex items-center gap-1 overflow-x-auto p-1 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] shadow-xs shrink-0 max-w-full scrollbar-none">
                   {(Object.keys(ROADMAP_PRESETS) as SupportedLanguage[]).map((langKey) => {
                     const isSelected = activeRoadmapLang === langKey;
                     const isTopUsed = analyzedPreference.topLang === langKey;
@@ -1406,10 +1398,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                           }
                         }}
                         className={cn(
-                          "px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 select-none",
+                          "px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 select-none cursor-pointer",
                           isSelected
-                            ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-slate-700/80 font-semibold"
-                            : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/50 border border-transparent"
+                            ? "bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] shadow-xs border border-[#E5E7EB] dark:border-[#202425] font-semibold"
+                            : "text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE] hover:bg-[#E5E7EB]/50 dark:hover:bg-[#1A1D1E] border border-transparent"
                         )}
                       >
                         <span
@@ -1428,8 +1420,8 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                             className={cn(
                               "text-xs font-mono tracking-tight px-1.5 py-0.5 rounded-md font-semibold uppercase shrink-0 transition-colors",
                               isSelected
-                                ? "bg-indigo-500/10 dark:bg-indigo-500/20 text-[#4F46E5] dark:text-indigo-300 border border-indigo-500/20"
-                                : "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                ? "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20"
+                                : "bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20"
                             )}
                           >
                             {solvedCount > 0 ? `${solvedCount} Solved` : "Top"}
@@ -1442,17 +1434,17 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
               </div>
 
               {/* Primary Recommended Roadmap Card (Full Width) */}
-              <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 space-y-5 shadow-xs">
-                {/* Sub-badge: Roadmap Recommendation & Auto-Selected Details (Comfortable readability) */}
+              <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 sm:p-6 space-y-5 shadow-xs">
+                {/* Sub-badge: Roadmap Recommendation & Auto-Selected Details */}
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold">
-                    <Target size={14} className="text-indigo-500" />
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-600 dark:text-[#00F076] text-xs font-semibold">
+                    <Target size={14} className="text-emerald-500" />
                     <span>
                       {activeRoadmapLang === analyzedPreference.topLang
                         ? "Auto-Selected for You"
                         : "Previewing Track"}
                     </span>
-                    <span className="text-xs text-slate-600 dark:text-slate-300 font-normal">
+                    <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-normal">
                       {activeRoadmapLang === analyzedPreference.topLang
                         ? `(${analyzedPreference.matchConfidence}% Match • ${
                             analyzedPreference.totalSolvedInTop > 0
@@ -1468,7 +1460,7 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       selectedRoadmapLang !== analyzedPreference.topLang && (
                         <button
                           onClick={() => setSelectedRoadmapLang(null)}
-                          className="text-xs font-medium text-[#6366F1] dark:text-indigo-400 hover:underline flex items-center gap-1 transition-all"
+                          className="text-xs font-semibold text-emerald-600 dark:text-[#00F076] hover:underline flex items-center gap-1 transition-all cursor-pointer"
                         >
                           <RotateCcw size={13} />
                           <span>
@@ -1476,30 +1468,30 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                           </span>
                         </button>
                       )}
-                    <span className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
+                    <span className="text-xs sm:text-sm font-semibold text-[#6B7280] dark:text-[#8A9099]">
                       {activeRoadmapConfig.durationEst} Est.
                     </span>
                   </div>
                 </div>
 
                 {/* Main Roadmap Banner */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B]">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-[#6366F1] flex items-center justify-center font-mono font-bold text-sm shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center font-mono font-bold text-sm shrink-0">
                       {activeRoadmapConfig.iconLabel}
                     </div>
                     <div>
-                      <h4 className="text-base sm:text-xl font-semibold text-slate-900 dark:text-white">
+                      <h4 className="text-base sm:text-xl font-semibold text-[#121314] dark:text-[#ECEDEE]">
                         {activeRoadmapConfig.title}
                       </h4>
-                      <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+                      <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-medium text-[#6B7280] dark:text-[#8A9099] mt-1">
                         <span className="flex items-center gap-1.5">
-                          <BookOpen size={14} className="text-[#6366F1]" />
+                          <BookOpen size={14} className="text-emerald-500" />
                           <span>{activeRoadmapConfig.modulesCount} Modules</span>
                         </span>
                         <span>•</span>
                         <span className="flex items-center gap-1.5">
-                          <Clock size={14} className="text-slate-400" />
+                          <Clock size={14} className="text-[#8A9099]" />
                           <span>{activeRoadmapConfig.durationEst}</span>
                         </span>
                         <span>•</span>
@@ -1513,19 +1505,19 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                   <button
                     onClick={() => navigate("course", { slug: activeRoadmapConfig.courseSlug })}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-xs sm:text-sm shadow-xs active:scale-[0.98] transition-all shrink-0 text-center"
+                    className="px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all shrink-0 text-center cursor-pointer"
                   >
                     <span>Resume Roadmap</span>
                   </button>
                 </div>
 
-                {/* Practice Areas Grid - Full Width 4-Column Layout with High Readability */}
+                {/* Practice Areas Grid - Full Width 4-Column Layout */}
                 <div className="space-y-3.5">
-                  <div className="flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    <span className="tracking-wide">PRACTICE TRACKS &amp; CURATED TOPICS</span>
+                  <div className="flex items-center justify-between text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE]">
+                    <span className="tracking-wide uppercase text-xs">PRACTICE TRACKS &amp; CURATED TOPICS</span>
                     <button
                       onClick={() => navigate("problems")}
-                      className="text-xs sm:text-sm font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
+                      className="text-xs sm:text-sm font-semibold text-emerald-600 dark:text-[#00F076] hover:underline cursor-pointer"
                     >
                       All Practice Problems →
                     </button>
@@ -1536,18 +1528,18 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       <div
                         key={pIdx}
                         onClick={() => navigate("problems")}
-                        className="group cursor-pointer p-4 sm:p-4.5 rounded-xl border border-slate-200/80 dark:border-[#1E293B] hover:border-[#6366F1] bg-slate-50 dark:bg-[#090D16] transition-all flex flex-col justify-between gap-3.5 shadow-xs"
+                        className="group cursor-pointer p-4 sm:p-4.5 rounded-xl border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/50 bg-[#F7F8FA] dark:bg-[#0C0D0E] transition-all flex flex-col justify-between gap-3.5 shadow-xs"
                       >
                         <div className="space-y-2">
                           <div className="flex items-center justify-between gap-2">
-                            <h5 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
+                            <h5 className="text-sm sm:text-base font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors line-clamp-1">
                               {area.title}
                             </h5>
                             <span
                               className={cn(
                                 "text-xs font-semibold uppercase px-2.5 py-0.5 rounded-md border shrink-0",
                                 area.difficulty === "Easy" &&
-                                  "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+                                  "bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border-emerald-500/20",
                                 area.difficulty === "Medium" &&
                                   "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
                                 area.difficulty === "Hard" &&
@@ -1557,12 +1549,12 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                               {area.difficulty}
                             </span>
                           </div>
-                          <p className="text-xs sm:text-sm font-normal text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+                          <p className="text-xs sm:text-sm font-normal text-[#6B7280] dark:text-[#8A9099] line-clamp-2 leading-relaxed">
                             {area.description}
                           </p>
                         </div>
 
-                        <div className="pt-2.5 border-t border-slate-200/60 dark:border-[#1E293B] flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 group-hover:text-[#6366F1] transition-colors">
+                        <div className="pt-2.5 border-t border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors">
                           <span>{area.problemCount} Problems</span>
                           <ChevronRight size={16} />
                         </div>

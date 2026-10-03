@@ -155,12 +155,12 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
   };
 
   return (
-    <div className="h-full w-full min-h-screen font-urbanist flex flex-col justify-between p-4 sm:p-6 lg:p-10 bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="h-full w-full min-h-screen font-urbanist flex flex-col justify-between p-4 sm:p-6 lg:p-10 bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] transition-colors duration-300">
       {/* Top Header */}
       <div className="w-full max-w-md mx-auto flex items-center justify-between">
         <button
           onClick={() => navigate("login")}
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] transition-colors"
         >
           <ArrowLeft size={16} />
           <span>Back to Sign In</span>
@@ -168,7 +168,7 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
 
         <div className="flex items-center gap-2">
           <img src="/AarCode.png" alt="AarCode" className="w-6 h-6 object-contain" />
-          <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white">
+          <span className="font-bold text-base tracking-tight text-[#121314] dark:text-[#ECEDEE]">
             AarCode
           </span>
         </div>
@@ -176,12 +176,12 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
 
       {/* Main Card Container */}
       <div className="w-full max-w-md mx-auto my-auto py-6">
-        <div className="bg-white dark:bg-[#0E1526] border border-slate-200/90 dark:border-[#1E293B] rounded-2xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] rounded-3xl p-6 sm:p-8 shadow-xs">
           {verifyingSession ? (
             /* Loading / Token Verification State */
             <div className="text-center py-8 space-y-3">
-              <Loader2 size={32} className="animate-spin text-indigo-500 mx-auto" />
-              <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+              <Loader2 size={32} className="animate-spin text-[#00F076] mx-auto" />
+              <p className="text-sm font-semibold text-slate-600 dark:text-[#8A9099]">
                 Verifying recovery credentials...
               </p>
             </div>
@@ -192,16 +192,16 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                 <AlertCircle size={28} />
               </div>
               <div className="space-y-1">
-                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                   Reset Link Expired
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#8A9099] leading-relaxed">
                   This password reset link is invalid, already used, or has expired. Please request a fresh reset link to continue.
                 </p>
               </div>
               <button
                 onClick={() => navigate("login")}
-                className="w-full h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center"
+                className="w-full h-11 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-sm shadow-[0_0_20px_rgba(0,240,118,0.2)] transition-all flex items-center justify-center"
               >
                 Request New Reset Link
               </button>
@@ -209,18 +209,18 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
           ) : success ? (
             /* Success State */
             <div className="text-center space-y-4 py-2">
-              <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 flex items-center justify-center mx-auto">
+              <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[#00F076] flex items-center justify-center mx-auto">
                 <CheckCircle2 size={32} />
               </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                 Password Reset Complete
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#8A9099] leading-relaxed">
                 Your new password has been securely saved. You can now access your workspace with your updated credentials.
               </p>
               <button
                 onClick={() => navigate("login")}
-                className="w-full h-11 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-bold text-sm shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center"
+                className="w-full h-11 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-sm shadow-[0_0_20px_rgba(0,240,118,0.2)] transition-all flex items-center justify-center"
               >
                 Sign In Now
               </button>
@@ -229,13 +229,13 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
             /* Reset Password Form */
             <div className="space-y-5">
               <div className="space-y-1.5 text-center sm:text-left">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-[#00F076] flex items-center justify-center mb-3">
                   <KeyRound size={20} />
                 </div>
-                <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                   Set New Password
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#8A9099]">
                   Please enter and confirm your new secure password below.
                 </p>
               </div>
@@ -249,7 +249,7 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-[#ECEDEE] mb-1.5">
                     New Password
                   </label>
                   <div className="relative">
@@ -261,7 +261,7 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                       required
                       minLength={6}
                       disabled={loading}
-                      className="w-full h-11 pl-3.5 pr-14 text-sm font-medium rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all shadow-xs"
+                      className="w-full h-11 pl-3.5 pr-14 text-sm font-medium rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] placeholder:text-zinc-400 dark:placeholder:text-[#8A9099] focus:outline-none focus:ring-1 focus:ring-[#00F076] transition-all shadow-xs"
                     />
                     <button
                       type="button"
@@ -274,7 +274,7 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-[#ECEDEE] mb-1.5">
                     Confirm New Password
                   </label>
                   <input
@@ -285,14 +285,14 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({
                     required
                     minLength={6}
                     disabled={loading}
-                    className="w-full h-11 px-3.5 text-sm font-medium rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all shadow-xs"
+                    className="w-full h-11 px-3.5 text-sm font-medium rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] placeholder:text-zinc-400 dark:placeholder:text-[#8A9099] focus:outline-none focus:ring-1 focus:ring-[#00F076] transition-all shadow-xs"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-11 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-bold text-sm shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="w-full h-11 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-sm shadow-[0_0_20px_rgba(0,240,118,0.2)] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {loading ? (
                     <>

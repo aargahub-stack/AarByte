@@ -101,25 +101,15 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
   };
 
   return (
-    <div className="fixed inset-0 z-50 font-urbanist overflow-y-auto bg-[#F8FAFC] dark:bg-[#090D16] animate-in">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-0 font-urbanist animate-in fade-in duration-200">
       <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2">
         {/* ===================================================================
-            LEFT PANEL: Brand Testimonial & Telemetry Showcase (White Based)
+            LEFT PANEL: Brand Testimonial & Telemetry Showcase
         =================================================================== */}
-        <div className="relative hidden lg:flex flex-col justify-between p-12 xl:p-16 overflow-hidden bg-white dark:bg-[#0B1120] border-r border-slate-200/80 dark:border-[#1E293B] text-slate-900 dark:text-white select-none">
-          {/* Subtle Architectural Grid Overlay */}
-          <div
-            className="pointer-events-none absolute inset-0 opacity-40 dark:opacity-20"
-            style={{
-              backgroundImage:
-                "linear-gradient(to right, rgba(99,102,241,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(99,102,241,0.07) 1px, transparent 1px)",
-              backgroundSize: "48px 48px",
-            }}
-          />
-
-          {/* Ambient Soft Indigo/Purple Radial Glows (No green) */}
-          <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-indigo-500/5 dark:bg-indigo-500/10 blur-3xl" />
-          <div className="pointer-events-none absolute bottom-12 right-12 w-80 h-80 rounded-full bg-purple-500/5 dark:bg-purple-500/10 blur-3xl" />
+        <div className="relative hidden lg:flex flex-col justify-between p-12 xl:p-16 overflow-hidden bg-white dark:bg-[#151718] border-r border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE] select-none">
+          {/* Subtle Ambient Glow */}
+          <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-emerald-500/5 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-12 right-12 w-80 h-80 rounded-full bg-emerald-500/5 blur-3xl" />
 
           {/* Top Brand Header */}
           <div className="relative z-10 flex items-center gap-3.5">
@@ -128,14 +118,14 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
               onClick={onClose}
               className="flex items-center gap-3.5 group focus:outline-none"
             >
-              <div className="w-11 h-11 rounded-xl bg-slate-50 dark:bg-white/10 border border-slate-200/80 dark:border-white/15 flex items-center justify-center p-2 shadow-sm group-hover:scale-105 transition-transform">
+              <div className="w-11 h-11 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] flex items-center justify-center p-2 shadow-sm group-hover:scale-105 transition-transform">
                 <img
                   src="/AarCode.png"
                   alt="AarCode"
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <span className="text-xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                 AarCode
               </span>
             </button>
@@ -144,15 +134,15 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
           {/* Center Testimonial Quote + Feature Checklist */}
           <div className="relative z-10 max-w-xl my-auto space-y-8">
             <div className="space-y-4">
-              <blockquote className="text-2xl xl:text-[2rem] font-semibold leading-[1.3] tracking-tight text-slate-900 dark:text-white">
+              <blockquote className="text-2xl xl:text-[2rem] font-semibold leading-[1.3] tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                 “We went from debugging syntax errors for hours to passing hidden test cases in minutes — across 36+ coding cohorts.”
               </blockquote>
-              <p className="text-sm xl:text-base font-medium text-slate-500 dark:text-slate-400">
+              <p className="text-sm xl:text-base font-medium text-[#6B7280] dark:text-[#8A9099]">
                 Operations &amp; Technical Placement Lead, Campus Developer Network
               </p>
             </div>
 
-            <div className="h-px w-full bg-slate-200/80 dark:bg-white/10" />
+            <div className="h-px w-full bg-[#E5E7EB] dark:bg-[#202425]" />
 
             <ul className="space-y-4">
               {[
@@ -162,9 +152,9 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
               ].map((item) => (
                 <li
                   key={item}
-                  className="flex items-center gap-3.5 text-sm xl:text-base font-semibold text-slate-700 dark:text-slate-200"
+                  className="flex items-center gap-3.5 text-sm xl:text-base font-medium text-[#121314] dark:text-[#ECEDEE]"
                 >
-                  <div className="w-5 h-5 rounded-full bg-indigo-50 dark:bg-indigo-500/20 text-[#6366F1] dark:text-[#818CF8] flex items-center justify-center shrink-0 border border-indigo-200/60 dark:border-indigo-500/30">
+                  <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] flex items-center justify-center shrink-0 border border-emerald-500/20">
                     <Check size={12} strokeWidth={3} />
                   </div>
                   <span>{item}</span>
@@ -174,7 +164,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
           </div>
 
           {/* Bottom Copyright */}
-          <div className="relative z-10 text-xs font-semibold text-slate-400 dark:text-slate-500">
+          <div className="relative z-10 text-xs font-medium text-[#6B7280] dark:text-[#8A9099]">
             © {new Date().getFullYear()} AarCode. Enterprise Developer Learning SaaS OS.
           </div>
         </div>
@@ -182,12 +172,12 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
         {/* ===================================================================
             RIGHT PANEL: Clean Workspace Sign-In / Sign-Up Form
         =================================================================== */}
-        <div className="relative flex flex-col justify-between p-6 sm:p-10 lg:p-14 bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-white">
+        <div className="relative flex flex-col justify-between p-6 sm:p-10 lg:p-14 bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE]">
           {/* Top Bar with Close button */}
           <div className="flex items-center justify-between">
             <div className="flex lg:hidden items-center gap-2">
               <img src="/AarCode.png" alt="AarCode" className="w-7 h-7 object-contain" />
-              <span className="font-semibold text-lg text-slate-900 dark:text-white">
+              <span className="font-semibold text-lg text-[#121314] dark:text-[#ECEDEE]">
                 AarCode
               </span>
             </div>
@@ -196,7 +186,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-sm transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] shadow-sm transition-colors"
               aria-label="Close login"
             >
               <span>Close</span>
@@ -207,10 +197,10 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
           {/* Centered Form Container */}
           <div className="w-full max-w-[420px] mx-auto my-auto py-8">
             <div className="mb-8">
-              <h1 className="text-3xl sm:text-[2rem] font-semibold tracking-tight text-slate-900 dark:text-white mb-2">
+              <h1 className="text-3xl sm:text-[2rem] font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] mb-2">
                 {isLogin ? "Welcome back" : "Create your workspace"}
               </h1>
-              <p className="text-sm sm:text-base font-medium text-slate-500 dark:text-slate-400">
+              <p className="text-sm sm:text-base font-medium text-[#6B7280] dark:text-[#8A9099]">
                 {isLogin
                   ? "Sign in to your developer workspace."
                   : "Join 1,000+ developers mastering logic on AarCode."}
@@ -227,7 +217,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
             <form onSubmit={handleSubmit} className="space-y-5">
               {!isLogin && (
                 <div>
-                  <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] mb-2">
                     Full name
                   </label>
                   <input
@@ -237,13 +227,13 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
                     placeholder="Ada Lovelace"
                     required={!isLogin}
                     disabled={loading}
-                    className="w-full h-12 px-4 text-sm font-medium rounded-xl border border-slate-200/90 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all shadow-sm"
+                    className="w-full h-12 px-4 text-sm font-medium rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] placeholder:text-[#8A9099] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all shadow-sm"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] mb-2">
                   Work email
                 </label>
                 <input
@@ -253,20 +243,20 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
                   placeholder="you@branch.com"
                   required
                   disabled={loading}
-                  className="w-full h-12 px-4 text-sm font-medium rounded-xl border border-slate-200/90 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all shadow-sm"
+                  className="w-full h-12 px-4 text-sm font-medium rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] placeholder:text-[#8A9099] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all shadow-sm"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
+                  <label className="text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE]">
                     Password
                   </label>
                   {isLogin && (
                     <button
                       type="button"
                       onClick={handleForgotPassword}
-                      className="text-xs sm:text-sm font-bold text-[#0F766E] dark:text-indigo-400 hover:underline transition-colors"
+                      className="text-xs sm:text-sm font-semibold text-emerald-600 dark:text-[#00F076] hover:underline transition-colors"
                     >
                       Forgot password?
                     </button>
@@ -281,12 +271,12 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
                     required
                     minLength={6}
                     disabled={loading}
-                    className="w-full h-12 pl-4 pr-16 text-sm font-medium rounded-xl border border-slate-200/90 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all shadow-sm"
+                    className="w-full h-12 pl-4 pr-16 text-sm font-medium rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] placeholder:text-[#8A9099] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all shadow-sm"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white px-1.5 py-1 transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] px-1.5 py-1 transition-colors"
                   >
                     {showPassword ? "Hide" : "Show"}
                   </button>
@@ -300,11 +290,11 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
                   type="checkbox"
                   checked={keepSignedIn}
                   onChange={(e) => setKeepSignedIn(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-[#6366F1] focus:ring-[#6366F1] accent-[#2563EB] cursor-pointer"
+                  className="w-4 h-4 rounded border-[#E5E7EB] dark:border-[#202425] accent-[#00F076] text-emerald-500 focus:ring-emerald-500 cursor-pointer"
                 />
                 <label
                   htmlFor="modal-keep-signed-in"
-                  className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 cursor-pointer select-none"
+                  className="text-xs sm:text-sm font-medium text-[#6B7280] dark:text-[#8A9099] cursor-pointer select-none"
                 >
                   Keep me signed in
                 </label>
@@ -314,11 +304,11 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 rounded-xl bg-[#0F766E] hover:bg-[#115E59] dark:bg-gradient-to-r dark:from-[#6366F1] dark:via-[#4F46E5] dark:to-[#7C3AED] text-white font-semibold text-sm sm:text-base shadow-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60"
+                className="w-full h-12 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-sm sm:text-base shadow-[0_0_20px_rgba(0,240,118,0.22)] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
               >
                 {loading ? (
                   <>
-                    <Loader2 size={18} className="animate-spin" />
+                    <Loader2 size={18} className="animate-spin text-[#0C0D0E]" />
                     <span>{isLogin ? "Signing in..." : "Creating workspace..."}</span>
                   </>
                 ) : (
@@ -330,9 +320,9 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
             {/* Divider */}
             <div className="relative my-7 flex items-center justify-center">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200 dark:border-[#1E293B]" />
+                <div className="w-full border-t border-[#E5E7EB] dark:border-[#202425]" />
               </div>
-              <span className="relative px-4 bg-[#F8FAFC] dark:bg-[#090D16] text-xs font-semibold text-slate-400 dark:text-slate-500">
+              <span className="relative px-4 bg-[#F7F8FA] dark:bg-[#0C0D0E] text-xs font-medium text-[#6B7280] dark:text-[#8A9099]">
                 or continue with
               </span>
             </div>
@@ -342,10 +332,10 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
               type="button"
               onClick={handleGoogleSignIn}
               disabled={googleLoading || loading}
-              className="w-full h-12 rounded-xl border border-slate-200/90 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-700 dark:text-slate-200 font-bold text-sm flex items-center justify-center gap-3 shadow-sm transition-all duration-200 disabled:opacity-60"
+              className="w-full h-12 rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] hover:bg-[#F7F8FA] dark:hover:bg-[#1A1D1E] text-[#121314] dark:text-[#ECEDEE] font-semibold text-sm flex items-center justify-center gap-3 shadow-sm transition-all duration-200 disabled:opacity-60 cursor-pointer"
             >
               {googleLoading ? (
-                <Loader2 size={18} className="animate-spin text-[#6366F1]" />
+                <Loader2 size={18} className="animate-spin text-emerald-500" />
               ) : (
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                   <path
@@ -370,19 +360,19 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
             </button>
 
             {/* Bottom Switcher */}
-            <p className="mt-8 text-center text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
+            <p className="mt-8 text-center text-xs sm:text-sm font-medium text-[#6B7280] dark:text-[#8A9099]">
               {isLogin ? "New to AarCode? " : "Already have an account? "}
               <button
                 type="button"
                 onClick={() => onModeChange(isLogin ? "signup" : "login")}
-                className="font-semibold text-[#0F766E] dark:text-indigo-400 hover:underline transition-colors"
+                className="font-semibold text-emerald-600 dark:text-[#00F076] hover:underline transition-colors"
               >
                 {isLogin ? "Create a workspace" : "Sign in"}
               </button>
             </p>
           </div>
 
-          <div className="text-center text-xs text-slate-400 dark:text-slate-600 font-medium">
+          <div className="text-center text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">
             Protected by AarCode Secure Sandbox Authentication
           </div>
         </div>

@@ -483,7 +483,7 @@ export function CompilerPage({
           ANIMATED NEON LASER BEAM (while executing)
       =================================================================== */}
       {isRunning && (
-        <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-[#6366F1] to-transparent animate-pulse z-30" />
+        <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-[#00F076] to-transparent animate-pulse z-30" />
       )}
 
       {/* ===================================================================
@@ -506,14 +506,14 @@ export function CompilerPage({
         )}
 
         {/* Center & Right: Editor Pane + Terminal Console */}
-        <main className="flex-1 flex flex-col lg:flex-row overflow-hidden p-2 gap-2 bg-[#F1F5F9]/60 dark:bg-[#070A12]">
+        <main className="flex-1 flex flex-col lg:flex-row overflow-hidden p-2 gap-2 bg-[#F7F8FA] dark:bg-[#0C0D0E]">
           {/* Monaco Editor Container */}
-          <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] rounded-2xl overflow-hidden shadow-xs">
+          <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] rounded-2xl overflow-hidden shadow-xs">
             {/* Editor Tab Bar */}
-            <div className="flex items-center justify-between px-3 py-2 bg-slate-50 dark:bg-[#090D16] border-b border-slate-200/80 dark:border-[#1E293B] shrink-0">
+            <div className="flex items-center justify-between px-3 py-2 bg-slate-50 dark:bg-[#0C0D0E] border-b border-[#E5E7EB] dark:border-[#202425] shrink-0">
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-xs font-semibold text-slate-800 dark:text-slate-200 shadow-xs">
-                  <Code2 size={13} className="text-[#6366F1]" />
+                <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-xs font-semibold text-slate-800 dark:text-[#ECEDEE] shadow-xs">
+                  <Code2 size={13} className="text-[#00F076]" />
                   <span>{activeFileName}</span>
                 </div>
               </div>
@@ -522,7 +522,7 @@ export function CompilerPage({
               <div className="flex items-center gap-1 text-slate-400">
                 <button
                   onClick={handleCopyCode}
-                  className="p-1 rounded-md hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors"
+                  className="p-1 rounded-md hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-[#202425] transition-colors"
                   title="Copy Code"
                 >
                   {copiedCode ? (
@@ -546,7 +546,7 @@ export function CompilerPage({
             </div>
 
             {/* Status Bar */}
-            <div className="h-6 px-3 bg-slate-50 dark:bg-[#090D16] border-t border-slate-200/80 dark:border-[#1E293B] flex items-center justify-between text-[11px] font-mono text-slate-400 shrink-0">
+            <div className="h-6 px-3 bg-slate-50 dark:bg-[#0C0D0E] border-t border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-[11px] font-mono text-slate-400 shrink-0">
               <div className="flex items-center gap-3">
                 <span>{lang.name}</span>
                 <span>•</span>
@@ -554,7 +554,7 @@ export function CompilerPage({
                 <span>•</span>
                 <span>Spaces: {settings.tabSize}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-indigo-500 dark:text-indigo-400 font-sans font-semibold">
+              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-[#00F076] font-sans font-semibold">
                 <TerminalIcon size={11} />
                 <span>AarCode Engine</span>
               </div>
@@ -584,7 +584,7 @@ export function CompilerPage({
       <div className="lg:hidden fixed bottom-4 right-4 z-40">
         <button
           onClick={() => setMobileConsoleOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white font-bold text-xs shadow-xl shadow-indigo-500/35"
+          className="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-[#00F076] text-[#0C0D0E] font-bold text-xs shadow-xl shadow-emerald-500/25"
         >
           <TerminalIcon size={16} />
           <span>Console {exitStatus === "waiting" ? "• Awaiting Input" : result ? "• Ready" : ""}</span>
@@ -593,12 +593,12 @@ export function CompilerPage({
 
       {/* Mobile Fullscreen Console Drawer */}
       {mobileConsoleOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-[#F8FAFC] dark:bg-[#090D16] p-3 flex flex-col animate-in">
-          <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-200 dark:border-[#1E293B]">
+        <div className="lg:hidden fixed inset-0 z-50 bg-[#F7F8FA] dark:bg-[#0C0D0E] p-3 flex flex-col animate-in">
+          <div className="flex items-center justify-between mb-2 pb-2 border-b border-[#E5E7EB] dark:border-[#202425]">
             <span className="text-sm font-bold">Execution Console</span>
             <button
               onClick={() => setMobileConsoleOpen(false)}
-              className="px-3 py-1 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+              className="px-3 py-1 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-[#202425] text-slate-700 dark:text-[#ECEDEE]"
             >
               Close
             </button>
@@ -637,13 +637,13 @@ export function CompilerPage({
 
       <Modal open={showSaveAs} onClose={() => setShowSaveAs(false)} title="Save as" width="sm">
         <div className="space-y-3 font-sans">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">File name</label>
+          <label className="text-xs font-semibold text-slate-700 dark:text-[#ECEDEE]">File name</label>
           <input
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSaveAs()}
-            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#090D16] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
+            className="w-full px-3 py-2 text-sm rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] focus:outline-none focus:ring-1 focus:ring-[#00F076]"
             placeholder={`solution.${lang.extension}`}
             autoFocus
           />
@@ -656,13 +656,13 @@ export function CompilerPage({
 
       <Modal open={showRename} onClose={() => setShowRename(false)} title="Rename file" width="sm">
         <div className="space-y-3 font-sans">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">New name</label>
+          <label className="text-xs font-semibold text-slate-700 dark:text-[#ECEDEE]">New name</label>
           <input
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleConfirmRename()}
-            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#090D16] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
+            className="w-full px-3 py-2 text-sm rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] focus:outline-none focus:ring-1 focus:ring-[#00F076]"
             autoFocus
           />
           <div className="flex justify-end gap-2 pt-2">

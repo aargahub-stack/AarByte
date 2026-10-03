@@ -179,24 +179,24 @@ export function AuthPage({
   };
 
   return (
-    <div className="h-full w-full max-h-screen font-urbanist grid grid-cols-1 lg:grid-cols-2 bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-white overflow-hidden">
+    <div className="h-full w-full max-h-screen font-urbanist grid grid-cols-1 lg:grid-cols-2 bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] overflow-hidden">
       {/* =====================================================================
           LEFT PANEL: Brand Testimonial & Showcase (Desktop Viewport Fit)
       ===================================================================== */}
-      <div className="relative hidden lg:flex flex-col justify-between p-8 xl:p-12 overflow-hidden bg-white dark:bg-[#0B1120] border-r border-slate-200/80 dark:border-[#1E293B] text-slate-900 dark:text-white select-none">
+      <div className="relative hidden lg:flex flex-col justify-between p-8 xl:p-12 overflow-hidden bg-white dark:bg-[#151718] border-r border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE] select-none">
         {/* Subtle Architectural Grid Overlay */}
         <div
           className="pointer-events-none absolute inset-0 opacity-40 dark:opacity-20"
           style={{
             backgroundImage:
-              "linear-gradient(to right, rgba(99,102,241,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(99,102,241,0.07) 1px, transparent 1px)",
+              "linear-gradient(to right, rgba(0,240,118,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,240,118,0.07) 1px, transparent 1px)",
             backgroundSize: "48px 48px",
           }}
         />
 
         {/* Ambient Radial Glows */}
-        <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-indigo-500/5 dark:bg-indigo-500/10 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-12 right-12 w-80 h-80 rounded-full bg-purple-500/5 dark:bg-purple-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#00F076]/5 dark:bg-[#00F076]/10 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-12 right-12 w-80 h-80 rounded-full bg-emerald-500/5 dark:bg-emerald-500/10 blur-3xl" />
 
         {/* Top Brand Header */}
         <div className="relative z-10 flex items-center gap-3">
@@ -211,7 +211,7 @@ export function AuthPage({
                 className="w-full h-full object-contain"
               />
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <span className="text-xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
               AarCode
             </span>
           </button>
@@ -220,16 +220,16 @@ export function AuthPage({
         {/* Center Testimonial Quote + Feature Checklist */}
         <div className="relative z-10 max-w-lg my-auto space-y-5">
           <div className="space-y-2.5">
-            <blockquote className="text-xl xl:text-2xl font-semibold leading-snug tracking-tight text-slate-900 dark:text-white">
+            <blockquote className="text-xl xl:text-2xl font-semibold leading-snug tracking-tight text-[#121314] dark:text-[#ECEDEE]">
               “We went from debugging syntax errors for hours to passing hidden test cases in minutes — across 36+ coding cohorts.”
             </blockquote>
-            <p className="text-xs xl:text-sm font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-xs xl:text-sm font-medium text-[#6B7280] dark:text-[#8A9099]">
               Operations &amp; Technical Placement Lead, Campus Developer Network
             </p>
           </div>
 
           {/* Subtle Divider Line */}
-          <div className="h-px w-full bg-slate-200/80 dark:bg-white/10" />
+          <div className="h-px w-full bg-[#E5E7EB] dark:bg-[#202425]" />
 
           {/* Feature Checkmarks */}
           <ul className="space-y-3">
@@ -238,8 +238,8 @@ export function AuthPage({
               "Real-time hidden test-case evaluation telemetry",
               "Multi-track DSA & Web Development role-based roadmaps",
             ].map((item) => (
-              <li key={item} className="flex items-center gap-3 text-xs xl:text-sm font-semibold text-slate-700 dark:text-slate-200">
-                <div className="w-4 h-4 rounded-full bg-indigo-50 dark:bg-indigo-500/20 text-[#6366F1] dark:text-[#818CF8] flex items-center justify-center shrink-0 border border-indigo-200/60 dark:border-indigo-500/30">
+              <li key={item} className="flex items-center gap-3 text-xs xl:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE]">
+                <div className="w-4 h-4 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] flex items-center justify-center shrink-0 border border-emerald-500/25">
                   <Check size={10} strokeWidth={3} />
                 </div>
                 <span>{item}</span>
@@ -249,7 +249,7 @@ export function AuthPage({
         </div>
 
         {/* Bottom Copyright */}
-        <div className="relative z-10 text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+        <div className="relative z-10 text-[11px] font-semibold text-[#6B7280] dark:text-[#8A9099]">
           © {new Date().getFullYear()} AarCode. Enterprise Developer Learning SaaS.
         </div>
       </div>
@@ -257,12 +257,12 @@ export function AuthPage({
       {/* =====================================================================
           RIGHT PANEL: Compact Form (Fits 100% within device frame, no scrolls)
       ===================================================================== */}
-      <div className="relative h-full flex flex-col justify-between p-4 sm:p-6 lg:p-8 xl:p-10 bg-[#F8FAFC] dark:bg-[#090D16] overflow-y-auto lg:overflow-hidden transition-colors duration-300">
+      <div className="relative h-full flex flex-col justify-between p-4 sm:p-6 lg:p-8 xl:p-10 bg-[#F7F8FA] dark:bg-[#0C0D0E] overflow-y-auto lg:overflow-hidden transition-colors duration-300">
         {/* Top Bar (Back to Home + Theme Toggle) */}
         <div className="flex items-center justify-between shrink-0">
           <button
             onClick={() => navigate("landing")}
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] transition-colors"
           >
             <ArrowLeft size={15} />
             <span>Back to Home</span>
@@ -272,14 +272,14 @@ export function AuthPage({
             {/* Show brand on mobile */}
             <div className="flex lg:hidden items-center gap-1.5">
               <img src="/AarCode.png" alt="AarCode" className="w-5 h-5 object-contain" />
-              <span className="font-bold text-sm text-slate-900 dark:text-white">
+              <span className="font-bold text-sm text-[#121314] dark:text-[#ECEDEE]">
                 AarCode
               </span>
             </div>
 
             <button
               onClick={onToggleTheme}
-              className="flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300 hover:text-[#6366F1] transition-colors shadow-xs"
+              className="flex items-center justify-center w-8 h-8 rounded-full border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] hover:border-emerald-500/40 transition-colors shadow-xs"
               aria-label="Toggle theme"
             >
               {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
@@ -294,20 +294,20 @@ export function AuthPage({
           ========================================================= */}
           {mode === "verify-sent" && (
             <div className="text-center space-y-4 py-2 animate-in fade-in duration-200">
-              <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-[#00F076] flex items-center justify-center mx-auto shadow-sm">
                 <MailCheck size={28} />
               </div>
               <div className="space-y-1">
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                   Check your inbox
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                  We sent a confirmation link to <span className="font-bold text-slate-800 dark:text-slate-200">{sentEmail}</span>.
+                <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#8A9099] leading-relaxed">
+                  We sent a confirmation link to <span className="font-bold text-[#121314] dark:text-[#ECEDEE]">{sentEmail}</span>.
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/80 dark:border-indigo-900/50 text-left text-xs text-slate-600 dark:text-slate-300 space-y-1.5">
-                <p className="font-semibold text-slate-800 dark:text-slate-200">
+              <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-[#151718] border border-slate-200 dark:border-[#202425] text-left text-xs text-[#6B7280] dark:text-[#8A9099] space-y-1.5">
+                <p className="font-semibold text-[#121314] dark:text-[#ECEDEE]">
                   Next step to activate:
                 </p>
                 <p className="text-[11px] leading-relaxed">
@@ -321,10 +321,10 @@ export function AuthPage({
                   type="button"
                   onClick={() => handleResendVerification(sentEmail)}
                   disabled={resendLoading}
-                  className="w-full h-10 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs disabled:opacity-60"
+                  className="w-full h-10 rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] hover:bg-slate-50 dark:hover:bg-[#202425] text-slate-700 dark:text-[#ECEDEE] font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-xs disabled:opacity-60"
                 >
                   {resendLoading ? (
-                    <Loader2 size={14} className="animate-spin text-indigo-500" />
+                    <Loader2 size={14} className="animate-spin text-[#00F076]" />
                   ) : (
                     <RefreshCw size={14} />
                   )}
@@ -334,7 +334,7 @@ export function AuthPage({
                 <button
                   type="button"
                   onClick={() => switchMode("login")}
-                  className="w-full h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2"
+                  className="w-full h-10 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs shadow-[0_0_20px_rgba(0,240,118,0.2)] transition-all flex items-center justify-center gap-2"
                 >
                   Back to Sign In
                 </button>
@@ -348,13 +348,13 @@ export function AuthPage({
           {mode === "forgot-password" && (
             <div className="space-y-4 py-2 animate-in fade-in duration-200">
               <div className="space-y-1.5 text-center sm:text-left">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-[#00F076] flex items-center justify-center mb-2">
                   <KeyRound size={20} />
                 </div>
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                   Reset password
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#8A9099]">
                   Enter your email address to receive password reset instructions.
                 </p>
               </div>
@@ -368,7 +368,7 @@ export function AuthPage({
 
               {forgotSent ? (
                 <div className="space-y-3.5">
-                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs space-y-1.5">
+                  <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-[#00F076] text-xs space-y-1.5">
                     <div className="flex items-center gap-1.5 font-bold">
                       <CheckCircle2 size={16} />
                       <span>Reset Link Dispatched</span>
@@ -381,7 +381,7 @@ export function AuthPage({
                   <button
                     type="button"
                     onClick={() => switchMode("login")}
-                    className="w-full h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center"
+                    className="w-full h-10 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs shadow-[0_0_20px_rgba(0,240,118,0.2)] transition-all flex items-center justify-center"
                   >
                     Return to Sign In
                   </button>
@@ -389,7 +389,7 @@ export function AuthPage({
               ) : (
                 <form onSubmit={handleForgotPasswordSubmit} className="space-y-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-[#ECEDEE] mb-1">
                       Email address
                     </label>
                     <input
@@ -399,14 +399,14 @@ export function AuthPage({
                       placeholder="you@domain.com"
                       required
                       disabled={loading}
-                      className="w-full h-10 px-3.5 text-xs sm:text-sm font-medium rounded-xl border border-slate-200/90 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all shadow-xs"
+                      className="w-full h-10 px-3.5 text-xs sm:text-sm font-medium rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] placeholder:text-zinc-400 dark:placeholder:text-[#8A9099] focus:outline-none focus:ring-1 focus:ring-[#00F076] transition-all shadow-xs"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-10 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-500/20 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                    className="w-full h-10 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,240,118,0.2)] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                   >
                     {loading ? (
                       <>
@@ -422,7 +422,7 @@ export function AuthPage({
                     <button
                       type="button"
                       onClick={() => switchMode("login")}
-                      className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                      className="text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] transition-colors"
                     >
                       ← Back to Sign In
                     </button>
@@ -439,10 +439,10 @@ export function AuthPage({
             <>
               {/* Header */}
               <div className="mb-3 sm:mb-4 text-center sm:text-left">
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mb-1">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] mb-1">
                   {mode === "login" ? "Welcome back" : "Create your workspace"}
                 </h1>
-                <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-xs sm:text-sm font-medium text-[#6B7280] dark:text-[#8A9099]">
                   {mode === "login"
                     ? "Sign in to your developer workspace."
                     : "Join 1,000+ developers mastering logic on AarCode."}
@@ -485,7 +485,7 @@ export function AuthPage({
               <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3">
                 {mode === "signup" && (
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-[#ECEDEE] mb-1">
                       Full name
                     </label>
                     <input
@@ -495,13 +495,13 @@ export function AuthPage({
                       placeholder="Ada Lovelace"
                       required
                       disabled={loading}
-                      className="w-full h-10 px-3.5 text-xs sm:text-sm font-medium rounded-xl border border-slate-200/90 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all shadow-xs"
+                      className="w-full h-10 px-3.5 text-xs sm:text-sm font-medium rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] placeholder:text-zinc-400 dark:placeholder:text-[#8A9099] focus:outline-none focus:ring-1 focus:ring-[#00F076] transition-all shadow-xs"
                     />
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-[#ECEDEE] mb-1">
                     Email address
                   </label>
                   <input
@@ -511,20 +511,20 @@ export function AuthPage({
                     placeholder="you@domain.com"
                     required
                     disabled={loading}
-                    className="w-full h-10 px-3.5 text-xs sm:text-sm font-medium rounded-xl border border-slate-200/90 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all shadow-xs"
+                    className="w-full h-10 px-3.5 text-xs sm:text-sm font-medium rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] placeholder:text-zinc-400 dark:placeholder:text-[#8A9099] focus:outline-none focus:ring-1 focus:ring-[#00F076] transition-all shadow-xs"
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-[#ECEDEE]">
                       Password
                     </label>
                     {mode === "login" && (
                       <button
                         type="button"
                         onClick={() => switchMode("forgot-password")}
-                        className="text-xs font-bold text-[#6366F1] dark:text-indigo-400 hover:underline transition-colors"
+                        className="text-xs font-semibold text-emerald-600 dark:text-[#00F076] hover:underline transition-colors"
                       >
                         Forgot?
                       </button>
@@ -539,7 +539,7 @@ export function AuthPage({
                       required
                       minLength={6}
                       disabled={loading}
-                      className="w-full h-10 pl-3.5 pr-14 text-xs sm:text-sm font-medium rounded-xl border border-slate-200/90 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all shadow-xs"
+                      className="w-full h-10 pl-3.5 pr-14 text-xs sm:text-sm font-medium rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] placeholder:text-zinc-400 dark:placeholder:text-[#8A9099] focus:outline-none focus:ring-1 focus:ring-[#00F076] transition-all shadow-xs"
                     />
                     <button
                       type="button"
@@ -558,11 +558,11 @@ export function AuthPage({
                     type="checkbox"
                     checked={keepSignedIn}
                     onChange={(e) => setKeepSignedIn(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-slate-300 dark:border-slate-700 text-[#6366F1] focus:ring-[#6366F1] accent-[#6366F1] cursor-pointer"
+                    className="w-3.5 h-3.5 rounded border-slate-300 dark:border-[#202425] text-[#00F076] focus:ring-[#00F076] accent-[#00F076] cursor-pointer"
                   />
                   <label
                     htmlFor="keep-signed-in"
-                    className="text-xs font-semibold text-slate-600 dark:text-slate-300 cursor-pointer select-none"
+                    className="text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] cursor-pointer select-none"
                   >
                     Keep me signed in
                   </label>
@@ -572,7 +572,7 @@ export function AuthPage({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-10 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-500/20 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="w-full h-10 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,240,118,0.2)] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {loading ? (
                     <>
@@ -588,9 +588,9 @@ export function AuthPage({
               {/* Divider: or continue with */}
               <div className="relative my-3 sm:my-3.5 flex items-center justify-center">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200 dark:border-[#1E293B]" />
+                  <div className="w-full border-t border-[#E5E7EB] dark:border-[#202425]" />
                 </div>
-                <span className="relative px-3 bg-[#F8FAFC] dark:bg-[#090D16] text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+                <span className="relative px-3 bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[11px] font-semibold text-[#6B7280] dark:text-[#8A9099]">
                   or continue with
                 </span>
               </div>
@@ -600,10 +600,10 @@ export function AuthPage({
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading || loading}
-                className="w-full h-10 rounded-xl border border-slate-200/90 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-xs transition-all disabled:opacity-60"
+                className="w-full h-10 rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] hover:bg-slate-50 dark:hover:bg-[#202425] text-slate-700 dark:text-[#ECEDEE] font-semibold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-xs transition-all disabled:opacity-60"
               >
                 {googleLoading ? (
-                  <Loader2 size={16} className="animate-spin text-[#6366F1]" />
+                  <Loader2 size={16} className="animate-spin text-[#00F076]" />
                 ) : (
                   <svg className="w-4 h-4" viewBox="0 0 24 24">
                     <path
@@ -628,12 +628,12 @@ export function AuthPage({
               </button>
 
               {/* Bottom Switcher */}
-              <p className="mt-3 sm:mt-3.5 text-center text-xs font-semibold text-slate-500 dark:text-slate-400">
+              <p className="mt-3 sm:mt-3.5 text-center text-xs font-semibold text-[#6B7280] dark:text-[#8A9099]">
                 {mode === "login" ? "New to AarCode? " : "Already have an account? "}
                 <button
                   type="button"
                   onClick={() => switchMode(mode === "login" ? "signup" : "login")}
-                  className="font-extrabold text-[#6366F1] dark:text-indigo-400 hover:underline transition-colors"
+                  className="font-bold text-emerald-600 dark:text-[#00F076] hover:underline transition-colors"
                 >
                   {mode === "login" ? "Create a workspace" : "Sign in"}
                 </button>
@@ -643,7 +643,7 @@ export function AuthPage({
         </div>
 
         {/* Bottom Security Footer */}
-        <div className="text-center text-[11px] text-slate-400 dark:text-slate-600 font-medium shrink-0 pt-1">
+        <div className="text-center text-[11px] text-[#6B7280] dark:text-[#8A9099] font-medium shrink-0 pt-1">
           Protected by AarCode Secure Sandbox Authentication
         </div>
       </div>

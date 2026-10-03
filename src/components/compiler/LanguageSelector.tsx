@@ -51,8 +51,8 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
         className={cn(
           "flex items-center gap-2.5 px-3 py-1.5 rounded-xl border transition-all duration-200 text-xs sm:text-sm font-semibold shadow-sm",
           open
-            ? "border-[#6366F1] bg-indigo-50/70 dark:bg-indigo-950/40 text-[#4F46E5] dark:text-indigo-300 ring-2 ring-[#6366F1]/20"
-            : "border-slate-200/90 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-[#131D36]"
+            ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-2 ring-emerald-500/20"
+            : "border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] hover:bg-[#F7F8FA] dark:hover:bg-[#1A1D1E]"
         )}
         aria-label="Select language"
         aria-expanded={open}
@@ -60,33 +60,33 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
         <span
           className={cn(
             "w-2 h-2 rounded-full bg-gradient-to-r shadow-xs",
-            LANG_COLORS[selected.id] || "from-indigo-500 to-purple-500"
+            LANG_COLORS[selected.id] || "from-emerald-500 to-teal-500"
           )}
         />
         <span>{selected.name}</span>
-        <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase">
+        <span className="text-[10px] font-mono text-[#6B7280] dark:text-[#8A9099] uppercase">
           .{selected.extension}
         </span>
         <ChevronDown
           size={14}
           className={cn(
-            "text-slate-400 transition-transform duration-200",
-            open && "rotate-180 text-[#6366F1]"
+            "text-[#6B7280] dark:text-[#8A9099] transition-transform duration-200",
+            open && "rotate-180 text-emerald-500 dark:text-[#00F076]"
           )}
         />
       </button>
 
       {open && (
-        <div className="absolute top-full mt-2 left-0 z-50 w-64 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-[#1E293B] shadow-2xl shadow-slate-900/10 dark:shadow-black/60 p-2 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute top-full mt-2 left-0 z-50 w-64 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-2xl shadow-black/40 p-2 animate-in fade-in zoom-in-95 duration-150">
           <div className="relative mb-2 px-1">
-            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A9099]" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search language..."
               autoFocus
-              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-[#1E293B] bg-slate-50 dark:bg-[#090D16] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+              className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] placeholder:text-[#8A9099] focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
           </div>
 
@@ -103,24 +103,24 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
                   className={cn(
                     "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-150",
                     isSelected
-                      ? "bg-indigo-50 dark:bg-indigo-950/40 text-[#4F46E5] dark:text-indigo-300"
-                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60"
+                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                      : "text-[#121314] dark:text-[#ECEDEE] hover:bg-[#F7F8FA] dark:hover:bg-[#1A1D1E]"
                   )}
                 >
                   <div className="flex items-center gap-2.5">
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full bg-gradient-to-r",
-                        LANG_COLORS[lang.id] || "from-indigo-500 to-purple-500"
+                        LANG_COLORS[lang.id] || "from-emerald-500 to-teal-500"
                       )}
                     />
                     <span>{lang.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                    <span className="text-[10px] font-mono text-[#6B7280] dark:text-[#8A9099]">
                       .{lang.extension}
                     </span>
-                    {isSelected && <Check size={14} className="text-[#6366F1]" />}
+                    {isSelected && <Check size={14} className="text-emerald-500 dark:text-[#00F076]" />}
                   </div>
                 </button>
               );
