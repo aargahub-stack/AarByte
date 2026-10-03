@@ -175,42 +175,42 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
   const totalEnrolledCount = courses.filter(isCourseEnrolled).length;
 
   return (
-    <div className="min-h-screen font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-white py-8 sm:py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+    <div className="min-h-screen font-urbanist bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* ===================================================================
             1. HERO BANNER
         =================================================================== */}
-        <div className="relative rounded-3xl p-6 sm:p-8 xl:p-10 bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] shadow-xs overflow-hidden">
-          <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#6366F1]/10 dark:bg-[#6366F1]/15 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-purple-500/10 dark:bg-purple-500/10 blur-3xl" />
+        <div className="relative rounded-3xl p-6 sm:p-8 xl:p-10 bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs overflow-hidden">
+          <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#00F076]/5 dark:bg-[#00F076]/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-emerald-500/5 dark:bg-emerald-500/5 blur-3xl" />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-[#6366F1] dark:text-[#818CF8] text-xs font-semibold border border-indigo-200/70 dark:border-indigo-500/25">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] text-xs font-semibold border border-emerald-500/20">
                 <Compass size={13} />
                 <span>Interactive Learning Roadmaps</span>
                 <span>•</span>
-                <span className="font-semibold text-slate-600 dark:text-slate-300">Curated DSA Tracks</span>
+                <span className="font-semibold text-slate-600 dark:text-zinc-400">Curated DSA Tracks</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl xl:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-2xl sm:text-3xl xl:text-4xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                 Master Computer Science &amp; Algorithms
               </h1>
 
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-normal leading-relaxed">
+              <p className="text-sm sm:text-base text-[#6B7280] dark:text-[#8A9099] font-normal leading-relaxed">
                 Step-by-step interactive tracks designed to build core algorithmic patterns, data structures, and interview readiness with live sandbox evaluation.
               </p>
 
               {/* Search input */}
               <div className="pt-2 max-w-md">
                 <div className="relative">
-                  <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search tracks (e.g. Python, C++, Algorithms)..."
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-[#0B1120] border border-slate-200 dark:border-slate-800 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#6366F1] transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-sm text-[#121314] dark:text-[#ECEDEE] placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-[#00F076] transition-all"
                   />
                 </div>
               </div>
@@ -218,23 +218,23 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
 
             {/* Quick Metrics Badge */}
             <div className="grid grid-cols-2 gap-3 w-full lg:w-auto shrink-0">
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-200/80 dark:border-[#1E293B]">
-                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
+                <div className="text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] mb-1">
                   Enrolled Tracks
                 </div>
                 <div className="text-xl sm:text-2xl font-bold text-emerald-500">
                   {totalEnrolledCount}
-                  <span className="text-slate-400 text-xs font-normal"> / {courses.length}</span>
+                  <span className="text-zinc-400 text-xs font-normal"> / {courses.length}</span>
                 </div>
               </div>
 
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-200/80 dark:border-[#1E293B]">
-                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
+                <div className="text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] mb-1">
                   Available Tracks
                 </div>
-                <div className="text-xl sm:text-2xl font-bold text-[#6366F1]">
+                <div className="text-xl sm:text-2xl font-bold text-[#121314] dark:text-[#ECEDEE]">
                   {courses.length}
-                  <span className="text-slate-400 text-xs font-normal"> Tracks</span>
+                  <span className="text-zinc-400 text-xs font-normal"> Tracks</span>
                 </div>
               </div>
             </div>
@@ -244,16 +244,16 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
         {/* ===================================================================
             2. TWO-VIEW SEGMENTED TAB SWITCHER (All Courses vs Enrolled Courses)
         =================================================================== */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-[#1E293B] pb-4">
-          <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E7EB] dark:border-[#202425] pb-4">
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs">
             {/* Tab 1: All Courses */}
             <button
               onClick={() => setActiveTab("all")}
               className={cn(
-                "flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all",
+                "flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all",
                 activeTab === "all"
-                  ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                  ? "bg-[#00F076] text-[#0C0D0E] shadow-sm font-semibold"
+                  : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] hover:bg-black/5 dark:hover:bg-white/5"
               )}
             >
               <BookOpen size={16} />
@@ -262,8 +262,8 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
                 className={cn(
                   "px-2 py-0.5 rounded-full text-xs font-semibold transition-colors",
                   activeTab === "all"
-                    ? "bg-white/20 text-white"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                    ? "bg-black/15 text-[#0C0D0E]"
+                    : "bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#6B7280] dark:text-[#8A9099]"
                 )}
               >
                 {courses.length}
@@ -274,10 +274,10 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
             <button
               onClick={() => setActiveTab("enrolled")}
               className={cn(
-                "flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all",
+                "flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all",
                 activeTab === "enrolled"
-                  ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                  ? "bg-[#00F076] text-[#0C0D0E] shadow-sm font-semibold"
+                  : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] hover:bg-black/5 dark:hover:bg-white/5"
               )}
             >
               <GraduationCap size={16} />
@@ -286,8 +286,8 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
                 className={cn(
                   "px-2 py-0.5 rounded-full text-xs font-semibold transition-colors",
                   activeTab === "enrolled"
-                    ? "bg-white/20 text-white"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                    ? "bg-black/15 text-[#0C0D0E]"
+                    : "bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#6B7280] dark:text-[#8A9099]"
                 )}
               >
                 {totalEnrolledCount}
@@ -295,7 +295,7 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
             </button>
           </div>
 
-          <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          <div className="text-xs font-medium text-[#6B7280] dark:text-[#8A9099]">
             {activeTab === "enrolled"
               ? `You are currently enrolled in ${totalEnrolledCount} track${totalEnrolledCount === 1 ? "" : "s"}`
               : `Showing ${displayedCourses.length} learning track${displayedCourses.length === 1 ? "" : "s"}`}
@@ -307,26 +307,26 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
         =================================================================== */}
         <div>
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400">
-              <Loader2 size={32} className="animate-spin text-[#6366F1]" />
+            <div className="flex flex-col items-center justify-center py-20 gap-3 text-zinc-400">
+              <Loader2 size={32} className="animate-spin text-emerald-500" />
               <p className="text-sm">Loading course curriculum...</p>
             </div>
           ) : activeTab === "enrolled" && enrolledFiltered.length === 0 ? (
             /* Empty State for Enrolled Courses */
-            <div className="text-center py-16 px-6 bg-white dark:bg-[#0F172A] rounded-3xl border border-slate-200/80 dark:border-[#1E293B] shadow-xs max-w-lg mx-auto space-y-4">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/25 flex items-center justify-center text-[#6366F1] dark:text-[#818CF8]">
+            <div className="text-center py-16 px-6 bg-white dark:bg-[#151718] rounded-3xl border border-[#E5E7EB] dark:border-[#202425] shadow-xs max-w-lg mx-auto space-y-4">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
                 <GraduationCap size={32} />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="text-lg font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                 No Enrolled Courses Yet
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+              <p className="text-sm text-[#6B7280] dark:text-[#8A9099] leading-relaxed">
                 You haven't enrolled in any tracks yet. Browse through our curated algorithm and web development roadmaps to start learning.
               </p>
               <div className="pt-2">
                 <button
                   onClick={() => setActiveTab("all")}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white text-xs sm:text-sm font-bold shadow-md shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] text-xs sm:text-sm font-semibold shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all"
                 >
                   <Compass size={16} />
                   <span>Explore All Courses to Enroll</span>
@@ -335,13 +335,13 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
             </div>
           ) : displayedCourses.length === 0 ? (
             /* Empty search results */
-            <div className="text-center py-16 bg-white dark:bg-[#0F172A] rounded-3xl border border-slate-200/80 dark:border-[#1E293B] p-8 max-w-md mx-auto space-y-3">
-              <p className="text-slate-600 dark:text-slate-400 text-sm">
+            <div className="text-center py-16 bg-white dark:bg-[#151718] rounded-3xl border border-[#E5E7EB] dark:border-[#202425] p-8 max-w-md mx-auto space-y-3">
+              <p className="text-[#6B7280] dark:text-[#8A9099] text-sm">
                 No tracks found matching "{searchQuery}".
               </p>
               <button
                 onClick={() => setSearchQuery("")}
-                className="text-xs font-bold text-[#6366F1] hover:underline"
+                className="text-xs font-semibold text-emerald-500 hover:underline"
               >
                 Clear Search Query
               </button>
@@ -353,6 +353,9 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
                 const { solved, total, percent } = calculateProgress(course);
                 const isCompleted = total > 0 && solved === total;
                 const enrolled = isCourseEnrolled(course);
+                const radius = 18;
+                const circumference = 2 * Math.PI * radius;
+                const strokeDashoffset = circumference - (percent / 100) * circumference;
 
                 return (
                   <div
@@ -362,24 +365,59 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
                         slug: course.slug && course.slug !== "#" ? course.slug : course.id,
                       })
                     }
-                    className="group cursor-pointer rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] hover:border-indigo-500/50 dark:hover:border-indigo-500/50 shadow-xs hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                    className="group cursor-pointer rounded-3xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/40 dark:hover:border-emerald-500/40 shadow-xs hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_8px_30px_rgba(0,240,118,0.04)] transition-all duration-300 flex flex-col justify-between overflow-hidden"
                   >
                     <div className="p-6 sm:p-7 space-y-4">
-                      {/* Top icon and Enrollment badge */}
+                      {/* Top Header: Progress Ring & Enrollment Badge */}
                       <div className="flex items-center justify-between">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#6366F1] to-[#7C3AED] text-white flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-                          <Code2 size={24} />
+                        <div className="flex items-center gap-3">
+                          {/* SVG Progress Ring */}
+                          <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
+                            <svg className="w-12 h-12 -rotate-90" viewBox="0 0 44 44">
+                              <circle
+                                cx="22"
+                                cy="22"
+                                r={radius}
+                                className="stroke-zinc-200 dark:stroke-[#202425]"
+                                strokeWidth="3.5"
+                                fill="transparent"
+                              />
+                              <circle
+                                cx="22"
+                                cy="22"
+                                r={radius}
+                                className="stroke-[#00F076] transition-all duration-700 ease-out"
+                                strokeWidth="3.5"
+                                strokeDasharray={circumference}
+                                strokeDashoffset={strokeDashoffset}
+                                strokeLinecap="round"
+                                fill="transparent"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-[#121314] dark:text-[#ECEDEE]">
+                              {percent > 0 ? `${percent}%` : <Code2 size={16} className="text-[#00F076]" />}
+                            </div>
+                          </div>
+
+                          <div className="min-w-0">
+                            <div className="text-[11px] font-medium text-[#6B7280] dark:text-[#8A9099] uppercase tracking-wider">
+                              Roadmap
+                            </div>
+                            <div className="text-xs font-semibold text-[#121314] dark:text-[#ECEDEE] truncate">
+                              {solved}/{total} Solved
+                            </div>
+                          </div>
                         </div>
 
                         {enrolled ? (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/25">
                             <Check size={12} />
                             <span>Enrolled</span>
                           </span>
                         ) : (
                           <button
                             onClick={(e) => handleEnrollCourse(e, course)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/10 text-[#6366F1] dark:text-[#818CF8] hover:bg-[#6366F1] hover:text-white border border-indigo-200 dark:border-indigo-500/25 transition-all"
+                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] hover:bg-[#00F076] hover:text-[#0C0D0E] border border-emerald-500/25 transition-all"
                             title="Enroll in this track"
                           >
                             <Plus size={12} />
@@ -390,41 +428,36 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
 
                       {/* Course Title & Description */}
                       <div className="space-y-1.5">
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-[#818CF8] transition-colors">
+                        <h3 className="text-lg font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 dark:group-hover:text-[#00F076] transition-colors">
                           {course.title}
                         </h3>
-                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#8A9099] line-clamp-2 leading-relaxed font-normal">
                           {course.description || "Interactive problem solving track for mastering programming concepts."}
                         </p>
                       </div>
 
-                      {/* Module Count & Points */}
+                      {/* Module Count & Problems */}
                       <div className="flex items-center gap-2 pt-1">
-                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE]">
                           {course.modules.length} {course.modules.length === 1 ? "Module" : "Modules"}
                         </span>
-                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-indigo-500/10 text-[#6366F1] dark:text-[#818CF8]">
+                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20">
                           {total} Problems
                         </span>
                       </div>
 
-                      {/* Progress Bar (Always shows progress if enrolled or has solved tasks) */}
+                      {/* Linear Progress Bar for Enrolled Tracks */}
                       {enrolled && (
                         <div className="space-y-1.5 pt-2">
-                          <div className="flex justify-between text-xs font-medium text-slate-600 dark:text-slate-400">
+                          <div className="flex justify-between text-xs font-medium text-[#6B7280] dark:text-[#8A9099]">
                             <span>Track Progress</span>
-                            <span className={cn(isCompleted && "text-emerald-500 font-bold")}>
-                              {percent}% ({solved}/{total})
+                            <span className={cn(isCompleted ? "text-emerald-500 font-bold" : "text-[#121314] dark:text-[#ECEDEE] font-semibold")}>
+                              {percent}% ({solved}/{total} Solved)
                             </span>
                           </div>
-                          <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                          <div className="w-full h-1.5 rounded-full bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] overflow-hidden">
                             <div
-                              className={cn(
-                                "h-full transition-all duration-500 rounded-full",
-                                isCompleted
-                                  ? "bg-emerald-500"
-                                  : "bg-gradient-to-r from-[#6366F1] to-[#7C3AED]"
-                              )}
+                              className="h-full transition-all duration-500 rounded-full bg-[#00F076]"
                               style={{ width: `${percent}%` }}
                             />
                           </div>
@@ -433,7 +466,7 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
                     </div>
 
                     {/* Bottom CTA Bar */}
-                    <div className="px-6 py-4 bg-slate-50 dark:bg-[#0B1120] border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between text-xs font-bold text-[#6366F1] dark:text-[#818CF8]">
+                    <div className="px-6 py-3.5 bg-[#F7F8FA] dark:bg-[#0C0D0E] border-t border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-[#00F076]">
                       <span>
                         {enrolled
                           ? isCompleted

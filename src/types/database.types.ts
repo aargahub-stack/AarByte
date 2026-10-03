@@ -106,6 +106,7 @@ export type LeaderboardEntry = {
   avatar_url: string | null;
   points: number;
   solved_tasks_count: number;
+  accuracy?: number;
 };
 
 // Joined / nested view helper types

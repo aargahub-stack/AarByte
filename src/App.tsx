@@ -58,7 +58,7 @@ function MainApp() {
     <div className={cn("w-full h-full", theme === "dark" ? "dark" : "")}>
       <div
         className={cn(
-          "w-full font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-slate-100 transition-colors duration-300",
+          "w-full font-urbanist bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] transition-colors duration-300",
           isFullScreenArena
             ? "h-full overflow-hidden flex flex-col"
             : "min-h-full flex flex-col justify-between"

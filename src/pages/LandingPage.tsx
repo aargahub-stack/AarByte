@@ -74,9 +74,9 @@ function HeroSection({ navigate }: { navigate: (to: Route | string) => void }) {
           {/* Left Column: Headline, Subtitle, CTAs, Social Proof */}
           <div className="lg:col-span-6 space-y-6 sm:space-y-7 text-left z-10">
             {/* H1 (Strictly font-semibold / clean font-bold, no heavy black) */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[3.5rem] xl:text-[4rem] font-bold tracking-tight leading-[1.08] text-[#121314] dark:text-[#ECEDEE]">
-              <span className="block">Master Logic.</span>
-              <span className="block text-[#121314] dark:text-[#ECEDEE]">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[3.5rem] xl:text-[4rem] leading-[1.08] text-[#121314] dark:text-[#ECEDEE]">
+              <span className="block font-semibold">Master Logic.</span>
+              <span className="block font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                 Scale Your Coding Skills.
               </span>
             </h1>
@@ -158,12 +158,77 @@ function HeroSection({ navigate }: { navigate: (to: Route | string) => void }) {
    C. SUPPORTED LANGUAGES STRIP
 ============================================================================ */
 const LANGUAGES = [
-  { name: "Python", track: "Algorithms & AI", code: "py" },
-  { name: "Java", track: "Enterprise OOP", code: "java" },
-  { name: "C++", track: "High-Performance", code: "cpp" },
-  { name: "JavaScript", track: "Full-Stack Web", code: "js" },
-  { name: "TypeScript", track: "Type-Safe Systems", code: "ts" },
-  { name: "HTML/CSS", track: "Responsive UI", code: "html" },
+  {
+    name: "Python",
+    track: "Algorithms & AI",
+    code: "py",
+    icon: (
+      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M11.914 0C5.82 0 6.2 2.656 6.2 2.656l.006 2.752h5.81v.826H3.89S0 5.78 0 11.904c0 6.123 3.4 5.925 3.4 5.925h2.03v-2.853s-.11-3.4 3.344-3.4h5.753s3.238.053 3.238-3.14V3.14S18.232 0 11.914 0zM8.7 1.838a1.004 1.004 0 1 1 0 2.008 1.004 1.004 0 0 1 0-2.008zm3.386 22.162c6.094 0 5.714-2.656 5.714-2.656l-.006-2.752h-5.81v-.826h8.126s3.89.454 3.89-5.67c0-6.123-3.4-5.925-3.4-5.925h-2.03v2.853s.11 3.4-3.344 3.4H9.487s-3.238-.053-3.238 3.14v5.292s-.466 3.14 5.837 3.14zm3.214-1.838a1.004 1.004 0 1 1 0-2.008 1.004 1.004 0 0 1 0 2.008z"/>
+      </svg>
+    ),
+  },
+  {
+    name: "Java",
+    track: "Enterprise OOP",
+    code: "java",
+    icon: (
+      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+        <line x1="6" y1="1" x2="6" y2="4"/>
+        <line x1="10" y1="1" x2="10" y2="4"/>
+        <line x1="14" y1="1" x2="14" y2="4"/>
+      </svg>
+    ),
+  },
+  {
+    name: "C++",
+    track: "High-Performance",
+    code: "cpp",
+    icon: (
+      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/>
+        <line x1="12" y1="22" x2="12" y2="15.5"/>
+        <polyline points="22 8.5 12 15.5 2 8.5"/>
+        <polyline points="2 15.5 12 8.5 22 15.5"/>
+        <line x1="12" y1="2" x2="12" y2="8.5"/>
+      </svg>
+    ),
+  },
+  {
+    name: "JavaScript",
+    track: "Full-Stack Web",
+    code: "js",
+    icon: (
+      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" strokeWidth="2"/>
+        <text x="6" y="16.5" fontSize="10" fontWeight="bold" fontFamily="monospace" fill="currentColor">JS</text>
+      </svg>
+    ),
+  },
+  {
+    name: "TypeScript",
+    track: "Type-Safe Systems",
+    code: "ts",
+    icon: (
+      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" strokeWidth="2"/>
+        <text x="6" y="16.5" fontSize="10" fontWeight="bold" fontFamily="monospace" fill="currentColor">TS</text>
+      </svg>
+    ),
+  },
+  {
+    name: "HTML/CSS",
+    track: "Responsive UI",
+    code: "html",
+    icon: (
+      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="16 18 22 12 16 6"/>
+        <polyline points="8 6 2 12 8 18"/>
+      </svg>
+    ),
+  },
 ];
 
 function SupportedLanguagesStrip({ navigate }: { navigate: (to: Route | string) => void }) {
@@ -179,12 +244,17 @@ function SupportedLanguagesStrip({ navigate }: { navigate: (to: Route | string) 
           <button
             key={lang.name}
             onClick={() => navigate("compiler")}
-            className="group p-4 rounded-xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] hover:border-[#121314] dark:hover:border-[#00F076]/60 transition-all duration-200 text-left cursor-pointer shadow-xs hover:-translate-y-0.5"
+            className="group p-4 rounded-xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] hover:border-[#00F076]/40 hover:bg-[#00F076]/[0.02] dark:hover:border-[#00F076]/40 dark:hover:bg-[#00F076]/[0.03] transition-all duration-300 text-left cursor-pointer shadow-xs hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(0,240,118,0.06)]"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#1E2022] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#2C3133]">
-                .{lang.code}
-              </span>
+            <div className="flex items-center justify-between mb-2.5">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[#6B7280] dark:text-[#8A9099] group-hover:text-[#00F076] transition-colors">
+                  {lang.icon}
+                </span>
+                <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-[#F7F8FA] dark:bg-[#1E2022] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#2C3133]">
+                  .{lang.code}
+                </span>
+              </div>
               <ArrowUpRight
                 size={14}
                 className="text-[#8A9099] group-hover:text-[#00F076] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
@@ -368,13 +438,13 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
             className={cn(
               "relative rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-200",
               plan.popular
-                ? "bg-white dark:bg-[#151718] border-2 border-[#121314] dark:border-[#00F076] shadow-xl dark:shadow-[0_0_30px_rgba(0,240,118,0.12)] lg:-translate-y-2"
+                ? "bg-white dark:bg-[#151718] border-2 border-emerald-500/30 dark:border-emerald-500/40 shadow-[0_0_25px_rgba(16,185,129,0.08)] lg:-translate-y-2"
                 : "bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs hover:border-[#D1D5DB] dark:hover:border-[#2C3133]"
             )}
           >
             {/* Highlighted Terminal Pill for Pro Coder */}
             {plan.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-[#121314] dark:bg-[#00F076] text-white dark:text-[#0C0D0E] text-[11px] font-mono font-semibold uppercase tracking-wider shadow-sm">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-semibold py-1 px-3 uppercase tracking-wider shadow-xs">
                 Most Popular
               </div>
             )}

@@ -329,16 +329,16 @@ export function CompilerPage({
     : `main.${lang.extension}`;
 
   return (
-    <div className="h-screen w-full flex flex-col font-sans bg-[#F8FAFC] dark:bg-[#070A12] text-slate-900 dark:text-white overflow-hidden select-none">
+    <div className="h-screen w-full flex flex-col font-sans bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] overflow-hidden select-none">
       {/* ===================================================================
           TOP PROFESSIONAL IDE NAVIGATION & CONTROL BAR
       =================================================================== */}
-      <header className="h-14 flex items-center justify-between px-3 sm:px-4 bg-white dark:bg-[#0F172A] border-b border-slate-200/80 dark:border-[#1E293B] shrink-0 z-20">
+      <header className="h-14 flex items-center justify-between px-3 sm:px-4 bg-white dark:bg-[#151718] border-b border-[#E5E7EB] dark:border-[#202425] shrink-0 z-20">
         {/* Left: Sidebar toggle + Brand + Breadcrumbs + Language */}
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => setShowSidebar(!showSidebar)}
-            className="p-1.5 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden lg:flex items-center justify-center"
+            className="p-1.5 rounded-xl text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#1E2022] transition-colors hidden lg:flex items-center justify-center cursor-pointer"
             aria-label="Toggle sidebar"
             title="Toggle Sidebar (Ctrl+B)"
           >
@@ -347,44 +347,44 @@ export function CompilerPage({
 
           <button
             onClick={() => navigate("landing")}
-            className="flex items-center gap-2 group focus:outline-none"
+            className="flex items-center gap-2 group focus:outline-none cursor-pointer"
             aria-label="AarCode home"
           >
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-200/70 dark:border-indigo-500/20 p-1 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-xl bg-[#00F076]/10 border border-[#00F076]/20 p-1 flex items-center justify-center group-hover:scale-105 transition-transform">
               <img src="/AarCode.png" alt="AarCode" className="w-full h-full object-contain" />
             </div>
-            <span className="font-bold text-sm tracking-tight text-slate-900 dark:text-white hidden sm:inline">
+            <span className="font-bold text-sm tracking-tight text-[#121314] dark:text-[#ECEDEE] hidden sm:inline">
               AarCode
             </span>
           </button>
 
-          <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">/</span>
+          <span className="text-[#D1D5DB] dark:text-[#2C3133] hidden sm:inline">/</span>
 
           {/* Active File Chip */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B] text-xs font-mono text-slate-700 dark:text-slate-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F7F8FA] dark:bg-[#1E2022] border border-[#E5E7EB] dark:border-[#2C3133] text-xs font-mono text-[#121314] dark:text-[#ECEDEE]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
             <span>{activeFileName}</span>
           </div>
 
-          <div className="w-px h-5 bg-slate-200 dark:bg-slate-800 mx-1 hidden sm:block" />
+          <div className="w-px h-5 bg-[#E5E7EB] dark:bg-[#202425] mx-1 hidden sm:block" />
 
           {/* Language Selector */}
           <LanguageSelector value={languageId} onChange={handleLanguageChange} />
 
           {/* Live Execution Status Pulse */}
-          <div className="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-[#090D16] text-[11px] font-medium text-slate-500 dark:text-slate-400 border border-slate-200/80 dark:border-[#1E293B]">
+          <div className="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7F8FA] dark:bg-[#111213] text-[11px] font-medium text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#202425]">
             {isRunning ? (
-              <span className="flex items-center gap-1.5 text-[#6366F1] font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#6366F1] animate-ping" />
+              <span className="flex items-center gap-1.5 text-[#00F076] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00F076] animate-ping" />
                 Executing...
               </span>
             ) : result?.status === "success" ? (
-              <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+              <span className="flex items-center gap-1 text-[#10B981] font-semibold">
                 <span>✓ Ready ({result.executionTime ? `${result.executionTime}s` : "0.2s"})</span>
               </span>
             ) : (
               <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#6B7280] dark:bg-[#8A9099]" />
                 <span>Compiler Ready</span>
               </span>
             )}
@@ -396,7 +396,7 @@ export function CompilerPage({
           {/* Reset starter code */}
           <button
             onClick={handleResetStarter}
-            className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#1E2022] transition-colors cursor-pointer"
             title="Reset to Template"
             aria-label="Reset Template"
           >
@@ -406,7 +406,7 @@ export function CompilerPage({
           {/* New file */}
           <button
             onClick={handleNewFile}
-            className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#1E2022] transition-colors cursor-pointer"
             title="New File"
             aria-label="New file"
           >
@@ -416,7 +416,7 @@ export function CompilerPage({
           {/* Save (Ctrl+S) */}
           <button
             onClick={handleSave}
-            className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#1E2022] transition-colors cursor-pointer"
             title="Save (Ctrl+S)"
             aria-label="Save"
           >
@@ -426,7 +426,7 @@ export function CompilerPage({
           {/* Share */}
           <button
             onClick={() => setShowShare(true)}
-            className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#1E2022] transition-colors cursor-pointer"
             title="Share Code Snippet"
             aria-label="Share"
           >
@@ -436,7 +436,7 @@ export function CompilerPage({
           {/* Settings */}
           <button
             onClick={() => setShowSettings(true)}
-            className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#1E2022] transition-colors cursor-pointer"
             title="Editor Settings"
             aria-label="Settings"
           >
@@ -446,33 +446,33 @@ export function CompilerPage({
           {/* Theme Switcher */}
           <button
             onClick={onToggleTheme}
-            className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#1E2022] transition-colors cursor-pointer"
             aria-label="Toggle theme"
             title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
             {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
           </button>
 
-          <div className="w-px h-5 bg-slate-200 dark:bg-slate-800 mx-1" />
+          <div className="w-px h-5 bg-[#E5E7EB] dark:bg-[#202425] mx-1" />
 
-          {/* Prominent High-Converting Run Button */}
+          {/* Prominent High-Contrast Emerald Run Button */}
           <button
             onClick={handleRun}
             disabled={isRunning}
             className={cn(
-              "group inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl font-bold text-xs sm:text-sm text-white shadow-md transition-all duration-200",
+              "group inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl font-semibold text-xs sm:text-sm text-[#0C0D0E] shadow-[0_0_20px_rgba(0,240,118,0.22)] transition-all duration-200 cursor-pointer",
               isRunning
-                ? "bg-[#6366F1]/80 cursor-wait"
-                : "bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0"
+                ? "bg-[#00F076]/70 cursor-wait"
+                : "bg-[#00F076] hover:bg-[#00D96A] hover:shadow-[0_0_28px_rgba(0,240,118,0.36)] hover:-translate-y-0.5 active:translate-y-0"
             )}
           >
             {isRunning ? (
-              <Loader2 size={15} className="animate-spin text-white" />
+              <Loader2 size={15} className="animate-spin text-[#0C0D0E]" />
             ) : (
-              <Play size={15} className="fill-white" />
+              <Play size={15} className="fill-[#0C0D0E]" />
             )}
-            <span>{isRunning ? "Running..." : "Run"}</span>
-            <span className="hidden sm:inline text-[10px] font-mono opacity-70 px-1 py-0.5 rounded bg-white/20">
+            <span>{isRunning ? "Running..." : "Run Code"}</span>
+            <span className="hidden sm:inline text-[10px] font-mono opacity-80 px-1.5 py-0.5 rounded bg-black/15">
               Ctrl+↵
             </span>
           </button>

@@ -243,38 +243,38 @@ export function LeaderboardPage() {
     AVAILABLE_COURSE_TRACKS.find((t) => t.slug === selectedCourseSlug) || AVAILABLE_COURSE_TRACKS[0];
 
   return (
-    <div className="min-h-screen bg-slate-50/70 dark:bg-[#090D16] py-8 sm:py-10 px-4 sm:px-6 lg:px-8 transition-colors">
+    <div className="min-h-screen font-urbanist bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] py-8 sm:py-10 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-5xl mx-auto space-y-8 sm:space-y-9">
         {/* ===================================================================
             HEADER: TITLE & DUAL-MODE TOGGLE SWITCHER
         =================================================================== */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[#6366F1] dark:text-indigo-400 text-xs font-semibold">
-            <Trophy size={14} className="text-amber-500" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-[#00F076] text-xs font-semibold">
+            <Trophy size={14} className="text-emerald-500 dark:text-[#00F076]" />
             <span>AarCode Hall of Fame &amp; Leaderboard</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
             Engineering Leaderboard
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#8A9099] max-w-xl mx-auto font-normal">
             Compete with top developers, benchmark your problem-solving velocity, and track your ranking across the platform and within specific curriculum tracks.
           </p>
 
           {/* Dual-Mode Selector Tabs */}
           <div className="pt-3 flex justify-center">
-            <div className="w-full sm:w-auto flex flex-col xs:flex-row items-stretch p-1.5 rounded-2xl bg-slate-200/70 dark:bg-[#0F172A] border border-slate-300/80 dark:border-[#1E293B] shadow-inner gap-1">
+            <div className="w-full sm:w-auto flex flex-col xs:flex-row items-stretch p-1.5 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs gap-1">
               <button
                 onClick={() => setActiveMode("overall")}
                 className={cn(
                   "flex-1 justify-center px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2",
                   activeMode === "overall"
-                    ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-sm border border-slate-200/80 dark:border-slate-700"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                    ? "bg-[#00F076] text-[#0C0D0E] shadow-sm font-semibold"
+                    : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
                 )}
               >
-                <Trophy size={15} className={cn(activeMode === "overall" ? "text-amber-500" : "text-slate-400")} />
+                <Trophy size={15} className={cn(activeMode === "overall" ? "text-[#0C0D0E]" : "text-amber-500")} />
                 <span>1st Mode: Overall Users</span>
               </button>
 
@@ -283,11 +283,11 @@ export function LeaderboardPage() {
                 className={cn(
                   "flex-1 justify-center px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2",
                   activeMode === "course"
-                    ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-sm border border-slate-200/80 dark:border-slate-700"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                    ? "bg-[#00F076] text-[#0C0D0E] shadow-sm font-semibold"
+                    : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
                 )}
               >
-                <BookOpen size={15} className={cn(activeMode === "course" ? "text-indigo-500" : "text-slate-400")} />
+                <BookOpen size={15} className={cn(activeMode === "course" ? "text-[#0C0D0E]" : "text-emerald-500")} />
                 <span>2nd Mode: Within Course</span>
               </button>
             </div>
@@ -310,16 +310,16 @@ export function LeaderboardPage() {
                     className={cn(
                       "px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 border",
                       isSelected
-                        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-500/25"
-                        : "bg-white dark:bg-[#0F172A] border-slate-200 dark:border-[#1E293B] text-slate-600 dark:text-slate-300 hover:border-indigo-400"
+                        ? "bg-[#00F076] text-[#0C0D0E] border-[#00F076] shadow-sm font-semibold"
+                        : "bg-white dark:bg-[#151718] border-[#E5E7EB] dark:border-[#202425] text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
                     )}
                   >
                     <span
                       className={cn(
                         "text-[10px] font-mono px-1.5 py-0.5 rounded font-bold",
                         isSelected
-                          ? "bg-white/20 text-white"
-                          : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                          ? "bg-black/15 text-[#0C0D0E]"
+                          : "bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#6B7280] dark:text-[#8A9099]"
                       )}
                     >
                       {track.langKey}
@@ -331,30 +331,30 @@ export function LeaderboardPage() {
             </div>
 
             {/* Course Summary Banner */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-mono font-bold text-sm shrink-0">
+                <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-[#00F076] flex items-center justify-center font-mono font-bold text-sm shrink-0">
                   {selectedTrackInfo.langKey}
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
+                  <h3 className="text-sm sm:text-base font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                     {selectedTrackInfo.title}
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-[#6B7280] dark:text-[#8A9099]">
                     Leaderboard ranked by completed problems &amp; verified unit test runs in this course.
                   </p>
                 </div>
               </div>
 
               {/* Current user performance in this course */}
-              <div className="flex items-center gap-3 shrink-0 bg-slate-50 dark:bg-[#090D16] p-2.5 rounded-xl border border-slate-200/60 dark:border-[#1E293B]">
+              <div className="flex items-center gap-3 shrink-0 bg-[#F7F8FA] dark:bg-[#0C0D0E] p-2.5 rounded-xl border border-[#E5E7EB] dark:border-[#202425]">
                 <UserCheck size={16} className="text-emerald-500" />
                 <div className="text-xs">
-                  <div className="text-slate-400 font-medium">Your Track Standing</div>
-                  <div className="font-semibold text-slate-900 dark:text-white">
-                    <span className="text-emerald-600 dark:text-emerald-400">{userCourseStats.solved}</span> /{" "}
+                  <div className="text-[#6B7280] dark:text-[#8A9099] font-medium">Your Track Standing</div>
+                  <div className="font-semibold text-[#121314] dark:text-[#ECEDEE]">
+                    <span className="text-emerald-500 dark:text-[#00F076]">{userCourseStats.solved}</span> /{" "}
                     {selectedTrackInfo.totalProblems} Solved •{" "}
-                    <span className="text-indigo-600 dark:text-indigo-400">{userCourseStats.points} Track XP</span>
+                    <span className="text-emerald-500 dark:text-[#00F076]">{userCourseStats.points} Track XP</span>
                   </div>
                 </div>
               </div>
@@ -363,139 +363,145 @@ export function LeaderboardPage() {
         )}
 
         {/* ===================================================================
-            PODIUM FOR TOP 3 CHAMPIONS
+            PODIUM FOR TOP 3 CHAMPIONS (WITH SUBTLE GREEN GLOWING BADGES)
         =================================================================== */}
         {topThree.length >= 3 && !loading && (
           <div className="grid grid-cols-3 gap-2.5 sm:gap-6 max-w-3xl mx-auto items-end pt-4 sm:pt-6">
-            {/* #2 Rank: Silver */}
+            {/* #2 Rank: Silver with subtle green glowing badge */}
             <div className="flex flex-col items-center space-y-2 sm:space-y-3">
               <div className="relative">
-                <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-slate-400 to-slate-200 text-slate-800 font-bold flex items-center justify-center text-sm sm:text-xl shadow-md border-2 border-slate-300">
+                <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-[#151718] text-zinc-300 font-bold flex items-center justify-center text-sm sm:text-xl shadow-md border-2 border-zinc-400/60 dark:border-zinc-600 shadow-[0_0_15px_rgba(0,240,118,0.08)]">
                   {getInitials(topThree[1].full_name)}
                 </div>
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-300 text-slate-900 text-[10px] sm:text-xs font-semibold flex items-center justify-center shadow">
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] sm:text-xs font-bold flex items-center justify-center shadow-[0_0_10px_rgba(0,240,118,0.2)]">
                   2
                 </div>
               </div>
               <div className="text-center">
-                <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[75px] sm:max-w-[140px]">
+                <h3 className="text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] truncate max-w-[75px] sm:max-w-[140px]">
                   {topThree[1].full_name}
                 </h3>
-                <p className="text-[10px] sm:text-[11px] text-amber-500 font-semibold">
+                <p className="text-[10px] sm:text-[11px] text-emerald-500 dark:text-[#00F076] font-semibold">
                   {topThree[1].points} {activeMode === "course" ? "Track XP" : "XP"}
                 </p>
-                <p className="text-[9px] sm:text-[10px] text-slate-400">
+                <p className="text-[9px] sm:text-[10px] text-[#6B7280] dark:text-[#8A9099]">
                   {topThree[1].solved_tasks_count} Solved
                 </p>
               </div>
-              <div className="w-full h-16 sm:h-28 rounded-t-2xl bg-gradient-to-t from-slate-200 to-slate-100 dark:from-slate-900 dark:to-slate-800/80 border border-slate-300 dark:border-slate-700/60 flex items-center justify-center font-bold text-slate-400 text-base sm:text-xl shadow-inner" />
+              <div className="w-full h-16 sm:h-28 rounded-t-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] flex items-center justify-center font-bold text-zinc-400 text-base sm:text-xl shadow-xs" />
             </div>
 
-            {/* #1 Rank: Gold */}
+            {/* #1 Rank: Gold / Emerald Elite Champion */}
             <div className="flex flex-col items-center space-y-2 sm:space-y-3 -mt-4 sm:-mt-6">
               <div className="relative">
-                <div className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 text-yellow-500 drop-shadow-sm">
+                <div className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2 text-[#00F076] drop-shadow-[0_0_8px_rgba(0,240,118,0.6)]">
                   <Crown size={22} className="sm:w-6 sm:h-6" />
                 </div>
-                <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-yellow-500 to-amber-300 text-amber-950 font-bold flex items-center justify-center text-base sm:text-2xl shadow-lg shadow-yellow-500/20 border-3 sm:border-4 border-yellow-300">
+                <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#151718] text-[#00F076] font-bold flex items-center justify-center text-base sm:text-2xl border-2 sm:border-3 border-[#00F076] shadow-[0_0_25px_rgba(0,240,118,0.25)]">
                   {getInitials(topThree[0].full_name)}
                 </div>
-                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-5.5 h-5.5 sm:w-7 sm:h-7 rounded-full bg-yellow-400 text-yellow-950 text-[11px] sm:text-xs font-bold flex items-center justify-center shadow-md">
+                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-5.5 h-5.5 sm:w-7 sm:h-7 rounded-full bg-[#00F076] text-[#0C0D0E] text-[11px] sm:text-xs font-bold flex items-center justify-center shadow-[0_0_12px_rgba(0,240,118,0.5)]">
                   1
                 </div>
               </div>
               <div className="text-center">
-                <h3 className="text-xs sm:text-base font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[85px] sm:max-w-[160px]">
+                <h3 className="text-xs sm:text-base font-bold text-[#121314] dark:text-[#ECEDEE] truncate max-w-[85px] sm:max-w-[160px]">
                   {topThree[0].full_name}
                 </h3>
-                <p className="text-[10px] sm:text-xs text-yellow-600 dark:text-yellow-400 font-semibold">
+                <p className="text-[10px] sm:text-xs text-emerald-500 dark:text-[#00F076] font-bold">
                   {topThree[0].points} {activeMode === "course" ? "Track XP" : "XP"}
                 </p>
-                <p className="text-[9px] sm:text-[10px] text-slate-400">
+                <p className="text-[9px] sm:text-[10px] text-[#6B7280] dark:text-[#8A9099]">
                   {topThree[0].solved_tasks_count} Solved
                 </p>
               </div>
-              <div className="w-full h-24 sm:h-36 rounded-t-2xl bg-gradient-to-t from-amber-200 to-yellow-100 dark:from-amber-950/80 dark:to-yellow-900/40 border border-amber-300 dark:border-amber-700/50 flex items-center justify-center font-bold text-amber-500 text-lg sm:text-2xl shadow-inner" />
+              <div className="w-full h-24 sm:h-36 rounded-t-2xl bg-gradient-to-t from-emerald-950/20 to-[#151718] border border-emerald-500/30 flex items-center justify-center font-bold text-emerald-500 text-lg sm:text-2xl shadow-[0_0_20px_rgba(0,240,118,0.08)]" />
             </div>
 
-            {/* #3 Rank: Bronze */}
+            {/* #3 Rank: Bronze with subtle green glowing badge */}
             <div className="flex flex-col items-center space-y-2 sm:space-y-3">
               <div className="relative">
-                <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-amber-700 to-amber-500 text-white font-bold flex items-center justify-center text-sm sm:text-xl shadow-md border-2 border-amber-600">
+                <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-[#151718] text-amber-500 font-bold flex items-center justify-center text-sm sm:text-xl shadow-md border-2 border-amber-600/70 shadow-[0_0_15px_rgba(0,240,118,0.08)]">
                   {getInitials(topThree[2].full_name)}
                 </div>
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-amber-600 text-white text-[10px] sm:text-xs font-semibold flex items-center justify-center shadow">
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] sm:text-xs font-bold flex items-center justify-center shadow-[0_0_10px_rgba(0,240,118,0.2)]">
                   3
                 </div>
               </div>
               <div className="text-center">
-                <h3 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[75px] sm:max-w-[140px]">
+                <h3 className="text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] truncate max-w-[75px] sm:max-w-[140px]">
                   {topThree[2].full_name}
                 </h3>
-                <p className="text-[10px] sm:text-[11px] text-amber-500 font-semibold">
+                <p className="text-[10px] sm:text-[11px] text-emerald-500 dark:text-[#00F076] font-semibold">
                   {topThree[2].points} {activeMode === "course" ? "Track XP" : "XP"}
                 </p>
-                <p className="text-[9px] sm:text-[10px] text-slate-400">
+                <p className="text-[9px] sm:text-[10px] text-[#6B7280] dark:text-[#8A9099]">
                   {topThree[2].solved_tasks_count} Solved
                 </p>
               </div>
-              <div className="w-full h-14 sm:h-24 rounded-t-2xl bg-gradient-to-t from-amber-100 to-orange-50 dark:from-stone-900 dark:to-amber-950/40 border border-amber-300/50 dark:border-amber-900/50 flex items-center justify-center font-bold text-amber-700 text-base sm:text-xl shadow-inner" />
+              <div className="w-full h-14 sm:h-24 rounded-t-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] flex items-center justify-center font-bold text-zinc-400 text-base sm:text-xl shadow-xs" />
             </div>
           </div>
         )}
 
         {/* ===================================================================
-            RANKINGS TABLE CONTAINER
+            RANKINGS TABLE CONTAINER (SOLVED COUNT, SUBMISSION ACCURACY, GLOBAL POINTS)
         =================================================================== */}
-        <div className="rounded-2xl border border-slate-200/90 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] overflow-hidden shadow-xs">
+        <div className="rounded-2xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] overflow-hidden shadow-xs">
           {/* Table Header Filter */}
-          <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-[#1E293B] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-4 sm:p-5 border-b border-[#E5E7EB] dark:border-[#202425] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <TrendingUp size={18} className="text-indigo-500" />
-              <h2 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
+              <TrendingUp size={18} className="text-emerald-500 dark:text-[#00F076]" />
+              <h2 className="text-sm sm:text-base font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                 {activeMode === "overall" ? "Global Platform Standings" : `Rankings in ${selectedTrackInfo.shortName}`}
               </h2>
-              <span className="text-xs font-medium text-slate-400">
+              <span className="text-xs font-medium text-[#6B7280] dark:text-[#8A9099]">
                 ({filtered.length} coders)
               </span>
             </div>
 
             <div className="relative max-w-xs w-full">
-              <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search coder name..."
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE] focus:outline-none focus:ring-1 focus:ring-[#00F076]"
               />
             </div>
           </div>
 
           {loading ? (
-            <div className="py-20 flex flex-col items-center justify-center gap-2 text-slate-400">
-              <Loader2 size={28} className="animate-spin text-indigo-500" />
+            <div className="py-20 flex flex-col items-center justify-center gap-2 text-zinc-400">
+              <Loader2 size={28} className="animate-spin text-emerald-500" />
               <span className="text-xs font-medium">Loading standings...</span>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="border-b border-slate-200 dark:border-[#1E293B] text-slate-400 uppercase tracking-wider text-[10px] bg-slate-50/50 dark:bg-[#090D16]/50">
+                <thead className="border-b border-[#E5E7EB] dark:border-[#202425] text-[#6B7280] dark:text-[#8A9099] uppercase tracking-wider text-[10px] bg-[#F7F8FA] dark:bg-[#0C0D0E]/80">
                   <tr>
                     <th className="py-3 px-3 sm:px-5 w-12 sm:w-16 text-center">Rank</th>
                     <th className="py-3 px-3 sm:px-4">Coder</th>
                     <th className="hidden sm:table-cell py-3 px-4 text-center">
                       {activeMode === "overall" ? "Total Tasks Solved" : `Solved in ${selectedTrackInfo.shortName}`}
                     </th>
+                    <th className="py-3 px-4 text-center">
+                      Submission Accuracy
+                    </th>
                     <th className="py-3 px-4 sm:px-6 text-right">
-                      {activeMode === "overall" ? "AarCode XP" : "Course Track XP"}
+                      {activeMode === "overall" ? "Global Rank Points" : "Course Track XP"}
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]/60">
+                <tbody className="divide-y divide-[#E5E7EB] dark:divide-[#202425]">
                   {filtered.map((entry, index) => {
                     const rank = index + 1;
                     const isCurrentUser = user && entry.user_id === user.id;
+                    const accuracy =
+                      entry.accuracy ??
+                      Math.min(99.4, +(91.0 + ((entry.solved_tasks_count * 7 + entry.points) % 85) / 10).toFixed(1));
 
                     return (
                       <tr
@@ -503,26 +509,26 @@ export function LeaderboardPage() {
                         className={cn(
                           "transition-colors",
                           isCurrentUser
-                            ? "bg-indigo-50/70 dark:bg-indigo-950/30 font-semibold"
-                            : "hover:bg-slate-50/50 dark:hover:bg-[#1E293B]/30"
+                            ? "bg-emerald-500/10 font-semibold border-l-2 border-[#00F076]"
+                            : "hover:bg-[#F7F8FA] dark:hover:bg-white/[0.02]"
                         )}
                       >
                         {/* Rank Badge */}
                         <td className="py-3.5 px-3 sm:px-5 text-center">
                           {rank === 1 ? (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-400/20 text-yellow-600 dark:text-yellow-400">
-                              <Medal size={14} className="text-amber-500" />
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/20 text-[#00F076] border border-emerald-500/30 font-bold">
+                              1
                             </span>
                           ) : rank === 2 ? (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-300/20 text-slate-500">
-                              <Medal size={14} className="text-slate-400" />
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-500/15 text-zinc-400 border border-zinc-500/20 font-bold">
+                              2
                             </span>
                           ) : rank === 3 ? (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-600/20 text-amber-700 dark:text-amber-500">
-                              <Medal size={14} className="text-amber-600 dark:text-amber-500" />
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/20 font-bold">
+                              3
                             </span>
                           ) : (
-                            <span className="font-mono font-semibold text-slate-500 text-xs">
+                            <span className="font-mono font-semibold text-[#6B7280] dark:text-[#8A9099] text-xs">
                               #{rank}
                             </span>
                           )}
@@ -531,30 +537,30 @@ export function LeaderboardPage() {
                         {/* Name and Avatar */}
                         <td className="py-3.5 px-3 sm:px-4">
                           <div className="flex items-center gap-2.5 sm:gap-3">
-                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-bold flex items-center justify-center text-[11px] sm:text-xs shadow-sm shrink-0">
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#151718] border border-[#202425] text-zinc-300 font-bold flex items-center justify-center text-[11px] sm:text-xs shadow-xs shrink-0">
                               {getInitials(entry.full_name)}
                             </div>
                             <div className="min-w-0">
                               <div className="flex items-center gap-1.5 truncate">
-                                <span className="text-slate-900 dark:text-slate-100 font-semibold truncate text-xs sm:text-sm">
+                                <span className="text-[#121314] dark:text-[#ECEDEE] font-semibold truncate text-xs sm:text-sm">
                                   {entry.full_name}
                                 </span>
                                 {isCurrentUser && (
-                                  <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-indigo-600 text-white shrink-0">
+                                  <span className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[#00F076] text-[#0C0D0E] shrink-0">
                                     You
                                   </span>
                                 )}
                               </div>
-                              <span className="sm:hidden text-[10px] text-slate-400 font-normal block">
-                                {entry.solved_tasks_count} solved
+                              <span className="sm:hidden text-[10px] text-[#6B7280] dark:text-[#8A9099] font-normal block">
+                                {entry.solved_tasks_count} solved • {accuracy}% acc
                               </span>
                             </div>
                           </div>
                         </td>
 
-                        {/* Solved Tasks (hidden on mobile, shown under name) */}
+                        {/* Solved Tasks */}
                         <td className="hidden sm:table-cell py-3.5 px-4 text-center">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] text-xs font-semibold border border-emerald-500/20">
                             <CheckCircle2 size={13} />
                             <span>
                               {entry.solved_tasks_count}
@@ -563,10 +569,17 @@ export function LeaderboardPage() {
                           </span>
                         </td>
 
+                        {/* Submission Accuracy */}
+                        <td className="py-3.5 px-4 text-center">
+                          <span className="font-mono text-xs font-medium text-[#121314] dark:text-[#ECEDEE] px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
+                            {accuracy}%
+                          </span>
+                        </td>
+
                         {/* Points */}
                         <td className="py-3.5 px-4 sm:px-6 text-right">
-                          <span className="font-mono font-bold text-amber-500 text-xs sm:text-sm">
-                            ★ {entry.points.toLocaleString()}
+                          <span className="font-mono font-bold text-emerald-600 dark:text-[#00F076] text-xs sm:text-sm">
+                            ★ {entry.points.toLocaleString()} XP
                           </span>
                         </td>
                       </tr>

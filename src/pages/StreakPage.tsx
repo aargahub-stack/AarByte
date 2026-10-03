@@ -140,14 +140,14 @@ export function StreakPage({ navigate }: StreakPageProps) {
   }, [groupedProblems, selectedDate]);
 
   return (
-    <div className="min-h-screen font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-white py-6 sm:py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+    <div className="min-h-screen font-urbanist bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-6xl mx-auto space-y-7">
         {/* Top Header / Breadcrumb */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("dashboard")}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] hover:bg-slate-100 dark:hover:bg-[#1E293B] text-slate-600 dark:text-slate-300 transition-all shadow-xs"
+              className="p-2.5 rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] hover:bg-black/5 dark:hover:bg-white/5 text-[#6B7280] dark:text-[#8A9099] transition-all shadow-xs"
               aria-label="Back to Dashboard"
             >
               <ArrowLeft size={18} />
@@ -157,11 +157,11 @@ export function StreakPage({ navigate }: StreakPageProps) {
                 <div className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center">
                   <Flame size={15} />
                 </div>
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                   Daily Coding Streak
                 </h1>
               </div>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#8A9099] mt-0.5 font-normal">
                 Inspect your daily problem solving history, streak momentum, and activity logs.
               </p>
             </div>
@@ -170,14 +170,14 @@ export function StreakPage({ navigate }: StreakPageProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate("problems")}
-              className="px-4 py-2 rounded-xl bg-[#6366F1] hover:bg-[#4F46E5] text-white text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all shadow-sm"
+              className="px-4 py-2 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(0,240,118,0.2)]"
             >
               <Code2 size={16} />
               <span>Practice Today</span>
             </button>
             <button
               onClick={() => navigate("analytics")}
-              className="px-4 py-2 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] hover:bg-slate-50 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold transition-all shadow-xs"
+              className="px-4 py-2 rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] hover:bg-black/5 dark:hover:bg-white/5 text-[#121314] dark:text-[#ECEDEE] text-xs sm:text-sm font-semibold transition-all shadow-xs"
             >
               <span>Learning Analytics</span>
             </button>
@@ -189,9 +189,9 @@ export function StreakPage({ navigate }: StreakPageProps) {
         =================================================================== */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Current Streak */}
-          <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-4 sm:p-5 shadow-xs">
+          <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-4 sm:p-5 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] uppercase tracking-wider">
                 Current Streak
               </span>
               <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
@@ -199,41 +199,41 @@ export function StreakPage({ navigate }: StreakPageProps) {
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+              <span className="text-2xl sm:text-3xl font-bold text-[#121314] dark:text-[#ECEDEE]">
                 {streakData.currentStreak}
               </span>
-              <span className="text-xs text-slate-400 font-medium">consecutive days</span>
+              <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">consecutive days</span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
+            <p className="text-xs text-[#6B7280] dark:text-[#8A9099] mt-1 truncate">
               {streakData.isSolvedToday ? "Active & verified today" : "Pending challenge today"}
             </p>
           </div>
 
           {/* Longest Streak */}
-          <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-4 sm:p-5 shadow-xs">
+          <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-4 sm:p-5 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] uppercase tracking-wider">
                 Longest Streak
               </span>
-              <div className="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
                 <Trophy size={18} strokeWidth={2.2} />
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+              <span className="text-2xl sm:text-3xl font-bold text-[#121314] dark:text-[#ECEDEE]">
                 {streakData.longestStreak}
               </span>
-              <span className="text-xs text-slate-400 font-medium">personal best</span>
+              <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">personal best</span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs text-[#6B7280] dark:text-[#8A9099] mt-1">
               All-time record
             </p>
           </div>
 
           {/* Active Days */}
-          <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-4 sm:p-5 shadow-xs">
+          <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-4 sm:p-5 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] uppercase tracking-wider">
                 Total Active Days
               </span>
               <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
@@ -241,33 +241,33 @@ export function StreakPage({ navigate }: StreakPageProps) {
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+              <span className="text-2xl sm:text-3xl font-bold text-[#121314] dark:text-[#ECEDEE]">
                 {streakData.activeDatesSet.size}
               </span>
-              <span className="text-xs text-slate-400 font-medium">practice days</span>
+              <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">practice days</span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs text-[#6B7280] dark:text-[#8A9099] mt-1">
               Days with completed tasks
             </p>
           </div>
 
           {/* Freeze Days Protection */}
-          <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-4 sm:p-5 shadow-xs">
+          <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-4 sm:p-5 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] uppercase tracking-wider">
                 Freeze Protection
               </span>
-              <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
                 <ShieldCheck size={18} strokeWidth={2.2} />
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+              <span className="text-2xl sm:text-3xl font-bold text-[#121314] dark:text-[#ECEDEE]">
                 {streakData.freezeDaysAvailable}
               </span>
-              <span className="text-xs text-slate-400 font-medium">available</span>
+              <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">available</span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs text-[#6B7280] dark:text-[#8A9099] mt-1">
               Protects streak if a day is missed
             </p>
           </div>
@@ -300,13 +300,16 @@ export function StreakPage({ navigate }: StreakPageProps) {
         {/* ===================================================================
             SECTION 2: CURRENT WEEK CALENDAR STRIP
         =================================================================== */}
-        <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
+        {/* ===================================================================
+            SECTION 2: CURRENT WEEK CALENDAR STRIP
+        =================================================================== */}
+        <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 space-y-4 shadow-xs">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-white">Current Week Calendar</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Click any day to see the exact problems solved</p>
+              <h2 className="text-base font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">Current Week Calendar</h2>
+              <p className="text-xs text-[#6B7280] dark:text-[#8A9099]">Click any day to see the exact problems solved</p>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-[#090D16] text-slate-600 dark:text-slate-400">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#202425]">
               Sunday – Saturday
             </span>
           </div>
@@ -324,28 +327,28 @@ export function StreakPage({ navigate }: StreakPageProps) {
                   className={cn(
                     "flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-xl border text-center transition-all cursor-pointer select-none",
                     isSelected
-                      ? "ring-2 ring-indigo-500 border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/15"
-                      : "border-slate-200/80 dark:border-[#1E293B] bg-slate-50/60 dark:bg-[#090D16]/60 hover:border-slate-300 dark:hover:border-slate-700"
+                      ? "ring-2 ring-emerald-500 border-emerald-500 bg-emerald-500/10"
+                      : "border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#0C0D0E] hover:border-emerald-500/40"
                   )}
                 >
-                  <span className={cn("text-xs font-semibold", wd.isToday ? "text-indigo-600 dark:text-indigo-400 font-bold" : "text-slate-400")}>
+                  <span className={cn("text-xs font-semibold", wd.isToday ? "text-emerald-600 dark:text-[#00F076] font-bold" : "text-zinc-400")}>
                     {wd.label}
                   </span>
                   <div
                     className={cn(
                       "w-8 h-8 sm:w-9 sm:h-9 my-1.5 rounded-lg flex items-center justify-center text-xs font-bold transition-all relative",
                       isCompleted
-                        ? "bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xs"
+                        ? "bg-gradient-to-br from-emerald-500 to-[#00F076] text-[#0C0D0E] shadow-xs"
                         : wd.isToday
-                        ? "bg-indigo-600 text-white shadow-xs ring-2 ring-indigo-400/40"
+                        ? "bg-[#00F076] text-[#0C0D0E] shadow-xs ring-2 ring-emerald-400/40"
                         : wd.status === "missed"
-                        ? "bg-slate-200/60 dark:bg-slate-800/60 text-slate-400"
-                        : "bg-white dark:bg-[#0F172A] text-slate-400 border border-dashed border-slate-300 dark:border-slate-700"
+                        ? "bg-[#E5E7EB] dark:bg-[#202425] text-zinc-400"
+                        : "bg-white dark:bg-[#151718] text-zinc-400 border border-dashed border-[#E5E7EB] dark:border-[#202425]"
                     )}
                   >
                     {isCompleted ? <CheckCircle2 size={16} /> : wd.dayNum}
                   </div>
-                  <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 truncate max-w-full">
+                  <span className="text-[10px] font-semibold text-[#6B7280] dark:text-[#8A9099] truncate max-w-full">
                     {count > 0 ? `${count} solved` : wd.isToday ? "Today" : "0"}
                   </span>
                 </button>
@@ -359,13 +362,13 @@ export function StreakPage({ navigate }: StreakPageProps) {
         =================================================================== */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column: Quick Date Selector List */}
-          <div className="lg:col-span-1 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 space-y-4 shadow-xs">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1E293B] pb-3">
+          <div className="lg:col-span-1 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 space-y-4 shadow-xs">
+            <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-[#202425] pb-3">
               <div className="flex items-center gap-2">
-                <CalendarIcon size={16} className="text-[#6366F1]" />
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Active History</h3>
+                <CalendarIcon size={16} className="text-emerald-500" />
+                <h3 className="text-sm font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">Active History</h3>
               </div>
-              <span className="text-xs text-slate-400 font-medium">
+              <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">
                 {allActiveDates.length} recorded
               </span>
             </div>
@@ -383,33 +386,33 @@ export function StreakPage({ navigate }: StreakPageProps) {
                     className={cn(
                       "w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between",
                       isSelected
-                        ? "border-indigo-500 bg-indigo-50/60 dark:bg-indigo-500/15 ring-1 ring-indigo-500/30"
-                        : "border-slate-100 dark:border-[#1E293B] hover:bg-slate-50 dark:hover:bg-[#1E293B]/60"
+                        ? "border-[#00F076] bg-emerald-500/10 ring-1 ring-[#00F076]/30"
+                        : "border-[#E5E7EB] dark:border-[#202425] hover:bg-[#F7F8FA] dark:hover:bg-[#0C0D0E]"
                     )}
                   >
                     <div>
-                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <div className="text-xs font-bold text-[#121314] dark:text-[#ECEDEE] flex items-center gap-1.5">
                         <span>{dateStr}</span>
                         {isToday && (
-                          <span className="px-1.5 py-0.2 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-semibold">
+                          <span className="px-1.5 py-0.2 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] text-[10px] font-semibold border border-emerald-500/20">
                             Today
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                      <p className="text-[11px] text-[#6B7280] dark:text-[#8A9099] mt-0.5">
                         {count === 1 ? "1 challenge solved" : `${count} challenges solved`}
                       </p>
                     </div>
 
                     <div className="flex items-center gap-2">
                       {count > 0 ? (
-                        <span className="w-6 h-6 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs font-bold">
+                        <span className="w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] flex items-center justify-center text-xs font-bold">
                           {count}
                         </span>
                       ) : (
-                        <span className="text-xs text-slate-400">0</span>
+                        <span className="text-xs text-zinc-400">0</span>
                       )}
-                      <ChevronRight size={14} className="text-slate-400" />
+                      <ChevronRight size={14} className="text-zinc-400" />
                     </div>
                   </button>
                 );
@@ -418,19 +421,19 @@ export function StreakPage({ navigate }: StreakPageProps) {
           </div>
 
           {/* Right Column: Detailed Problems List for the Selected Date */}
-          <div className="lg:col-span-2 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-5 sm:p-6 space-y-5 shadow-xs">
+          <div className="lg:col-span-2 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 sm:p-6 space-y-5 shadow-xs">
             {/* Header for Day Detail */}
-            <div className="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 dark:border-[#1E293B] pb-4">
+            <div className="flex items-center justify-between flex-wrap gap-2 border-b border-[#E5E7EB] dark:border-[#202425] pb-4">
               <div>
-                <span className="text-xs font-semibold uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">
+                <span className="text-xs font-semibold uppercase text-emerald-600 dark:text-[#00F076] tracking-wider">
                   Day Activity Details
                 </span>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">
+                <h2 className="text-lg font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] mt-0.5">
                   {formatFriendlyDate(selectedDate)}
                 </h2>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
+                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-[#00F076]">
                   {selectedDayProblems.length} {selectedDayProblems.length === 1 ? "Problem Solved" : "Problems Solved"}
                 </span>
               </div>
@@ -442,88 +445,52 @@ export function StreakPage({ navigate }: StreakPageProps) {
                 {selectedDayProblems.map((prob, idx) => (
                   <div
                     key={`${prob.taskId}-${idx}`}
-                    className="p-4 rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#090D16]/50 hover:border-indigo-500/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                    className="p-4 rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#0C0D0E] hover:border-emerald-500/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
                   >
                     <div className="space-y-1.5 flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                        <span className="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] flex items-center justify-center shrink-0">
                           <CheckCircle2 size={13} strokeWidth={2.5} />
                         </span>
-                        <h4 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-[#6366F1] transition-colors truncate">
+                        <h4 className="text-sm font-bold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 dark:group-hover:text-[#00F076] transition-colors truncate">
                           {prob.title}
                         </h4>
-
-                        {/* Difficulty badge */}
-                        <span
-                          className={cn(
-                            "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
-                            prob.difficulty.toLowerCase() === "easy" &&
-                              "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20",
-                            prob.difficulty.toLowerCase() === "medium" &&
-                              "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20",
-                            prob.difficulty.toLowerCase() === "hard" &&
-                              "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
-                          )}
-                        >
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border-emerald-500/20">
                           {prob.difficulty}
                         </span>
-
-                        {/* Language pill */}
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#1E293B] text-slate-600 dark:text-slate-300 text-[10px] font-semibold uppercase">
+                        <span className="text-[10px] font-mono text-zinc-400 uppercase">
                           {prob.language}
                         </span>
                       </div>
-
-                      <div className="flex items-center gap-3 text-xs text-slate-400">
-                        {prob.courseTitle && (
-                          <span className="flex items-center gap-1">
-                            <BookOpen size={12} />
-                            <span className="truncate">{prob.courseTitle}</span>
-                          </span>
-                        )}
-                        <span className="flex items-center gap-1">
-                          <Clock size={12} />
-                          <span>{prob.formattedTime}</span>
-                        </span>
-                        <span className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-semibold">
-                          <Zap size={12} />
-                          <span>+{prob.points} XP</span>
-                        </span>
+                      <div className="flex items-center gap-3 text-xs text-[#6B7280] dark:text-[#8A9099]">
+                        <span>Track: {prob.courseTitle}</span>
+                        <span>•</span>
+                        <span className="text-amber-500 font-semibold">+{prob.points} XP Earned</span>
                       </div>
                     </div>
 
-                    {/* Action Button: Solve Again / Review In Arena */}
                     <button
                       onClick={() => navigate("task", { taskId: prob.taskId })}
-                      className="px-3.5 py-1.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-600 hover:text-white text-indigo-600 dark:text-indigo-400 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shrink-0 shadow-xs"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE] hover:border-emerald-500/50 hover:text-emerald-500 transition-all shrink-0"
                     >
-                      <span>Review Code</span>
+                      <span>Practice Again</span>
                       <ArrowRight size={13} />
                     </button>
                   </div>
                 ))}
               </div>
             ) : (
-              /* Empty state for the selected day */
-              <div className="py-12 px-4 rounded-xl border border-dashed border-slate-200 dark:border-[#1E293B] text-center space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto">
-                  <Flame size={24} />
-                </div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  No problems recorded on this day
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-                  Consistency creates elite engineers. Solve at least one challenge every day to extend your coding streak!
+              <div className="text-center py-12 px-4 space-y-3">
+                <p className="text-sm text-[#6B7280] dark:text-[#8A9099]">
+                  No problems recorded on this date.
                 </p>
-                <div className="pt-2">
-                  <button
-                    onClick={() => navigate("problems")}
-                    className="px-4 py-2 rounded-xl bg-[#6366F1] hover:bg-[#4F46E5] text-white text-xs font-semibold inline-flex items-center gap-2 transition-all shadow-sm"
-                  >
-                    <Code2 size={15} />
-                    <span>Go to Problem Arena</span>
-                  </button>
-                </div>
+                <button
+                  onClick={() => navigate("problems")}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs transition-all shadow-[0_0_15px_rgba(0,240,118,0.2)]"
+                >
+                  <Code2 size={14} />
+                  <span>Solve a Challenge Today</span>
+                </button>
               </div>
             )}
           </div>
@@ -532,3 +499,5 @@ export function StreakPage({ navigate }: StreakPageProps) {
     </div>
   );
 }
+
+export default StreakPage;
