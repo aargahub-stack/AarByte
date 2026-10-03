@@ -50,6 +50,8 @@ function parseLocationHash(): RouteState {
     "privacy",
     "terms",
     "reset-password",
+    "streak",
+    "analytics",
     "login",
     "signup",
   ];
@@ -84,7 +86,15 @@ export function useRouter() {
   const [routeState, setRouteState] = useState<RouteState>(() => parseLocationHash());
 
   useEffect(() => {
-    const handler = () => setRouteState(parseLocationHash());
+    if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+
+    const handler = () => {
+      setRouteState(parseLocationHash());
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    };
     window.addEventListener("hashchange", handler);
     return () => window.removeEventListener("hashchange", handler);
   }, []);

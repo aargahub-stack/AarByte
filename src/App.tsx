@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { ToastProvider } from "@/hooks/useToast";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { useSettings } from "@/hooks/useSettings";
@@ -40,6 +41,10 @@ function MainApp() {
     }
     navigate(to, navParams);
   };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [route]);
 
   const isFullScreenArena =
     route === "compiler" ||
