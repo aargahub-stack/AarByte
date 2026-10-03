@@ -38,21 +38,21 @@ export function FileExplorer({
   const [menuId, setMenuId] = useState<string | null>(null);
 
   return (
-    <div className="flex flex-col h-full font-sans bg-white dark:bg-[#0F172A] border-r border-slate-200/80 dark:border-[#1E293B] select-none">
+    <div className="flex flex-col h-full font-urbanist bg-white dark:bg-[#151718] border-r border-[#E5E7EB] dark:border-[#202425] select-none">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200/80 dark:border-[#1E293B]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#E5E7EB] dark:border-[#202425]">
         <div className="flex items-center gap-2">
-          <FolderCode size={15} className="text-[#6366F1]" />
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+          <FolderCode size={15} className="text-emerald-500 dark:text-[#00F076]" />
+          <span className="text-xs font-bold uppercase tracking-wider text-[#121314] dark:text-[#ECEDEE]">
             Explorer
           </span>
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-[#4F46E5] dark:text-indigo-300">
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-[#00F076]">
             {programs.length}
           </span>
         </div>
         <button
           onClick={onCreate}
-          className="p-1 rounded-lg text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
+          className="p-1 rounded-lg text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] hover:bg-[#F7F8FA] dark:hover:bg-[#1A1D1E] transition-colors"
           aria-label="New file"
           title="New Program"
         >
@@ -64,15 +64,15 @@ export function FileExplorer({
       <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
         {programs.length === 0 ? (
           <div className="px-4 py-10 text-center space-y-2">
-            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#090D16] border border-slate-200 dark:border-[#1E293B] flex items-center justify-center text-slate-400 mx-auto">
+            <div className="w-10 h-10 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] flex items-center justify-center text-[#8A9099] mx-auto">
               <FileCode size={18} />
             </div>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-medium text-[#6B7280] dark:text-[#8A9099]">
               No saved programs yet.
             </p>
             <button
               onClick={onCreate}
-              className="text-xs font-semibold text-[#6366F1] dark:text-indigo-400 hover:underline"
+              className="text-xs font-semibold text-emerald-600 dark:text-[#00F076] hover:underline"
             >
               + Create your first file
             </button>
@@ -88,8 +88,8 @@ export function FileExplorer({
                 className={cn(
                   "group relative flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-all duration-150 border",
                   isActive
-                    ? "bg-indigo-50/80 dark:bg-indigo-950/30 border-[#6366F1]/40 text-slate-900 dark:text-white shadow-xs"
-                    : "border-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100/70 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-[#121314] dark:text-[#ECEDEE] shadow-xs"
+                    : "border-transparent text-[#6B7280] dark:text-[#8A9099] hover:bg-[#F7F8FA] dark:hover:bg-[#1A1D1E] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
                 )}
                 onClick={() => onOpen(program)}
               >
@@ -98,14 +98,14 @@ export function FileExplorer({
                     size={15}
                     className={cn(
                       "shrink-0",
-                      isActive ? "text-[#6366F1]" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"
+                      isActive ? "text-emerald-500 dark:text-[#00F076]" : "text-[#8A9099] group-hover:text-[#121314] dark:group-hover:text-[#ECEDEE]"
                     )}
                   />
                   <div className="min-w-0">
                     <div className="text-xs font-semibold truncate leading-tight">
                       {program.name}
                     </div>
-                    <div className="text-[10px] text-slate-400 dark:text-slate-500 truncate flex items-center gap-1.5 mt-0.5">
+                    <div className="text-[10px] text-[#6B7280] dark:text-[#8A9099] truncate flex items-center gap-1.5 mt-0.5">
                       <span>{lang?.name || program.language}</span>
                       <span>•</span>
                       <span>{formatRelativeTime(program.updatedAt)}</span>
@@ -119,7 +119,7 @@ export function FileExplorer({
                     e.stopPropagation();
                     setMenuId(menuId === program.id ? null : program.id);
                   }}
-                  className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700/60 text-slate-400 transition-opacity"
+                  className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-[#E5E7EB] dark:hover:bg-[#202425] text-[#8A9099] transition-opacity"
                   aria-label="More options"
                 >
                   <MoreVertical size={13} />
@@ -137,7 +137,7 @@ export function FileExplorer({
                       aria-hidden="true"
                     />
                     <div
-                      className="absolute right-2 top-full mt-1 z-40 min-w-[140px] rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-[#1E293B] shadow-xl py-1.5 animate-in fade-in zoom-in-95 duration-100"
+                      className="absolute right-2 top-full mt-1 z-40 min-w-[140px] rounded-xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xl shadow-black/40 py-1.5 animate-in fade-in zoom-in-95 duration-100"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <button
@@ -145,7 +145,7 @@ export function FileExplorer({
                           onOpen(program);
                           setMenuId(null);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[#121314] dark:text-[#ECEDEE] hover:bg-[#F7F8FA] dark:hover:bg-[#1A1D1E]"
                       >
                         <Play size={13} /> Open
                       </button>
@@ -154,7 +154,7 @@ export function FileExplorer({
                           onRename(program);
                           setMenuId(null);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[#121314] dark:text-[#ECEDEE] hover:bg-[#F7F8FA] dark:hover:bg-[#1A1D1E]"
                       >
                         <Pencil size={13} /> Rename
                       </button>
@@ -163,17 +163,17 @@ export function FileExplorer({
                           onDuplicate(program.id);
                           setMenuId(null);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[#121314] dark:text-[#ECEDEE] hover:bg-[#F7F8FA] dark:hover:bg-[#1A1D1E]"
                       >
                         <Copy size={13} /> Duplicate
                       </button>
-                      <div className="border-t border-slate-100 dark:border-[#1E293B] my-1" />
+                      <div className="border-t border-[#E5E7EB] dark:border-[#202425] my-1" />
                       <button
                         onClick={() => {
                           onDelete(program.id);
                           setMenuId(null);
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-rose-500 hover:bg-rose-500/10"
                       >
                         <Trash2 size={13} /> Delete
                       </button>
@@ -187,20 +187,20 @@ export function FileExplorer({
       </div>
 
       {/* Footer Shortcut Cheat Sheet */}
-      <div className="p-3 border-t border-slate-200/80 dark:border-[#1E293B] bg-slate-50/60 dark:bg-[#090D16]/60 text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5">
+      <div className="p-3 border-t border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[11px] text-[#6B7280] dark:text-[#8A9099] space-y-1.5">
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 font-medium">
-            <Keyboard size={12} className="text-[#6366F1]" /> Run Code
+            <Keyboard size={12} className="text-emerald-500 dark:text-[#00F076]" /> Run Code
           </span>
-          <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-[#1E293B] font-mono text-[10px] font-bold">
+          <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] font-mono text-[10px] font-bold text-[#121314] dark:text-[#ECEDEE]">
             Ctrl+↵
           </kbd>
         </div>
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 font-medium">
-            <Clock size={12} className="text-slate-400" /> Save Code
+            <Clock size={12} className="text-[#8A9099]" /> Save Code
           </span>
-          <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-[#1E293B] font-mono text-[10px] font-bold">
+          <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] font-mono text-[10px] font-bold text-[#121314] dark:text-[#ECEDEE]">
             Ctrl+S
           </kbd>
         </div>

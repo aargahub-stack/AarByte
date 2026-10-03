@@ -286,7 +286,7 @@ export function StreakPage({ navigate }: StreakPageProps) {
               {streakData.currentStreak} of {streakData.nextMilestone} days ({streakData.milestoneProgressPct}%)
             </span>
           </div>
-          <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-[#090D16] overflow-hidden">
+          <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-[#0C0D0E] overflow-hidden">
             <div
               className="h-full rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-indigo-600 transition-all duration-500"
               style={{ width: `${Math.min(100, Math.max(5, streakData.milestoneProgressPct))}%` }}

@@ -574,7 +574,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   // Auth Guard
   if (authLoading) {
     return (
-      <div className="h-full w-full flex items-center justify-center bg-[#F8FAFC] dark:bg-[#070A12] text-slate-500 font-urbanist">
+      <div className="h-full w-full flex items-center justify-center bg-[#F8FAFC] dark:bg-[#0C0D0E] text-slate-500 font-urbanist">
         <Loader2 size={32} className="animate-spin text-[#6366F1] mb-2" />
         <span className="ml-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
           Verifying administrator permissions...
@@ -585,7 +585,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
   if (!isAdmin) {
     return (
-      <div className="h-full w-full flex flex-col items-center justify-center p-6 bg-[#F8FAFC] dark:bg-[#070A12] text-center space-y-4 font-urbanist">
+      <div className="h-full w-full flex flex-col items-center justify-center p-6 bg-[#F8FAFC] dark:bg-[#0C0D0E] text-center space-y-4 font-urbanist">
         <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 text-[#6366F1] flex items-center justify-center shadow-lg shadow-indigo-500/10">
           <ShieldAlert size={36} />
         </div>
@@ -645,7 +645,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       : 0;
 
   return (
-    <div className="h-full w-full flex bg-[#F8FAFC] dark:bg-[#070A12] text-slate-900 dark:text-white font-urbanist overflow-hidden">
+    <div className="h-full w-full flex bg-[#F8FAFC] dark:bg-[#0C0D0E] text-slate-900 dark:text-white font-urbanist overflow-hidden">
       {/* Mobile Drawer Backdrop */}
       {mobileSidebarOpen && (
         <div
@@ -659,14 +659,14 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       ===================================================================== */}
       <aside
         className={cn(
-          "h-full border-r border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0B101D] flex flex-col shrink-0 transition-all duration-300 z-40 select-none",
+          "h-full border-r border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] flex flex-col shrink-0 transition-all duration-300 z-40 select-none",
           "fixed inset-y-0 left-0 md:relative",
           mobileSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0",
           isSidebarCollapsed ? "w-20" : "w-64"
         )}
       >
         {/* Brand & Collapse Header */}
-        <div className="h-16 px-4 flex items-center justify-between border-b border-slate-200/80 dark:border-[#1E293B] shrink-0">
+        <div className="h-16 px-4 flex items-center justify-between border-b border-slate-200/80 dark:border-[#202425] shrink-0">
           {!isSidebarCollapsed && (
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-200/70 dark:border-indigo-500/20 p-1 flex items-center justify-center">
@@ -691,7 +691,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#202425] transition-colors"
             title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isSidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
@@ -714,7 +714,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
               activeSection === "overview"
                 ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
             )}
             title="Overview"
           >
@@ -732,7 +732,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
               activeSection === "courses"
                 ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
             )}
             title="Courses & Tracks"
           >
@@ -743,7 +743,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
             {!isSidebarCollapsed && metrics.coursesCount > 0 && (
               <span className={cn(
                 "px-2 py-0.5 rounded-md text-[10px] font-mono",
-                activeSection === "courses" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                activeSection === "courses" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-[#202425] text-slate-500"
               )}>
                 {metrics.coursesCount}
               </span>
@@ -760,7 +760,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
               activeSection === "tasks"
                 ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
             )}
             title="Problems & Tasks"
           >
@@ -771,7 +771,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
             {!isSidebarCollapsed && metrics.tasksCount > 0 && (
               <span className={cn(
                 "px-2 py-0.5 rounded-md text-[10px] font-mono",
-                activeSection === "tasks" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                activeSection === "tasks" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-[#202425] text-slate-500"
               )}>
                 {metrics.tasksCount}
               </span>
@@ -789,7 +789,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
               activeSection === "submissions"
                 ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
             )}
             title="Live Submissions"
           >
@@ -800,7 +800,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
             {!isSidebarCollapsed && (
               <span className={cn(
                 "px-2 py-0.5 rounded-md text-[10px] font-mono",
-                activeSection === "submissions" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                activeSection === "submissions" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-[#202425] text-slate-500"
               )}>
                 {submissions.length}
               </span>
@@ -817,7 +817,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
               activeSection === "users"
                 ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
             )}
             title="Students & Roles"
           >
@@ -828,7 +828,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
             {!isSidebarCollapsed && metrics.usersCount > 0 && (
               <span className={cn(
                 "px-2 py-0.5 rounded-md text-[10px] font-mono",
-                activeSection === "users" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                activeSection === "users" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-[#202425] text-slate-500"
               )}>
                 {metrics.usersCount}
               </span>
@@ -845,7 +845,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
               activeSection === "system"
                 ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
             )}
             title="System & Tools"
           >
@@ -854,7 +854,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
           </button>
 
           {/* Student Hub Quick-Jump Section */}
-          <div className="pt-4 mt-4 border-t border-slate-200/80 dark:border-[#1E293B]">
+          <div className="pt-4 mt-4 border-t border-slate-200/80 dark:border-[#202425]">
             <div className={cn("px-3 pb-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider", isSidebarCollapsed && "text-center")}>
               {isSidebarCollapsed ? "•••" : "Live Site Jump"}
             </div>
@@ -863,7 +863,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 navigate("problems");
                 setMobileSidebarOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white transition-colors"
               title="Practice Arena"
             >
               <ExternalLink size={15} className="shrink-0 text-[#6366F1]" />
@@ -874,7 +874,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 navigate("compiler");
                 setMobileSidebarOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white transition-colors"
               title="Online Compiler"
             >
               <ExternalLink size={15} className="shrink-0 text-emerald-500" />
@@ -882,7 +882,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
             </button>
             <button
               onClick={() => navigate("landing")}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white transition-colors"
               title="Landing Page"
             >
               <ExternalLink size={15} className="shrink-0 text-amber-500" />
@@ -892,7 +892,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
         </div>
 
         {/* Admin User Chip Footer */}
-        <div className="p-3 border-t border-slate-200/80 dark:border-[#1E293B] shrink-0 bg-slate-50 dark:bg-[#070A12]">
+        <div className="p-3 border-t border-slate-200/80 dark:border-[#202425] shrink-0 bg-slate-50 dark:bg-[#0C0D0E]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#6366F1] to-[#7C3AED] text-white font-bold text-xs flex items-center justify-center shrink-0">
               {profile?.full_name ? profile.full_name[0].toUpperCase() : "A"}
@@ -917,11 +917,11 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       ===================================================================== */}
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
         {/* Top Control Bar */}
-        <header className="h-16 px-4 sm:px-6 border-b border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] flex items-center justify-between shrink-0 z-20">
+        <header className="h-16 px-4 sm:px-6 border-b border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] flex items-center justify-between shrink-0 z-20">
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-              className="md:hidden p-2 rounded-xl border border-slate-200 dark:border-[#1E293B] bg-slate-50 dark:bg-[#090D16] text-slate-600 dark:text-slate-300 hover:text-[#6366F1] transition-colors"
+              className="md:hidden p-2 rounded-xl border border-slate-200 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-600 dark:text-slate-300 hover:text-[#6366F1] transition-colors"
               aria-label="Toggle admin navigation menu"
             >
               {mobileSidebarOpen ? <X size={18} /> : <Menu size={18} />}
@@ -945,7 +945,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
             <button
               onClick={() => setShowCourseModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-[#202425] hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all"
             >
               <Plus size={14} />
               <span>New Track</span>
@@ -973,7 +973,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
             <div className="space-y-6 max-w-7xl mx-auto">
               {/* 4 Metric KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] shadow-xs space-y-3">
+                <div className="p-5 rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] shadow-xs space-y-3">
                   <div className="flex items-center justify-between text-slate-500">
                     <span className="text-xs font-semibold">Active Students</span>
                     <div className="p-2 rounded-xl bg-indigo-500/10 text-[#6366F1]">
@@ -988,7 +988,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] shadow-xs space-y-3">
+                <div className="p-5 rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] shadow-xs space-y-3">
                   <div className="flex items-center justify-between text-slate-500">
                     <span className="text-xs font-semibold">Learning Tracks</span>
                     <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
@@ -1003,7 +1003,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] shadow-xs space-y-3">
+                <div className="p-5 rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] shadow-xs space-y-3">
                   <div className="flex items-center justify-between text-slate-500">
                     <span className="text-xs font-semibold">Problem Bank</span>
                     <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
@@ -1018,7 +1018,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] shadow-xs space-y-3">
+                <div className="p-5 rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] shadow-xs space-y-3">
                   <div className="flex items-center justify-between text-slate-500">
                     <span className="text-xs font-semibold">Submissions & Pass Rate</span>
                     <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500">
@@ -1088,7 +1088,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               </div>
 
               {/* Recent Activity: Submissions snapshot */}
-              <div className="rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] p-5 space-y-4">
+              <div className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -1109,7 +1109,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
-                      <thead className="border-b border-slate-100 dark:border-[#1E293B] text-[10px] uppercase font-bold text-slate-400">
+                      <thead className="border-b border-slate-100 dark:border-[#202425] text-[10px] uppercase font-bold text-slate-400">
                         <tr>
                           <th className="py-2.5 px-3">Student</th>
                           <th className="py-2.5 px-3">Task</th>
@@ -1119,9 +1119,9 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                           <th className="py-2.5 px-3 text-right">Inspect</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]/60 font-mono">
+                      <tbody className="divide-y divide-slate-100 dark:divide-[#202425]/60 font-mono">
                         {submissions.slice(0, 5).map((sub) => (
-                          <tr key={sub.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                          <tr key={sub.id} className="hover:bg-slate-50/50 dark:hover:bg-[#202425]/40">
                             <td className="py-2.5 px-3 font-sans font-medium text-slate-800 dark:text-slate-200">
                               {sub.profiles?.full_name || sub.profiles?.email || sub.user_id.slice(0, 8)}
                             </td>
@@ -1149,7 +1149,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                             <td className="py-2.5 px-3 text-right font-sans">
                               <button
                                 onClick={() => setSelectedSubmission(sub)}
-                                className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-[#6366F1] hover:text-white text-[11px] font-bold transition-colors"
+                                className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#202425] hover:bg-[#6366F1] hover:text-white text-[11px] font-bold transition-colors"
                               >
                                 View Code
                               </button>
@@ -1170,7 +1170,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
           {activeSection === "courses" && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
               {/* Left Column: Track Catalog */}
-              <div className="rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] p-5 space-y-4">
+              <div className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                     Tracks Catalog ({courses.length})
@@ -1192,7 +1192,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     value={courseSearch}
                     onChange={(e) => setCourseSearch(e.target.value)}
                     placeholder="Search tracks..."
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                   />
                 </div>
 
@@ -1206,7 +1206,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                         "p-3.5 rounded-xl border text-xs cursor-pointer transition-all flex items-center justify-between",
                         selectedCourse?.id === c.id
                           ? "border-[#6366F1] bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 font-semibold shadow-xs"
-                          : "border-slate-200/80 dark:border-[#1E293B] hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-700 dark:text-slate-300"
+                          : "border-slate-200/80 dark:border-[#202425] hover:bg-slate-50 dark:hover:bg-[#202425]/40 text-slate-700 dark:text-slate-300"
                       )}
                     >
                       <div>
@@ -1242,10 +1242,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               </div>
 
               {/* Right Column: Modules for Selected Course */}
-              <div className="lg:col-span-2 rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] p-6 space-y-6">
+              <div className="lg:col-span-2 rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] p-6 space-y-6">
                 {selectedCourse ? (
                   <>
-                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1E293B] pb-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-4">
                       <div>
                         <h3 className="text-base font-bold text-slate-900 dark:text-white">
                           {selectedCourse.title}
@@ -1264,7 +1264,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       {modules.map((m) => (
                         <div
                           key={m.id}
-                          className="p-3.5 rounded-xl border border-slate-200/80 dark:border-[#1E293B] flex items-center justify-between bg-slate-50/50 dark:bg-[#070A12]"
+                          className="p-3.5 rounded-xl border border-slate-200/80 dark:border-[#202425] flex items-center justify-between bg-slate-50/50 dark:bg-[#0C0D0E]"
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-6 h-6 rounded-md bg-[#6366F1]/10 text-[#6366F1] font-bold text-xs flex items-center justify-center">
@@ -1312,13 +1312,13 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                           value={moduleTitle}
                           onChange={(e) => setModuleTitle(e.target.value)}
                           placeholder="Add new module title (e.g. 'Binary Search & Tree Traversal')..."
-                          className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                          className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                         />
                         <input
                           type="number"
                           value={moduleOrder}
                           onChange={(e) => setModuleOrder(Number(e.target.value))}
-                          className="w-16 px-2 py-2 text-xs text-center rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B]"
+                          className="w-16 px-2 py-2 text-xs text-center rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425]"
                           title="Order index"
                         />
                         <button
@@ -1345,14 +1345,14 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
           {activeSection === "tasks" && (
             <div className="max-w-7xl mx-auto space-y-6">
               {/* Task Sub Tabs */}
-              <div className="flex items-center gap-2 border-b border-slate-200/80 dark:border-[#1E293B] pb-3">
+              <div className="flex items-center gap-2 border-b border-slate-200/80 dark:border-[#202425] pb-3">
                 <button
                   onClick={() => setTasksTab("catalog")}
                   className={cn(
                     "px-4 py-2 rounded-xl text-xs font-bold transition-all",
                     tasksTab === "catalog"
                       ? "bg-[#6366F1] text-white shadow-xs"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425]"
                   )}
                 >
                   Browse Challenges ({allTasks.length})
@@ -1363,7 +1363,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     "flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all",
                     tasksTab === "create"
                       ? "bg-[#6366F1] text-white shadow-xs"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425]"
                   )}
                 >
                   <Plus size={14} />
@@ -1383,14 +1383,14 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                         value={taskSearch}
                         onChange={(e) => setTaskSearch(e.target.value)}
                         placeholder="Search problems by title or slug..."
-                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                       />
                     </div>
 
                     <select
                       value={taskLanguageFilter}
                       onChange={(e) => setTaskLanguageFilter(e.target.value)}
-                      className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none"
+                      className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none"
                     >
                       <option value="all">All Languages</option>
                       <option value="python">Python</option>
@@ -1402,7 +1402,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     <select
                       value={taskDifficultyFilter}
                       onChange={(e) => setTaskDifficultyFilter(e.target.value)}
-                      className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none"
+                      className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none"
                     >
                       <option value="all">All Difficulties</option>
                       <option value="easy">Easy</option>
@@ -1412,9 +1412,9 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   </div>
 
                   {/* Tasks Table */}
-                  <div className="rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] overflow-hidden shadow-xs">
+                  <div className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] overflow-hidden shadow-xs">
                     <table className="w-full text-left text-xs">
-                      <thead className="border-b border-slate-100 dark:border-[#1E293B] text-[10px] uppercase font-bold text-slate-400 bg-slate-50 dark:bg-[#070A12]">
+                      <thead className="border-b border-slate-100 dark:border-[#202425] text-[10px] uppercase font-bold text-slate-400 bg-slate-50 dark:bg-[#0C0D0E]">
                         <tr>
                           <th className="py-3 px-4">Title & Slug</th>
                           <th className="py-3 px-4">Track / Module</th>
@@ -1424,9 +1424,9 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                           <th className="py-3 px-4 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]/60">
+                      <tbody className="divide-y divide-slate-100 dark:divide-[#202425]/60">
                         {filteredTasks.map((t) => (
-                          <tr key={t.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                          <tr key={t.id} className="hover:bg-slate-50/50 dark:hover:bg-[#202425]/40">
                             <td className="py-3 px-4">
                               <p className="font-bold text-slate-900 dark:text-white">{t.title}</p>
                               <p className="text-[10px] text-slate-400 font-mono">/{t.slug}</p>
@@ -1475,9 +1475,9 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               {tasksTab === "create" && (
                 <form
                   onSubmit={handleCreateTask}
-                  className="rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] p-6 sm:p-8 space-y-6"
+                  className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] p-6 sm:p-8 space-y-6"
                 >
-                  <div className="border-b border-slate-100 dark:border-[#1E293B] pb-4">
+                  <div className="border-b border-slate-100 dark:border-[#202425] pb-4">
                     <h3 className="text-base font-bold text-slate-900 dark:text-white">
                       Create Programming Challenge
                     </h3>
@@ -1495,7 +1495,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       <select
                         value={taskCourseId}
                         onChange={(e) => setTaskCourseId(e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                         required
                       >
                         <option value="">Select track...</option>
@@ -1514,7 +1514,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       <select
                         value={taskModuleId}
                         onChange={(e) => setTaskModuleId(e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                         required
                       >
                         <option value="">Select module...</option>
@@ -1548,7 +1548,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                           }
                         }}
                         placeholder="e.g. Valid Palindrome"
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
                         required
                       />
                     </div>
@@ -1562,7 +1562,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                         value={taskSlug}
                         onChange={(e) => setTaskSlug(e.target.value)}
                         placeholder="valid-palindrome"
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200 font-mono"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
                         required
                       />
                     </div>
@@ -1577,7 +1577,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       <select
                         value={taskLanguage}
                         onChange={(e) => setTaskLanguage(e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
                       >
                         <option value="python">Python</option>
                         <option value="javascript">JavaScript</option>
@@ -1593,7 +1593,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       <select
                         value={taskDifficulty}
                         onChange={(e) => setTaskDifficulty(e.target.value as any)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
                       >
                         <option value="easy">Easy</option>
                         <option value="medium">Medium</option>
@@ -1609,7 +1609,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                         type="number"
                         value={taskPoints}
                         onChange={(e) => setTaskPoints(Number(e.target.value))}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
                       />
                     </div>
 
@@ -1621,7 +1621,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                         type="number"
                         value={taskOrderIndex}
                         onChange={(e) => setTaskOrderIndex(Number(e.target.value))}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
                       />
                     </div>
                   </div>
@@ -1636,7 +1636,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       onChange={(e) => setTaskDescription(e.target.value)}
                       rows={5}
                       placeholder="Describe problem statement, input constraints, and return formats..."
-                      className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200 font-mono"
+                      className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
                       required
                     />
                   </div>
@@ -1652,7 +1652,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                         onChange={(e) => setTaskStarterCode(e.target.value)}
                         rows={6}
                         placeholder="def solution():\n    pass\n"
-                        className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200 font-mono"
+                        className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
                       />
                     </div>
 
@@ -1665,13 +1665,13 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                         onChange={(e) => setTaskSolutionCode(e.target.value)}
                         rows={6}
                         placeholder="def solution():\n    return 42\n"
-                        className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200 font-mono"
+                        className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
                       />
                     </div>
                   </div>
 
                   {/* Test Cases Builder */}
-                  <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-[#1E293B]">
+                  <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-[#202425]">
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -1684,7 +1684,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       <button
                         type="button"
                         onClick={handleAddTestCase}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-[#202425] hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition-colors"
                       >
                         <Plus size={14} />
                         <span>Add Case</span>
@@ -1695,7 +1695,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       {taskTestCases.map((tc, idx) => (
                         <div
                           key={idx}
-                          className="p-4 rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50/50 dark:bg-[#070A12] space-y-3"
+                          className="p-4 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50/50 dark:bg-[#0C0D0E] space-y-3"
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -1732,7 +1732,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                                 value={tc.input}
                                 onChange={(e) => handleUpdateTestCase(idx, { input: e.target.value })}
                                 rows={2}
-                                className="w-full p-2 text-xs rounded-lg border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-slate-200 font-mono"
+                                className="w-full p-2 text-xs rounded-lg border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] text-slate-800 dark:text-slate-200 font-mono"
                               />
                             </div>
                             <div>
@@ -1745,7 +1745,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                                   handleUpdateTestCase(idx, { expected_output: e.target.value })
                                 }
                                 rows={2}
-                                className="w-full p-2 text-xs rounded-lg border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-800 dark:text-slate-200 font-mono"
+                                className="w-full p-2 text-xs rounded-lg border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] text-slate-800 dark:text-slate-200 font-mono"
                                 required
                               />
                             </div>
@@ -1783,7 +1783,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     value={subSearch}
                     onChange={(e) => setSubSearch(e.target.value)}
                     placeholder="Search by student or task..."
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                   />
                 </div>
 
@@ -1791,7 +1791,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   <select
                     value={subStatusFilter}
                     onChange={(e) => setSubStatusFilter(e.target.value)}
-                    className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none"
+                    className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none"
                   >
                     <option value="all">All Statuses</option>
                     <option value="passed">Passed (Accepted)</option>
@@ -1802,7 +1802,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
                   <button
                     onClick={loadSubmissions}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-[#202425] text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                   >
                     <RefreshCw size={13} className={loadingSubmissions ? "animate-spin" : ""} />
                     <span>Refresh</span>
@@ -1811,7 +1811,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               </div>
 
               {/* Submissions Table */}
-              <div className="rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] overflow-hidden shadow-xs">
+              <div className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] overflow-hidden shadow-xs">
                 {loadingSubmissions ? (
                   <div className="py-20 text-center flex flex-col items-center gap-2 text-slate-400">
                     <Loader2 size={24} className="animate-spin text-[#6366F1]" />
@@ -1824,7 +1824,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
-                      <thead className="border-b border-slate-100 dark:border-[#1E293B] text-[10px] uppercase font-bold text-slate-400 bg-slate-50 dark:bg-[#070A12]">
+                      <thead className="border-b border-slate-100 dark:border-[#202425] text-[10px] uppercase font-bold text-slate-400 bg-slate-50 dark:bg-[#0C0D0E]">
                         <tr>
                           <th className="py-3 px-4">Student</th>
                           <th className="py-3 px-4">Problem</th>
@@ -1836,11 +1836,11 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                           <th className="py-3 px-4 text-right">Inspect</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]/60 font-mono">
+                      <tbody className="divide-y divide-slate-100 dark:divide-[#202425]/60 font-mono">
                         {filteredSubmissions.map((sub) => {
                           const isPassed = sub.status === "passed";
                           return (
-                            <tr key={sub.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                            <tr key={sub.id} className="hover:bg-slate-50/50 dark:hover:bg-[#202425]/40">
                               <td className="py-3 px-4 font-sans font-medium text-slate-800 dark:text-slate-200">
                                 {sub.profiles?.full_name || sub.profiles?.email || sub.user_id.slice(0, 8)}
                               </td>
@@ -1874,7 +1874,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                               <td className="py-3 px-4 text-right font-sans">
                                 <button
                                   onClick={() => setSelectedSubmission(sub)}
-                                  className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-[#6366F1] hover:text-white text-[11px] font-bold transition-colors"
+                                  className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#202425] hover:bg-[#6366F1] hover:text-white text-[11px] font-bold transition-colors"
                                 >
                                   Inspect Code
                                 </button>
@@ -1903,7 +1903,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
                     placeholder="Search students by name or email..."
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                   />
                 </div>
 
@@ -1912,9 +1912,9 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] overflow-hidden shadow-xs">
+              <div className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] overflow-hidden shadow-xs">
                 <table className="w-full text-left text-xs">
-                  <thead className="border-b border-slate-100 dark:border-[#1E293B] text-[10px] uppercase font-bold text-slate-400 bg-slate-50 dark:bg-[#070A12]">
+                  <thead className="border-b border-slate-100 dark:border-[#202425] text-[10px] uppercase font-bold text-slate-400 bg-slate-50 dark:bg-[#0C0D0E]">
                     <tr>
                       <th className="py-3 px-4">Student</th>
                       <th className="py-3 px-4">Email</th>
@@ -1923,9 +1923,9 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       <th className="py-3 px-4 text-right">Role Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]/60">
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#202425]/60">
                     {filteredUsers.map((u) => (
-                      <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                      <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-[#202425]/40">
                         <td className="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
                           <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-[#6366F1] font-bold text-xs flex items-center justify-center">
                             {u.full_name ? u.full_name[0].toUpperCase() : "U"}
@@ -1953,7 +1953,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                         <td className="py-3 px-4 text-right">
                           <button
                             onClick={() => handleToggleUserRole(u)}
-                            className="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-slate-800 hover:bg-[#6366F1] hover:text-white transition-colors"
+                            className="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-[#202425] hover:bg-[#6366F1] hover:text-white transition-colors"
                           >
                             {u.role === "admin" ? "Demote to Student" : "Promote to Admin"}
                           </button>
@@ -1972,8 +1972,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
           {activeSection === "system" && (
             <div className="max-w-4xl mx-auto space-y-6">
               {/* Wandbox Judge Engine Health */}
-              <div className="p-6 rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1E293B] pb-3">
+              <div className="p-6 rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-3">
                   <div className="flex items-center gap-2.5">
                     <Server size={18} className="text-[#6366F1]" />
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -1993,7 +1993,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   <button
                     onClick={handleTestWandbox}
                     disabled={isPingingWandbox}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition-all disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-[#202425] hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition-all disabled:opacity-50"
                   >
                     {isPingingWandbox ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} className="text-[#6366F1]" />}
                     <span>Run Ping & Execution Benchmark</span>
@@ -2008,8 +2008,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               </div>
 
               {/* Database & Seed Automation */}
-              <div className="p-6 rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1E293B] pb-3">
+              <div className="p-6 rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-3">
                   <div className="flex items-center gap-2.5">
                     <Database size={18} className="text-amber-500" />
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -2036,7 +2036,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               </div>
 
               {/* Platform Spec Summary */}
-              <div className="p-6 rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] space-y-3 text-xs">
+              <div className="p-6 rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] space-y-3 text-xs">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                   System Architecture Details
                 </h3>
@@ -2057,8 +2057,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       ===================================================================== */}
       {showCourseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1E293B] pb-3">
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-3">
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 Create New Learning Track
               </h3>
@@ -2090,7 +2090,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     }
                   }}
                   placeholder="e.g. Advanced Rust System Programming"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
                   required
                 />
               </div>
@@ -2104,7 +2104,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   value={courseSlug}
                   onChange={(e) => setCourseSlug(e.target.value)}
                   placeholder="advanced-rust"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200 font-mono"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
                   required
                 />
               </div>
@@ -2118,7 +2118,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   onChange={(e) => setCourseDescription(e.target.value)}
                   rows={3}
                   placeholder="Summary of student takeaways..."
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#070A12] text-slate-800 dark:text-slate-200"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
                 />
               </div>
 
@@ -2139,7 +2139,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 <button
                   type="button"
                   onClick={() => setShowCourseModal(false)}
-                  className="flex-1 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold"
+                  className="flex-1 py-2 rounded-xl bg-slate-100 dark:bg-[#202425] text-slate-700 dark:text-slate-300 font-bold"
                 >
                   Cancel
                 </button>
@@ -2160,8 +2160,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       ===================================================================== */}
       {selectedSubmission && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-2xl rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1E293B] pb-3">
+          <div className="w-full max-w-2xl rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-3">
               <div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">
                   Submission Code Inspection
@@ -2197,7 +2197,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
               <button
                 onClick={copySubmissionCode}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 dark:bg-[#202425] text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
                 {copiedCode ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
                 <span>{copiedCode ? "Copied" : "Copy Code"}</span>
@@ -2211,7 +2211,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setSelectedSubmission(null)}
-                className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-[#202425] text-slate-700 dark:text-slate-300"
               >
                 Close
               </button>
@@ -2223,8 +2223,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       {/* Module Study Guide & Video Modal */}
       {editingModule && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-3xl rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1E293B] pb-3">
+          <div className="w-full max-w-3xl rounded-3xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-3">
               <div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <BookOpen size={16} className="text-[#6366F1]" />
@@ -2256,7 +2256,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   value={editAboutContent}
                   onChange={(e) => setEditAboutContent(e.target.value)}
                   placeholder="### What is this topic?&#10;&#10;Explain the core intuition...&#10;&#10;### Where Can We Use It?&#10;- Real-world application 1&#10;- Real-world application 2&#10;&#10;### Complexity Analysis&#10;Access: O(1), Search: O(N)..."
-                  className="w-full p-3.5 text-xs font-mono rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                  className="w-full p-3.5 text-xs font-mono rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                 />
               </div>
 
@@ -2271,7 +2271,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     value={editYoutubeUrl}
                     onChange={(e) => setEditYoutubeUrl(e.target.value)}
                     placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                   />
                 </div>
 
@@ -2284,7 +2284,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     value={editYoutubeTitle}
                     onChange={(e) => setEditYoutubeTitle(e.target.value)}
                     placeholder="e.g. Data Structures Visualized in 15 Minutes"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                   />
                 </div>
               </div>
@@ -2301,7 +2301,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     max={60}
                     value={editReadingTime}
                     onChange={(e) => setEditReadingTime(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                   />
                 </div>
 
@@ -2314,17 +2314,17 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     value={editKeyTakeaways}
                     onChange={(e) => setEditKeyTakeaways(e.target.value)}
                     placeholder="Arrays provide O(1) random lookup&#10;Two pointers converge in linear O(N) time&#10;Use hash maps when order does not matter"
-                    className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#070A12] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                   />
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-end gap-3">
+              <div className="pt-3 border-t border-slate-100 dark:border-[#202425] flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setEditingModule(null)}
-                  className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-[#202425] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 >
                   Cancel
                 </button>

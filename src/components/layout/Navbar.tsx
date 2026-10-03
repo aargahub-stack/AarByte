@@ -196,7 +196,7 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-2 p-1.5 pl-2.5 pr-3 rounded-full border border-slate-200 dark:border-[#1E293B] hover:border-indigo-500/40 bg-white dark:bg-[#0F172A] transition-all text-xs font-bold text-slate-800 dark:text-slate-200 shadow-sm"
+                    className="flex items-center gap-2 p-1.5 pl-2.5 pr-3 rounded-full border border-slate-200 dark:border-[#202425] hover:border-emerald-500/40 bg-white dark:bg-[#151718] transition-all text-xs font-semibold text-[#121314] dark:text-[#ECEDEE] shadow-sm"
                   >
                     {profile?.avatar_url ? (
                       <img
@@ -205,7 +205,7 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                         className="w-6 h-6 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#6366F1] to-[#7C3AED] text-white flex items-center justify-center text-[10px] font-bold">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-500 to-[#00F076] text-[#0C0D0E] flex items-center justify-center text-[10px] font-bold">
                         {getInitials(profile?.full_name || user.email)}
                       </div>
                     )}
@@ -216,12 +216,12 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                   </button>
 
                   {userDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] shadow-2xl py-2 z-50 animate-in">
-                      <div className="px-4 py-3 border-b border-slate-100 dark:border-[#1E293B]">
-                        <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                    <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-slate-200 dark:border-[#202425] bg-white dark:bg-[#151718] shadow-2xl py-2 z-50 animate-in">
+                      <div className="px-4 py-3 border-b border-slate-100 dark:border-[#202425]">
+                        <p className="text-sm font-bold text-slate-900 dark:text-[#ECEDEE] truncate">
                           {profile?.full_name || "Developer"}
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                        <p className="text-xs text-slate-500 dark:text-[#8A9099] truncate">
                           {user.email}
                         </p>
                         <div className="mt-2 flex items-center gap-2">
@@ -230,7 +230,7 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                               "text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full",
                               isAdmin
                                 ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
-                                : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
+                                : "bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20"
                             )}
                           >
                             {isAdmin ? "Admin" : "Student"}
@@ -253,7 +253,7 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
 
                       <button
                         onClick={() => handleNav({ route: "streak" })}
-                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center gap-2.5 transition-colors font-medium"
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#202425] flex items-center gap-2.5 transition-colors font-medium"
                       >
                         <Flame size={16} className="text-amber-500" />
                         <span>Daily Streak</span>
@@ -261,21 +261,21 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
 
                       <button
                         onClick={() => handleNav({ route: "analytics" })}
-                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center gap-2.5 transition-colors font-medium"
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#202425] flex items-center gap-2.5 transition-colors font-medium"
                       >
-                        <TrendingUp size={16} className="text-[#6366F1]" />
+                        <TrendingUp size={16} className="text-[#00F076]" />
                         <span>Learning Analytics</span>
                       </button>
 
                       <button
                         onClick={() => handleNav({ route: "leaderboard" })}
-                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 flex items-center gap-2.5 transition-colors font-medium"
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#202425] flex items-center gap-2.5 transition-colors font-medium"
                       >
                         <Trophy size={16} className="text-amber-500" />
                         <span>Leaderboard</span>
                       </button>
 
-                      <div className="border-t border-slate-100 dark:border-[#1E293B] my-1" />
+                      <div className="border-t border-slate-100 dark:border-[#202425] my-1" />
 
                       <button
                         onClick={() => {
@@ -319,7 +319,7 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
         <div className="md:hidden border-t border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#0C0D0E] px-4 py-4 space-y-2 animate-in max-h-[calc(100vh-4rem)] overflow-y-auto">
           {/* Mobile User Profile & XP Badge if signed in */}
           {user && (
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] mb-3 shadow-xs">
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] mb-3 shadow-xs">
               <div className="flex items-center gap-2.5 min-w-0">
                 {profile?.avatar_url ? (
                   <img
@@ -328,21 +328,21 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                     className="w-8 h-8 rounded-full object-cover shrink-0"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6366F1] to-[#7C3AED] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-[#00F076] text-[#0C0D0E] flex items-center justify-center text-xs font-bold shrink-0">
                     {getInitials(profile?.full_name || user.email)}
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                  <p className="text-xs font-bold text-slate-900 dark:text-[#ECEDEE] truncate">
                     {profile?.full_name || user.email?.split("@")[0]}
                   </p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                  <p className="text-[10px] text-slate-500 dark:text-[#8A9099] truncate">
                     {user.email}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-600 dark:text-indigo-400 text-xs font-bold shrink-0">
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-[#00F076] text-xs font-bold shrink-0">
                 <Zap size={13} className="text-amber-500 fill-amber-500/20" />
                 <span>{points} XP</span>
               </div>
@@ -364,12 +364,12 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                 className={cn(
                   "flex items-center justify-between w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all min-h-[44px]",
                   isActive
-                    ? "bg-[#6366F1] text-white shadow-sm shadow-indigo-500/20"
-                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-[#0F172A]"
+                    ? "bg-[#00F076] text-[#0C0D0E] font-bold shadow-sm shadow-emerald-500/20"
+                    : "text-slate-700 dark:text-[#ECEDEE] hover:bg-slate-200/60 dark:hover:bg-[#151718]"
                 )}
               >
                 <span>{item.label}</span>
-                <ArrowRight size={15} className={isActive ? "text-white" : "opacity-40"} />
+                <ArrowRight size={15} className={isActive ? "text-[#0C0D0E]" : "opacity-40"} />
               </button>
             );
           })}
@@ -388,7 +388,7 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
           )}
 
           {user ? (
-            <div className="pt-2 border-t border-slate-200/80 dark:border-[#1E293B]">
+            <div className="pt-2 border-t border-slate-200/80 dark:border-[#202425]">
               <button
                 onClick={() => {
                   signOut();
