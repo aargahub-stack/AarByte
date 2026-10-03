@@ -17,6 +17,7 @@ import {
   Zap,
 } from "lucide-react";
 import { courseService } from "@/services/courseService";
+import { calculateStreak } from "@/services/streakService";
 import type { Task, UserTaskProgress } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 import { progressStorage } from "@/services/storage/progressStorage";
@@ -418,6 +419,13 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
   // Total XP reflects whichever is highest to ensure no earned points are lost
   const totalPoints = Math.max(userAuthPoints, pointsFromSolvedTasks, localXP);
 
+  const streakData = useMemo(() => {
+    const timestamps = Object.values(progressMap)
+      .filter((p) => p.is_completed && p.completed_at)
+      .map((p) => p.completed_at);
+    return calculateStreak(timestamps);
+  }, [progressMap]);
+
   const completionPercentage = totalTasks > 0 ? Math.round((solvedCount / totalTasks) * 100) : 0;
 
   // Handle Pick Random Problem
@@ -441,39 +449,38 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
   };
 
   return (
-    <div className="min-h-screen font-urbanist bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-white py-8 sm:py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+    <div className="min-h-screen font-urbanist bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* =====================================================================
             1. HERO & TELEMETRY PROGRESS BANNER
         ===================================================================== */}
-        <div className="relative rounded-3xl p-6 sm:p-8 xl:p-10 bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] shadow-xs overflow-hidden">
-          {/* Subtle Ambient Glow */}
-          <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#6366F1]/10 dark:bg-[#6366F1]/15 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-purple-500/10 dark:bg-purple-500/10 blur-3xl" />
+        <div className="relative rounded-3xl p-6 sm:p-8 xl:p-9 bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs overflow-hidden">
+          {/* Subtle Ambient Emerald Glow */}
+          <div className="pointer-events-none absolute -top-16 -right-16 w-80 h-80 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(0,240,118,0.18),transparent_70%)] blur-2xl dark:opacity-70 opacity-40" />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             {/* Left Content */}
-            <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-[#6366F1] dark:text-[#818CF8] text-xs font-bold border border-indigo-200/70 dark:border-indigo-500/25">
-                <Code2 size={13} />
+            <div className="space-y-3.5 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F7F8FA] dark:bg-[#1E2022] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
+                <Code2 size={13} className="text-[#00F076]" />
                 <span>Practice Arena</span>
                 <span>•</span>
-                <span className="font-semibold text-slate-600 dark:text-slate-300">Curated DSA Bank</span>
+                <span className="font-semibold text-[#121314] dark:text-[#ECEDEE]">Curated DSA Bank</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl xl:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-3xl sm:text-4xl xl:text-5xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
                 Practice &amp; Master Algorithms
               </h1>
 
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-normal leading-relaxed">
-                Sharpen your problem-solving skills across real-world Data Structures, algorithmic benchmarks, and multi-language challenges with instant sandbox execution.
+              <p className="text-sm sm:text-base text-[#6B7280] dark:text-[#8A9099] font-normal leading-relaxed">
+                Sharpen your problem-solving skills across core data structures, algorithmic paradigms, and interview-proven tasks with isolated browser sandboxing.
               </p>
 
               {/* Action shortcuts */}
-              <div className="pt-2 flex flex-wrap items-center gap-3">
+              <div className="pt-1.5 flex flex-wrap items-center gap-3">
                 <button
                   onClick={handlePickRandom}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white text-xs sm:text-sm font-bold shadow-md shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] text-xs sm:text-sm font-semibold shadow-xs hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
                 >
                   <Shuffle size={14} />
                   <span>Pick Random Challenge</span>
@@ -481,63 +488,86 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
 
                 <button
                   onClick={() => navigate("task", { taskId: "task-py-twosum" })}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 dark:bg-[#1E293B] hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-semibold border border-slate-200/80 dark:border-slate-700/60 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F7F8FA] dark:bg-[#1E2022] hover:bg-[#E5E7EB] dark:hover:bg-[#282C2F] text-[#121314] dark:text-[#ECEDEE] text-xs sm:text-sm font-medium border border-[#E5E7EB] dark:border-[#202425] transition-all cursor-pointer shadow-xs hover:-translate-y-0.5"
                 >
-                  <Flame size={14} className="text-amber-500" />
+                  <Flame size={14} className="text-amber-500 fill-amber-500" />
                   <span>Daily Pick: Two Sum</span>
                 </button>
               </div>
             </div>
 
-            {/* Right Telemetry Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 shrink-0 lg:w-80 xl:w-96">
-              {/* Card 1: Solved */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-200/80 dark:border-[#1E293B]">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
-                  <span>Solved</span>
-                  <CheckCircle2 size={14} className="text-emerald-500" />
+            {/* Right Telemetry Widget: Daily Streak & XP */}
+            <div className="grid grid-cols-2 gap-3 shrink-0 lg:w-80 xl:w-96">
+              {/* Daily Streak Card Widget */}
+              <button
+                type="button"
+                onClick={() => navigate("streak")}
+                className="group p-4 rounded-2xl bg-[#F7F8FA] dark:bg-[#111213] border border-[#E5E7EB] dark:border-[#202425] hover:border-[#00F076]/50 transition-all text-left cursor-pointer"
+                title="View Coding Streak Details"
+              >
+                <div className="flex items-center justify-between text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] mb-1">
+                  <span>Daily Streak</span>
+                  <Flame
+                    size={15}
+                    className={cn(
+                      "transition-transform group-hover:scale-110",
+                      streakData.currentStreak > 0
+                        ? "text-amber-500 fill-amber-500"
+                        : "text-[#6B7280] dark:text-[#8A9099]"
+                    )}
+                  />
                 </div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-                  <span className="text-emerald-500">{solvedCount}</span>
-                  <span className="text-slate-400 text-xs sm:text-sm font-normal"> / {totalTasks}</span>
+                <div className="text-2xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
+                  <span className={streakData.currentStreak > 0 ? "text-amber-500" : ""}>
+                    {streakData.currentStreak}
+                  </span>
+                  <span className="text-[#6B7280] dark:text-[#8A9099] text-xs font-normal">
+                    {" "}{streakData.currentStreak === 1 ? "day" : "days"}
+                  </span>
                 </div>
-                <div className="mt-2 w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                <div className="mt-2 text-[11px] font-medium flex items-center gap-1.5 text-[#6B7280] dark:text-[#8A9099]">
+                  <span
+                    className={cn(
+                      "w-1.5 h-1.5 rounded-full",
+                      streakData.isSolvedToday ? "bg-[#10B981]" : "bg-amber-500"
+                    )}
+                  />
+                  <span>{streakData.isSolvedToday ? "Active today" : "Pending today"}</span>
+                </div>
+              </button>
+
+              {/* XP Earned Card Widget */}
+              <div className="p-4 rounded-2xl bg-[#F7F8FA] dark:bg-[#111213] border border-[#E5E7EB] dark:border-[#202425]">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] mb-1">
+                  <span>Earned XP</span>
+                  <Zap size={14} className="text-[#00F076] fill-[#00F076]" />
+                </div>
+                <div className="text-2xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] font-mono">
+                  <span className="text-[#00F076]">+{totalPoints}</span>
+                  <span className="text-[#6B7280] dark:text-[#8A9099] text-xs font-normal font-sans"> XP</span>
+                </div>
+                <div className="mt-2 w-full h-1.5 rounded-full bg-[#E5E7EB] dark:bg-[#202425] overflow-hidden">
                   <div
-                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                    className="h-full bg-[#00F076] rounded-full transition-all duration-500"
                     style={{ width: `${completionPercentage}%` }}
                   />
                 </div>
               </div>
 
-              {/* Card 2: XP Earned */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-200/80 dark:border-[#1E293B]">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
-                  <span>Earned XP</span>
-                  <Trophy size={14} className="text-amber-500" />
-                </div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-                  <span className="text-amber-500">+{totalPoints}</span>
-                  <span className="text-slate-400 text-xs sm:text-sm font-normal"> XP</span>
-                </div>
-                <div className="mt-2 text-[11px] font-medium text-slate-400">
-                  {completionPercentage}% completed
-                </div>
-              </div>
-
-              {/* Card 3: Easy / Medium / Hard distribution */}
-              <div className="col-span-2 p-3.5 rounded-2xl bg-slate-50 dark:bg-[#0B1120] border border-slate-200/80 dark:border-[#1E293B] flex items-center justify-between text-xs">
-                <div className="flex items-center gap-1.5">
-                  <Target size={14} className="text-[#6366F1]" />
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">Tracks</span>
+              {/* Distribution Strip */}
+              <div className="col-span-2 p-3 rounded-xl bg-[#F7F8FA] dark:bg-[#111213] border border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 text-[#6B7280] dark:text-[#8A9099]">
+                  <Target size={13} className="text-[#00F076]" />
+                  <span className="font-semibold text-[#121314] dark:text-[#ECEDEE]">Difficulty</span>
                 </div>
                 <div className="flex items-center gap-2 font-mono text-[11px]">
-                  <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <span className="px-2 py-0.5 rounded-md bg-[#10B981]/10 text-[#10B981] font-semibold border border-[#10B981]/20">
                     {tasks.filter((t) => t.difficulty === "easy").length} Easy
                   </span>
-                  <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold">
+                  <span className="px-2 py-0.5 rounded-md bg-[#F59E0B]/10 text-[#F59E0B] font-semibold border border-[#F59E0B]/20">
                     {tasks.filter((t) => t.difficulty === "medium").length} Med
                   </span>
-                  <span className="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 font-semibold">
+                  <span className="px-2 py-0.5 rounded-md bg-[#EF4444]/10 text-[#EF4444] font-semibold border border-[#EF4444]/20">
                     {tasks.filter((t) => t.difficulty === "hard").length} Hard
                   </span>
                 </div>
@@ -547,7 +577,7 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
         </div>
 
         {/* =====================================================================
-            2. TOPIC CATEGORY PILLS (Quick Horizontal Scroll)
+            2. TOPIC CATEGORY PILLS (Horizontal Scroll)
         ===================================================================== */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           {TOPIC_CATEGORIES.map((cat) => {
@@ -557,10 +587,10 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
                 key={cat}
                 onClick={() => setCategoryFilter(cat)}
                 className={cn(
-                  "px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 shrink-0",
+                  "px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 shrink-0 cursor-pointer",
                   isActive
-                    ? "bg-[#6366F1] text-white shadow-sm shadow-indigo-500/25"
-                    : "bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+                    ? "bg-[#121314] dark:bg-[#00F076] text-white dark:text-[#0C0D0E] shadow-xs"
+                    : "bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] hover:border-[#D1D5DB] dark:hover:border-[#2C3133]"
                 )}
               >
                 {cat}
@@ -572,25 +602,25 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
         {/* =====================================================================
             3. SEARCH & ADVANCED FILTER CONTROLS BAR
         ===================================================================== */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] shadow-xs space-y-4">
+        <div className="p-4 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs space-y-4">
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
             {/* Search Input */}
             <div className="relative flex-1">
               <Search
                 size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6B7280] dark:text-[#8A9099]"
               />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search challenges by title, topic, or keyword..."
-                className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#6366F1]"
+                className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE] placeholder:text-[#6B7280] dark:placeholder:text-[#8A9099] focus:outline-none focus:ring-1 focus:ring-[#00F076]"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#6B7280] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
                 >
                   <X size={14} />
                 </button>
@@ -600,16 +630,16 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
             {/* Filter Controls Row */}
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               {/* Difficulty Segmented Filter */}
-              <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]/60">
+              <div className="flex items-center gap-1 p-1 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
                 {["all", "easy", "medium", "hard"].map((diff) => (
                   <button
                     key={diff}
                     onClick={() => setDifficultyFilter(diff)}
                     className={cn(
-                      "px-2.5 py-1 rounded-lg text-xs font-semibold capitalize transition-all",
+                      "px-2.5 py-1 rounded-lg text-xs font-semibold capitalize transition-all cursor-pointer",
                       difficultyFilter === diff
-                        ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs"
-                        : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                        ? "bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] shadow-xs border border-[#E5E7EB] dark:border-[#202425]"
+                        : "text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE]"
                     )}
                   >
                     {diff === "all" ? (
@@ -620,10 +650,10 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
                           className={cn(
                             "w-1.5 h-1.5 rounded-full",
                             diff === "easy"
-                              ? "bg-emerald-500"
+                              ? "bg-[#10B981]"
                               : diff === "medium"
-                              ? "bg-amber-500"
-                              : "bg-rose-500"
+                              ? "bg-[#F59E0B]"
+                              : "bg-[#EF4444]"
                           )}
                         />
                         <span>{diff}</span>
@@ -637,7 +667,7 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
               <select
                 value={languageFilter}
                 onChange={(e) => setLanguageFilter(e.target.value)}
-                className="px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B] text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                className="px-3 py-2 text-xs font-semibold rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE] focus:outline-none focus:ring-1 focus:ring-[#00F076]"
               >
                 {LANGUAGE_OPTIONS.map((l) => (
                   <option key={l.id} value={l.id}>
@@ -650,7 +680,7 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as any)}
-                className="px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-[#090D16] border border-slate-200/80 dark:border-[#1E293B] text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                className="px-3 py-2 text-xs font-semibold rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE] focus:outline-none focus:ring-1 focus:ring-[#00F076]"
               >
                 <option value="all">All Status</option>
                 <option value="unsolved">Unsolved Only</option>
@@ -658,14 +688,14 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
               </select>
 
               {/* View Mode Toggle: Table / Grid */}
-              <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-[#090D16] border border-slate-200/60 dark:border-[#1E293B]/60">
+              <div className="flex items-center p-1 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
                 <button
                   onClick={() => setViewMode("table")}
                   className={cn(
-                    "p-1.5 rounded-lg transition-all",
+                    "p-1.5 rounded-lg transition-all cursor-pointer",
                     viewMode === "table"
-                      ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs"
-                      : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      ? "bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] shadow-xs"
+                      : "text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE]"
                   )}
                   title="Table View"
                 >
@@ -674,10 +704,10 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
                 <button
                   onClick={() => setViewMode("grid")}
                   className={cn(
-                    "p-1.5 rounded-lg transition-all",
+                    "p-1.5 rounded-lg transition-all cursor-pointer",
                     viewMode === "grid"
-                      ? "bg-white dark:bg-[#1E293B] text-slate-900 dark:text-white shadow-xs"
-                      : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      ? "bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] shadow-xs"
+                      : "text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE]"
                   )}
                   title="Grid View"
                 >
@@ -693,17 +723,17 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
             languageFilter !== "all" ||
             categoryFilter !== "All Topics" ||
             statusFilter !== "all") && (
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-[#1E293B]/60 text-xs text-slate-500">
+            <div className="flex items-center justify-between pt-2 border-t border-[#E5E7EB] dark:border-[#202425] text-xs text-[#6B7280] dark:text-[#8A9099]">
               <span className="flex items-center gap-1.5">
-                <Filter size={13} className="text-[#6366F1]" />
+                <Filter size={13} className="text-[#00F076]" />
                 <span>
-                  Showing <strong>{filteredTasks.length}</strong> of {tasks.length} challenges
+                  Showing <strong className="text-[#121314] dark:text-[#ECEDEE]">{filteredTasks.length}</strong> of {tasks.length} challenges
                 </span>
               </span>
 
               <button
                 onClick={handleClearFilters}
-                className="text-[#6366F1] hover:underline font-semibold flex items-center gap-1"
+                className="text-[#00F076] hover:underline font-semibold flex items-center gap-1 cursor-pointer"
               >
                 <span>Reset all filters</span>
                 <X size={12} />
@@ -716,24 +746,24 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
             4. CHALLENGES VIEW (Table or Grid)
         ===================================================================== */}
         {loading ? (
-          <div className="py-24 rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] flex flex-col items-center justify-center gap-3 text-slate-400">
-            <Loader2 size={32} className="animate-spin text-[#6366F1]" />
+          <div className="py-24 rounded-3xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] flex flex-col items-center justify-center gap-3 text-[#6B7280] dark:text-[#8A9099]">
+            <Loader2 size={32} className="animate-spin text-[#00F076]" />
             <span className="text-xs font-semibold">Loading practice challenge arena...</span>
           </div>
         ) : filteredTasks.length === 0 ? (
-          <div className="py-20 rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] text-center space-y-3 p-6">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-[#6366F1] flex items-center justify-center mx-auto">
+          <div className="py-20 rounded-3xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-center space-y-3 p-6">
+            <div className="w-12 h-12 rounded-2xl bg-[#F7F8FA] dark:bg-[#1E2022] border border-[#E5E7EB] dark:border-[#202425] text-[#00F076] flex items-center justify-center mx-auto">
               <Search size={20} />
             </div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            <h3 className="text-base font-bold text-[#121314] dark:text-[#ECEDEE]">
               No matching challenges found
             </h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            <p className="text-xs text-[#6B7280] dark:text-[#8A9099] max-w-sm mx-auto">
               Try adjusting your search query, difficulty, or track filters to explore more problems.
             </p>
             <button
               onClick={handleClearFilters}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#F7F8FA] dark:bg-[#1E2022] border border-[#E5E7EB] dark:border-[#202425] text-xs font-semibold text-[#121314] dark:text-[#ECEDEE] hover:bg-[#E5E7EB] dark:hover:bg-[#282C2F] transition-colors cursor-pointer"
             >
               <span>Reset Filters</span>
             </button>
@@ -742,10 +772,10 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
           /* ===================================================================
               TABLE VIEW
           =================================================================== */
-          <div className="rounded-2xl border border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] overflow-hidden shadow-xs">
+          <div className="rounded-2xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="border-b border-slate-200/80 dark:border-[#1E293B] text-slate-400 font-semibold uppercase tracking-wider text-[11px] bg-slate-50/70 dark:bg-[#0B1120]/70">
+                <thead className="border-b border-[#E5E7EB] dark:border-[#202425] text-[#6B7280] dark:text-[#8A9099] font-mono font-semibold uppercase tracking-wider text-[11px] bg-[#F7F8FA] dark:bg-[#111213]">
                   <tr>
                     <th className="py-3.5 px-2.5 sm:px-4 w-9 sm:w-12 text-center">Status</th>
                     <th className="py-3.5 px-2.5 sm:px-4">Challenge</th>
@@ -757,44 +787,46 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
                     <th className="py-3.5 px-2.5 sm:px-5 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-[#1E293B]/60 font-sans">
+                <tbody className="divide-y divide-[#E5E7EB]/70 dark:divide-[#202425]/70 font-sans">
                   {filteredTasks.map((t) => {
                     const isSolved = Boolean(progressMap[t.id]?.is_completed);
                     const diffBadge =
                       t.difficulty === "easy"
-                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                        ? "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/25"
                         : t.difficulty === "medium"
-                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                        : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20";
+                        ? "bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/25"
+                        : "bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/25";
 
                     return (
                       <tr
                         key={t.id}
-                        className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer"
+                        className="hover:bg-slate-50 dark:hover:bg-[#1A1D1E] transition-colors group cursor-pointer"
                         onClick={() => navigate("task", { taskId: t.id })}
                       >
                         {/* Status Checkmark */}
                         <td className="py-3.5 px-2.5 sm:px-4 text-center">
                           {isSolved ? (
-                            <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/20">
+                            <div className="w-5 h-5 rounded-full bg-[#10B981]/15 text-[#10B981] flex items-center justify-center mx-auto border border-[#10B981]/30">
                               <Check size={12} strokeWidth={3} />
                             </div>
                           ) : (
-                            <div className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700 mx-auto" />
+                            <div className="w-2 h-2 rounded-full bg-[#D1D5DB] dark:bg-[#2C3133] mx-auto" />
                           )}
                         </td>
 
                         {/* Title & Short Preview */}
-                        <td className="py-3.5 px-2.5 sm:px-4 font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-[#818CF8] transition-colors">
-                          <div className="font-bold text-xs sm:text-sm">{t.title}</div>
-                          <div className="text-[11px] text-slate-400 font-normal line-clamp-1 max-w-sm mt-0.5 hidden xs:block">
+                        <td className="py-3.5 px-2.5 sm:px-4 text-[#121314] dark:text-[#ECEDEE]">
+                          <div className="font-semibold text-xs sm:text-sm group-hover:text-[#00F076] transition-colors">
+                            {t.title}
+                          </div>
+                          <div className="text-[11px] text-[#6B7280] dark:text-[#8A9099] font-normal line-clamp-1 max-w-sm mt-0.5 hidden xs:block">
                             {t.description}
                           </div>
                         </td>
 
                         {/* Category */}
-                        <td className="hidden md:table-cell py-3.5 px-4 text-slate-600 dark:text-slate-300 text-xs font-medium">
-                          <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#0B1120] text-slate-600 dark:text-slate-400 text-[11px] font-semibold">
+                        <td className="hidden md:table-cell py-3.5 px-4 text-[#6B7280] dark:text-[#8A9099] text-xs font-medium">
+                          <span className="inline-block px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#1E2022] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#2C3133] text-[11px] font-semibold">
                             {t.category || t.courseTitle || "General Practice"}
                           </span>
                         </td>
@@ -812,17 +844,17 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
                         </td>
 
                         {/* Language Track */}
-                        <td className="hidden sm:table-cell py-3.5 px-4 font-mono uppercase text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                        <td className="hidden sm:table-cell py-3.5 px-4 font-mono uppercase text-xs text-[#6B7280] dark:text-[#8A9099] font-semibold">
                           {t.language}
                         </td>
 
                         {/* Acceptance Rate */}
-                        <td className="hidden lg:table-cell py-3.5 px-4 text-center font-mono text-xs text-slate-500 dark:text-slate-400">
+                        <td className="hidden lg:table-cell py-3.5 px-4 text-center font-mono text-xs text-[#6B7280] dark:text-[#8A9099]">
                           {t.acceptanceRate || "60.4%"}
                         </td>
 
                         {/* XP Points */}
-                        <td className="hidden sm:table-cell py-3.5 px-4 text-right font-bold text-amber-500 text-xs sm:text-sm font-mono">
+                        <td className="hidden sm:table-cell py-3.5 px-4 text-right font-bold text-[#00F076] text-xs sm:text-sm font-mono">
                           +{t.points || 10} XP
                         </td>
 
@@ -834,10 +866,10 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
                               navigate("task", { taskId: t.id });
                             }}
                             className={cn(
-                              "inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0",
+                              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-xs shrink-0 cursor-pointer",
                               isSolved
-                                ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700"
-                                : "bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white shadow-indigo-500/20 hover:shadow-indigo-500/35 hover:scale-[1.02]"
+                                ? "bg-[#F7F8FA] dark:bg-[#1E2022] text-[#121314] dark:text-[#ECEDEE] hover:bg-[#E5E7EB] dark:hover:bg-[#282C2F] border border-[#E5E7EB] dark:border-[#2C3133]"
+                                : "bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] shadow-sm hover:-translate-y-0.5"
                             )}
                           >
                             <span className="hidden sm:inline">{isSolved ? "Practice Again" : "Solve Challenge"}</span>
@@ -861,16 +893,16 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
               const isSolved = Boolean(progressMap[t.id]?.is_completed);
               const diffBadge =
                 t.difficulty === "easy"
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                  ? "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/25"
                   : t.difficulty === "medium"
-                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                  : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20";
+                  ? "bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/25"
+                  : "bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/25";
 
               return (
                 <div
                   key={t.id}
                   onClick={() => navigate("task", { taskId: t.id })}
-                  className="group relative p-5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] shadow-xs hover:border-[#6366F1]/50 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+                  className="group relative p-5 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs hover:border-[#00F076]/40 hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(0,240,118,0.06)] transition-all cursor-pointer flex flex-col justify-between"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
@@ -883,30 +915,30 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
                         >
                           {t.difficulty}
                         </span>
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#0B1120] text-slate-500 dark:text-slate-400 text-[10px] font-mono uppercase font-semibold">
+                        <span className="px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#1E2022] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#2C3133] text-[10px] font-mono uppercase font-semibold">
                           {t.language}
                         </span>
                       </div>
 
                       {isSolved && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#10B981]">
                           <Check size={12} strokeWidth={3} />
                           <span>Solved</span>
                         </span>
                       )}
                     </div>
 
-                    <h3 className="font-bold text-base text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-[#818CF8] transition-colors">
+                    <h3 className="font-semibold text-base text-[#121314] dark:text-[#ECEDEE] group-hover:text-[#00F076] transition-colors">
                       {t.title}
                     </h3>
 
-                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-[#6B7280] dark:text-[#8A9099] line-clamp-2 leading-relaxed font-normal">
                       {t.description}
                     </p>
                   </div>
 
-                  <div className="pt-4 mt-4 border-t border-slate-100 dark:border-[#1E293B] flex items-center justify-between text-xs">
-                    <span className="font-bold text-amber-500 font-mono">
+                  <div className="pt-4 mt-4 border-t border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-xs">
+                    <span className="font-bold text-[#00F076] font-mono">
                       +{t.points || 10} XP
                     </span>
 
@@ -915,7 +947,7 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
                         e.stopPropagation();
                         navigate("task", { taskId: t.id });
                       }}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#6366F1] group-hover:translate-x-0.5 transition-transform"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-[#00F076] group-hover:translate-x-0.5 transition-all"
                     >
                       <span>{isSolved ? "Practice Again" : "Solve Challenge"}</span>
                       <ArrowRight size={13} />

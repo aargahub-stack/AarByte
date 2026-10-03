@@ -1155,11 +1155,13 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
             particleCount: 90,
             spread: 70,
             origin: { y: 0.6 },
-            colors: ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"],
+            colors: ["#10B981", "#00F076", "#F59E0B", "#3B82F6"],
           });
-          showToast("success", `Challenge Solved! +${pts} XP earned. Sign in anytime to sync to the leaderboard!`);
+          const timeSec = ((demoJudgeRes.totalExecutionTimeMs || 40) / 1000).toFixed(2);
+          showToast("success", `Passed ${passed}/${sampleCases.length} Test Cases (${timeSec}s)`);
         } else {
-          showToast("error", "Submission: Solution failed some test cases");
+          const failedIdx = evals.findIndex((e) => !e.passed) + 1;
+          showToast("error", `Wrong Answer on Test Case #${failedIdx > 0 ? failedIdx : 1}`);
         }
       } catch (err: any) {
         showToast("error", err?.message || "Execution error during evaluation");
@@ -1192,10 +1194,15 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
           particleCount: 90,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"],
+          colors: ["#10B981", "#00F076", "#F59E0B", "#3B82F6"],
         });
+        const timeSec = ((res.totalExecutionTimeMs || 40) / 1000).toFixed(2);
+        showToast("success", `Passed ${res.passedCases}/${res.totalCases} Test Cases (${timeSec}s)`);
       } else {
-        showToast("error", `Submission: ${res.status.toUpperCase()}`);
+        const failedCase = res.testCaseResults?.find((c) => !c.passed);
+        const idx = failedCase ? failedCase.index : 1;
+        const isHidden = failedCase?.isHidden ? "Hidden " : "";
+        showToast("error", `Wrong Answer on ${isHidden}Test Case #${idx}`);
       }
     } catch (err: any) {
       // Fallback local submission evaluation for demo tasks or unseeded tasks
@@ -1273,10 +1280,13 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
           particleCount: 90,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"],
+          colors: ["#10B981", "#00F076", "#F59E0B", "#3B82F6"],
         });
+        const timeSec = ((demoJudgeRes.totalExecutionTimeMs || 40) / 1000).toFixed(2);
+        showToast("success", `Passed ${passed}/${sampleCases.length} Test Cases (${timeSec}s)`);
       } else {
-        showToast("error", "Submission: Solution failed some test cases");
+        const failedIdx = evals.findIndex((e) => !e.passed) + 1;
+        showToast("error", `Wrong Answer on Test Case #${failedIdx > 0 ? failedIdx : 1}`);
       }
     } finally {
       setIsSubmitting(false);
@@ -1322,11 +1332,11 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
   };
 
   return (
-    <div className="h-full w-full flex flex-col min-h-0 font-urbanist bg-[#F8FAFC] dark:bg-[#070A12] text-slate-900 dark:text-white overflow-hidden">
+    <div className="h-full w-full flex flex-col min-h-0 font-urbanist bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] overflow-hidden">
       {/* =====================================================================
           TOP ARENA NAVIGATION & ACTION BAR
       ===================================================================== */}
-      <header className="h-14 border-b border-slate-200/80 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] px-3 sm:px-4 flex items-center justify-between shrink-0 z-20">
+      <header className="h-14 border-b border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] px-3 sm:px-4 flex items-center justify-between shrink-0 z-20">
         {/* Left: Back button + Breadcrumbs + Difficulty */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
           <button
@@ -1337,10 +1347,10 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                 navigate("problems");
               }
             }}
-            className="inline-flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#1C1F20] transition-colors shrink-0 cursor-pointer"
             title={courseContext?.courseTitle || "Problems"}
           >
-            <ChevronLeft size={17} />
+            <ChevronLeft size={16} />
             <span className="hidden sm:inline truncate max-w-[120px]">
               {courseContext?.courseTitle ? courseContext.courseTitle : "Problems"}
             </span>
@@ -1348,16 +1358,16 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
 
           {courseContext?.moduleTitle && (
             <>
-              <span className="text-slate-300 dark:text-slate-700 hidden md:inline">/</span>
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:inline truncate max-w-[160px]">
+              <span className="text-[#D1D5DB] dark:text-[#2C3133] hidden md:inline">/</span>
+              <span className="text-xs font-semibold text-[#6B7280] dark:text-[#8A9099] hidden md:inline truncate max-w-[160px]">
                 {courseContext.moduleTitle}
               </span>
             </>
           )}
 
-          <span className="text-slate-300 dark:text-slate-700 hidden xs:inline">/</span>
+          <span className="text-[#D1D5DB] dark:text-[#2C3133] hidden xs:inline">/</span>
 
-          <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate max-w-[100px] xs:max-w-[140px] sm:max-w-xs">
+          <span className="text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] truncate max-w-[100px] xs:max-w-[140px] sm:max-w-xs">
             {task.title}
           </span>
 
@@ -1365,56 +1375,58 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
             className={cn(
               "text-[9px] sm:text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border tracking-wider shrink-0",
               task.difficulty === "easy"
-                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                ? "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/25"
                 : task.difficulty === "medium"
-                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                ? "bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/25"
+                : "bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/25"
             )}
           >
             {task.difficulty}
           </span>
 
-          <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[11px] font-semibold font-mono shrink-0">
-            <Zap size={11} className="fill-amber-500/20" />
+          <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#00F076]/10 border border-[#00F076]/20 text-[#00F076] text-[11px] font-semibold font-mono shrink-0">
+            <Zap size={11} className="fill-[#00F076]/20" />
             <span>+{task.points || 10} XP</span>
           </span>
         </div>
 
-        {/* Right: Reset + Run + Submit CTA Controls */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        {/* Right: Reset + Run Code + Submit Solution Action Bar */}
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleResetCode}
             title="Reset editor to starter code"
-            className="p-1.5 sm:p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 sm:p-2 rounded-xl text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#1E2022] transition-colors cursor-pointer"
             aria-label="Reset Code"
           >
             <RotateCcw size={15} />
           </button>
 
+          {/* Secondary "Run Code" Button */}
           <button
             onClick={handleRunCode}
             disabled={isRunning || isSubmitting}
-            className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-[#1E293B] hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700/60 transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl text-xs font-semibold bg-[#F7F8FA] dark:bg-[#151718] hover:bg-[#E5E7EB] dark:hover:bg-[#202425] text-[#121314] dark:text-[#ECEDEE] border border-[#E5E7EB] dark:border-[#202425] transition-all disabled:opacity-50 cursor-pointer shadow-xs hover:-translate-y-0.5"
           >
             {isRunning ? (
-              <Loader2 size={13} className="animate-spin text-[#6366F1]" />
+              <Loader2 size={13} className="animate-spin text-[#00F076]" />
             ) : (
-              <Play size={13} className="text-[#6366F1] fill-[#6366F1]" />
+              <Play size={13} className="text-[#00F076] fill-[#00F076]" />
             )}
-            <span className="hidden xs:inline">Run</span>
+            <span className="hidden xs:inline">Run Code</span>
           </button>
 
+          {/* High-Contrast Emerald Green "Submit Solution →" Button */}
           <button
             onClick={handleSubmit}
             disabled={isRunning || isSubmitting}
-            className="inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white shadow-md shadow-indigo-500/25 hover:shadow-indigo-500/40 active:scale-[0.98] transition-all disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-semibold bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] shadow-[0_0_20px_rgba(0,240,118,0.22)] hover:shadow-[0_0_28px_rgba(0,240,118,0.36)] active:translate-y-0 transition-all hover:-translate-y-0.5 disabled:opacity-50 cursor-pointer"
           >
             {isSubmitting ? (
-              <Loader2 size={13} className="animate-spin" />
+              <Loader2 size={13} className="animate-spin text-[#0C0D0E]" />
             ) : (
               <Send size={13} />
             )}
-            <span>Submit</span>
+            <span>Submit Solution →</span>
           </button>
         </div>
       </header>
@@ -1611,14 +1623,14 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
           )}
 
           {/* Mobile CTA to jump to code */}
-          <div className="lg:hidden pt-3 pb-6 border-t border-slate-100 dark:border-slate-800">
+          <div className="lg:hidden pt-3 pb-6 border-t border-[#E5E7EB] dark:border-[#202425]">
             <button
               type="button"
               onClick={() => {
                 setMobileView("code");
                 setActiveTab("code");
               }}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-indigo-500/25 active:scale-[0.98] transition-all"
+              className="w-full py-3 px-4 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all cursor-pointer"
             >
               <span>Solve Challenge in Code Editor</span>
               <Code2 size={15} />
@@ -1627,26 +1639,26 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
         </div>
 
         {/* =====================================================================
-            RIGHT SOLUTION WORKSPACE (Image 2 Concept with AarCode Design & Engine)
+            RIGHT SOLUTION WORKSPACE
         ===================================================================== */}
         <div
           className={cn(
-            "h-full flex-1 flex-col min-h-0 bg-white dark:bg-[#090D16] overflow-hidden",
+            "h-full flex-1 flex-col min-h-0 bg-white dark:bg-[#0C0D0E] overflow-hidden",
             mobileView === "problem" ? "hidden lg:flex" : "flex w-full"
           )}
         >
           {/* 1. Solution Pane Header Bar */}
-          <div className="h-11 sm:h-12 border-b border-slate-200/80 dark:border-[#1E293B] bg-slate-50 dark:bg-[#0F172A] px-3 sm:px-4 flex items-center justify-between shrink-0">
+          <div className="h-11 sm:h-12 border-b border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#151718] px-3 sm:px-4 flex items-center justify-between shrink-0">
             {/* Left: { } Your Solution title + solution.ext */}
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#6366F1]/10 text-[#6366F1] flex items-center justify-center font-mono font-semibold text-xs">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#00F076]/10 text-[#00F076] flex items-center justify-center font-mono font-semibold text-xs border border-[#00F076]/20">
                 {"{ }"}
               </div>
-              <span className="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 hidden xs:inline">
+              <span className="font-semibold text-xs sm:text-sm text-[#121314] dark:text-[#ECEDEE] hidden xs:inline">
                 Your Solution
               </span>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white dark:bg-[#1E293B] border border-slate-200/60 dark:border-slate-700/60 text-[10px] sm:text-[11px] font-mono text-slate-600 dark:text-slate-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white dark:bg-[#1E2022] border border-[#E5E7EB] dark:border-[#2C3133] text-[10px] sm:text-[11px] font-mono text-[#6B7280] dark:text-[#8A9099]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
                 solution.{getLanguageById(language)?.extension || "py"}
               </span>
             </div>
@@ -1670,7 +1682,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
               <button
                 onClick={handleResetCode}
                 title="Reset editor to starter code"
-                className="p-1.5 sm:p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors"
+                className="p-1.5 sm:p-2 rounded-xl text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE] hover:bg-slate-200/60 dark:hover:bg-[#1E2022] transition-colors cursor-pointer"
                 aria-label="Reset starter code"
               >
                 <RotateCcw size={14} />
@@ -1679,12 +1691,12 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
               <button
                 onClick={handleRunCode}
                 disabled={isRunning || isSubmitting}
-                className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-[#1E293B] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700/60 shadow-xs transition-all disabled:opacity-50"
+                className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-[#1E2022] hover:bg-slate-100 dark:hover:bg-[#262A2D] text-[#121314] dark:text-[#ECEDEE] border border-[#E5E7EB] dark:border-[#2C3133] shadow-xs transition-all disabled:opacity-50 cursor-pointer"
               >
                 {isRunning ? (
-                  <Loader2 size={13} className="animate-spin text-[#6366F1]" />
+                  <Loader2 size={13} className="animate-spin text-[#00F076]" />
                 ) : (
-                  <Play size={13} className="text-[#6366F1] fill-[#6366F1]" />
+                  <Play size={13} className="text-[#00F076] fill-[#00F076]" />
                 )}
                 <span>Run</span>
               </button>
@@ -1692,10 +1704,10 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
               <button
                 onClick={handleSubmit}
                 disabled={isRunning || isSubmitting}
-                className="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white shadow-md shadow-indigo-500/25 transition-all disabled:opacity-50"
+                className="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] shadow-[0_0_20px_rgba(0,240,118,0.22)] transition-all disabled:opacity-50 cursor-pointer"
               >
                 {isSubmitting ? (
-                  <Loader2 size={13} className="animate-spin" />
+                  <Loader2 size={13} className="animate-spin text-[#0C0D0E]" />
                 ) : (
                   <Send size={13} />
                 )}
@@ -1705,7 +1717,7 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
           </div>
 
           {/* 2. Unified Workspace Tab Navigation */}
-          <div className="h-10 border-b border-slate-200/80 dark:border-[#1E293B] bg-slate-50/60 dark:bg-[#0B101D] px-2 sm:px-3 flex items-center justify-between shrink-0 overflow-x-auto no-scrollbar">
+          <div className="h-10 border-b border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#111213] px-2 sm:px-3 flex items-center justify-between shrink-0 overflow-x-auto no-scrollbar">
             <div className="flex items-center gap-1 min-w-max">
               {/* Tab 1: Code */}
               <button
@@ -1714,10 +1726,10 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                   setMobileView("code");
                 }}
                 className={cn(
-                  "px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5",
+                  "px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer",
                   activeTab === "code"
-                    ? "bg-white dark:bg-[#1E293B] text-[#6366F1] dark:text-[#818CF8] shadow-xs"
-                    : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                    ? "bg-white dark:bg-[#1E2022] text-[#00F076] dark:text-[#00F076] border border-[#E5E7EB] dark:border-[#2C3133] shadow-xs"
+                    : "text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE]"
                 )}
               >
                 <Code2 size={13} />
@@ -1731,15 +1743,15 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                   setMobileView("tests");
                 }}
                 className={cn(
-                  "px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5",
+                  "px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer",
                   activeTab === "samples"
-                    ? "bg-white dark:bg-[#1E293B] text-[#6366F1] dark:text-[#818CF8] shadow-xs"
-                    : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                    ? "bg-white dark:bg-[#1E2022] text-[#00F076] dark:text-[#00F076] border border-[#E5E7EB] dark:border-[#2C3133] shadow-xs"
+                    : "text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE]"
                 )}
               >
                 <CheckCircle2 size={13} />
                 <span>Sample Tests</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono">
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#E5E7EB] dark:bg-[#202425] text-[#6B7280] dark:text-[#8A9099] font-mono">
                   {publicCases.length}
                 </span>
               </button>
@@ -1751,10 +1763,10 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                   setMobileView("tests");
                 }}
                 className={cn(
-                  "px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5",
+                  "px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer",
                   activeTab === "hidden"
-                    ? "bg-white dark:bg-[#1E293B] text-[#6366F1] dark:text-[#818CF8] shadow-xs"
-                    : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                    ? "bg-white dark:bg-[#1E2022] text-[#00F076] dark:text-[#00F076] border border-[#E5E7EB] dark:border-[#2C3133] shadow-xs"
+                    : "text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE]"
                 )}
               >
                 <Lock size={13} />
@@ -1768,10 +1780,10 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                   setMobileView("tests");
                 }}
                 className={cn(
-                  "px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5",
+                  "px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer",
                   activeTab === "custom"
-                    ? "bg-white dark:bg-[#1E293B] text-[#6366F1] dark:text-[#818CF8] shadow-xs"
-                    : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                    ? "bg-white dark:bg-[#1E2022] text-[#00F076] dark:text-[#00F076] border border-[#E5E7EB] dark:border-[#2C3133] shadow-xs"
+                    : "text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE]"
                 )}
               >
                 <Terminal size={13} />
@@ -1785,24 +1797,24 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                   setMobileView("tests");
                 }}
                 className={cn(
-                  "px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5",
+                  "px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer",
                   activeTab === "result"
-                    ? "bg-white dark:bg-[#1E293B] text-[#6366F1] dark:text-[#818CF8] shadow-xs"
-                    : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                    ? "bg-white dark:bg-[#1E2022] text-[#00F076] dark:text-[#00F076] border border-[#E5E7EB] dark:border-[#2C3133] shadow-xs"
+                    : "text-[#6B7280] hover:text-[#121314] dark:text-[#8A9099] dark:hover:text-[#ECEDEE]"
                 )}
               >
-                <CheckCircle2 size={13} className={judgeResult?.status === "passed" ? "text-emerald-500" : ""} />
+                <CheckCircle2 size={13} className={judgeResult?.status === "passed" ? "text-[#10B981]" : ""} />
                 <span>Evaluation Result</span>
                 {isRunning || isSubmitting ? (
-                  <Loader2 size={11} className="animate-spin text-[#6366F1]" />
+                  <Loader2 size={11} className="animate-spin text-[#00F076]" />
                 ) : executionError ? (
-                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-[#EF4444] animate-pulse" />
                 ) : judgeResult?.status === "passed" ? (
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="w-2 h-2 rounded-full bg-[#10B981]" />
                 ) : judgeResult?.status === "failed" ? (
-                  <span className="w-2 h-2 rounded-full bg-rose-500" />
+                  <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
                 ) : runTestResults ? (
-                  <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                  <span className="w-2 h-2 rounded-full bg-[#00F076]" />
                 ) : null}
               </button>
             </div>
