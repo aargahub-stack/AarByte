@@ -1,3 +1,5 @@
+import { recordDailyActivity } from "../streakService";
+
 export interface LocalCompletedTask {
   task_id: string;
   is_completed: boolean;
@@ -66,6 +68,7 @@ export const progressStorage = {
       };
 
       localStorage.setItem(STORAGE_KEYS.COMPLETED_TASKS, JSON.stringify(completed));
+      recordDailyActivity();
 
       if (language) {
         localStorage.setItem("aarcode_last_used_lang", language);
