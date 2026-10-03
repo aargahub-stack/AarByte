@@ -102,23 +102,23 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 font-urbanist bg-white/90 dark:bg-[#090D16]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 transition-colors duration-300">
+    <header className="sticky top-0 z-50 font-urbanist bg-[#F7F8FA]/90 dark:bg-[#0C0D0E]/90 backdrop-blur-xl border-b border-[#E5E7EB] dark:border-[#202425] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Left: AarCode Logo + bold "AarCode" text */}
           <button
             onClick={() => handleNav({ route: user ? "dashboard" : "landing" })}
-            className="flex items-center gap-3 group focus:outline-none"
+            className="flex items-center gap-3 group focus:outline-none cursor-pointer"
             aria-label="AarCode home"
           >
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-50/80 dark:bg-indigo-500/15 border border-indigo-200/70 dark:border-indigo-500/20 p-1.5 group-hover:scale-105 group-hover:border-indigo-500/40 transition-all duration-200">
+            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-1.5 group-hover:scale-105 group-hover:border-[#121314] dark:group-hover:border-[#00F076]/40 transition-all duration-200">
               <img
                 src="/AarCode.png"
                 alt="AarCode Logo"
                 className="w-full h-full object-contain drop-shadow-sm"
               />
             </div>
-            <span className="font-semibold text-2xl tracking-tight text-slate-900 dark:text-white">
+            <span className="font-semibold text-2xl tracking-tight text-[#121314] dark:text-[#ECEDEE]">
               AarCode
             </span>
           </button>
@@ -138,10 +138,10 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                   key={item.label}
                   onClick={() => handleNav(item)}
                   className={cn(
-                    "relative px-3 py-2 text-sm transition-colors duration-200 group focus:outline-none select-none",
+                    "relative px-3 py-2 text-sm transition-colors duration-200 group focus:outline-none select-none cursor-pointer",
                     isActive
-                      ? "text-[#6366F1] dark:text-indigo-400 font-semibold"
-                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium"
+                      ? "text-[#121314] dark:text-[#ECEDEE] font-semibold"
+                      : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] font-medium"
                   )}
                 >
                   <span>{item.label}</span>
@@ -150,8 +150,8 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                     className={cn(
                       "absolute bottom-0.5 left-2.5 right-2.5 h-[2px] rounded-full transition-all duration-200 origin-center",
                       isActive
-                        ? "bg-[#6366F1] dark:bg-indigo-400 opacity-100 scale-x-100 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
-                        : "bg-[#6366F1] dark:bg-indigo-400 opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100"
+                        ? "bg-[#00F076] opacity-100 scale-x-100 shadow-[0_0_8px_rgba(0,240,118,0.5)]"
+                        : "bg-[#00F076] opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100"
                     )}
                   />
                 </button>
@@ -159,15 +159,15 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
             })}
           </nav>
 
-          {/* Right: Theme toggle switch (Sun/Moon icon) + "Login ->" rounded pill button */}
+          {/* Right: Theme toggle switch (Sun/Moon icon) + Clean outlined login button */}
           <div className="flex items-center gap-3">
             <button
               onClick={onToggleTheme}
-              className="flex items-center justify-center w-10 h-10 rounded-full border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-500/40 transition-all duration-200 shadow-sm"
+              className="flex items-center justify-center w-9 h-9 rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] hover:border-[#D1D5DB] dark:hover:border-[#2C3133] transition-all duration-200 shadow-xs cursor-pointer"
               aria-label="Toggle theme"
               title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
             </button>
 
             {user ? (
@@ -295,20 +295,20 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
             ) : (
               <button
                 onClick={() => handleNav({ route: "login" })}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold rounded-full bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] hover:bg-slate-50 dark:hover:bg-[#1C1F20] text-[#121314] dark:text-[#ECEDEE] hover:border-[#121314] dark:hover:border-[#00F076]/50 transition-all shadow-xs cursor-pointer"
               >
                 <span>Login</span>
-                <ArrowRight size={15} />
+                <ArrowRight size={14} className="text-[#6B7280] dark:text-[#8A9099]" />
               </button>
             )}
 
             {/* Mobile menu toggle */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2.5 rounded-full border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="md:hidden p-2 rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] transition-colors cursor-pointer"
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
@@ -316,7 +316,7 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-slate-200 dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#090D16] px-4 py-4 space-y-2 animate-in max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="md:hidden border-t border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#0C0D0E] px-4 py-4 space-y-2 animate-in max-h-[calc(100vh-4rem)] overflow-y-auto">
           {/* Mobile User Profile & XP Badge if signed in */}
           {user && (
             <div className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] mb-3 shadow-xs">

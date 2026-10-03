@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -6,128 +7,214 @@ import {
   ShieldCheck,
   Compass,
   Cpu,
-  Play,
   Layers,
+  Sparkles,
+  Code2,
+  CheckCircle2,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import type { Route } from "@/types";
 
-type LandingPageProps = {
+interface LandingPageProps {
   navigate: (to: Route | string) => void;
-};
+}
 
 export function LandingPage({ navigate }: LandingPageProps) {
   return (
-    <div className="font-sans bg-white dark:bg-[#090D16] text-slate-900 dark:text-white transition-colors duration-300 overflow-x-hidden">
-      {/* B. Hero Section (Full-Bleed, Containerless, Screen-Height Adaptive) */}
-      <HeroCardSection navigate={navigate} />
+    <div className="font-urbanist bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] transition-colors duration-300 overflow-x-hidden selection:bg-[#00F076]/25 selection:text-[#0C0D0E] dark:selection:text-[#00F076]">
+      {/* ===================================================================
+          B. HERO SECTION
+      =================================================================== */}
+      <HeroSection navigate={navigate} />
 
-      {/* Rest of the Landing Page Sections */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 space-y-20 lg:space-y-28">
-        {/* C. Language & Tech Stack Strip */}
-        <TechStackStrip navigate={navigate} />
+      {/* Main Container for Subsequent Sections */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 space-y-24 sm:space-y-28 lg:space-y-36">
+        {/* ===================================================================
+            C. SUPPORTED LANGUAGES STRIP
+        =================================================================== */}
+        <SupportedLanguagesStrip navigate={navigate} />
 
-        {/* D. Trust & Evaluation Metrics (Split Grid) */}
-        <TrustMetricsSection navigate={navigate} />
+        {/* ===================================================================
+            D. EVALUATION METRICS (SPLIT LAYOUT)
+        =================================================================== */}
+        <EvaluationMetricsSection navigate={navigate} />
 
-        {/* E. Pricing Section ("Simple, Transparent Learning") */}
+        {/* ===================================================================
+            E. PRICING SECTION ("Simple, Transparent Learning")
+        =================================================================== */}
         <PricingSection navigate={navigate} />
 
-        {/* F. Core Services Showcase (Everything You Need to Master Code) */}
-        <CoreServicesSection navigate={navigate} />
+        {/* ===================================================================
+            F. CORE PLATFORM FEATURES ("Everything You Need to Master Code")
+        =================================================================== */}
+        <CoreFeaturesSection navigate={navigate} />
       </div>
     </div>
   );
 }
 
 /* ============================================================================
-   B. HERO SECTION (CONTAINERLESS & SCREEN-HEIGHT ADAPTIVE WITH /hero.png)
+   B. HERO SECTION
 ============================================================================ */
-function HeroCardSection({ navigate }: { navigate: (to: Route | string) => void }) {
+function HeroSection({ navigate }: { navigate: (to: Route | string) => void }) {
   const avatars = [
-    { initials: "AK", bg: "from-indigo-500 to-purple-600" },
-    { initials: "SR", bg: "from-violet-500 to-fuchsia-600" },
-    { initials: "MJ", bg: "from-blue-500 to-indigo-600" },
-    { initials: "DV", bg: "from-purple-600 to-pink-600" },
+    { initials: "AK", bg: "bg-[#1E2328] text-[#00F076] border border-[#202425]" },
+    { initials: "SR", bg: "bg-[#1B2026] text-[#ECEDEE] border border-[#202425]" },
+    { initials: "MJ", bg: "bg-[#1F2522] text-[#00B8A3] border border-[#202425]" },
+    { initials: "DV", bg: "bg-[#251F22] text-[#ECEDEE] border border-[#202425]" },
   ];
 
   return (
-    <section className="relative w-full min-h-[calc(100dvh-5rem)] flex items-center justify-center py-6 sm:py-10 lg:py-6">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 items-center">
-          {/* Left Content */}
-          <div className="lg:col-span-6 space-y-5 sm:space-y-6 xl:space-y-7 text-left z-10">
-            {/* Headline (H1) */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[3.6rem] xl:text-[4.25rem] font-bold tracking-tight leading-[1.08] text-[#0F172A] dark:text-white">
+    <section className="relative w-full min-h-[calc(100dvh-5rem)] flex items-center justify-center py-10 sm:py-14 lg:py-16 border-b border-[#E5E7EB] dark:border-[#202425]/70">
+      {/* Subtle terminal grid background pattern */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#E5E7EB_1px,transparent_1px),linear-gradient(to_bottom,#E5E7EB_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#151718_1px,transparent_1px),linear-gradient(to_bottom,#151718_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-35 dark:opacity-40" />
+
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          {/* Left Column: Headline, Subtitle, CTAs, Social Proof */}
+          <div className="lg:col-span-6 space-y-6 sm:space-y-7 text-left z-10">
+            {/* H1 (Strictly font-semibold / clean font-bold, no heavy black) */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[3.5rem] xl:text-[4rem] font-bold tracking-tight leading-[1.08] text-[#121314] dark:text-[#ECEDEE]">
               <span className="block">Master Logic.</span>
-              <span className="block bg-gradient-to-r from-[#6366F1] via-[#5B46F6] to-[#7C3AED] dark:from-indigo-400 dark:via-[#6366F1] dark:to-purple-400 bg-clip-text text-transparent">
-                Scale Your Coding
+              <span className="block text-[#121314] dark:text-[#ECEDEE]">
+                Scale Your Coding Skills.
               </span>
-              <span className="block">Skills.</span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 font-normal leading-relaxed max-w-xl">
-              All-in-one interactive platform to practice DSA, solve coding tasks with real-time compilers, and master web development — built for modern developers.
+            <p className="text-base sm:text-lg text-[#6B7280] dark:text-[#8A9099] font-normal leading-relaxed max-w-xl">
+              An all-in-one interactive platform to practice DSA, solve coding tasks with real-time compilers, and master web development — built for modern developers.
             </p>
 
             {/* CTA Buttons */}
             <div className="pt-1 flex flex-wrap items-center gap-3.5 sm:gap-4">
-              <a
-                href="#signup"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate("signup");
-                }}
-                className="group inline-flex items-center gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-[#6366F1] via-[#5B46F6] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-sm sm:text-base lg:text-lg shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/45 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+              {/* Primary CTA (Electric Volt / High Contrast Terminal Vibe) */}
+              <button
+                onClick={() => navigate("signup")}
+                className="group inline-flex items-center gap-2.5 px-6 sm:px-7 py-3.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-sm sm:text-base transition-all shadow-[0_0_24px_rgba(0,240,118,0.22)] hover:shadow-[0_0_32px_rgba(0,240,118,0.38)] hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
               >
                 <span>Start Coding Free</span>
                 <ArrowRight
-                  size={19}
+                  size={17}
                   className="group-hover:translate-x-1 transition-transform duration-200"
                 />
-              </a>
+              </button>
 
+              {/* Secondary CTA (Clean Secondary Border Button) */}
               <button
                 onClick={() => navigate("compiler")}
-                className="inline-flex items-center gap-2.5 px-6 sm:px-7 py-3.5 sm:py-4 rounded-full border border-slate-200 dark:border-[#1E293B] bg-[#F8FAFC] dark:bg-[#0F172A] hover:bg-slate-100/80 dark:hover:bg-slate-800/80 hover:border-indigo-500/40 text-slate-700 dark:text-slate-200 font-semibold text-sm sm:text-base transition-all duration-200"
+                className="inline-flex items-center gap-2 px-6 sm:px-7 py-3.5 rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] hover:bg-slate-50 dark:hover:bg-[#1C1F20] text-[#121314] dark:text-[#ECEDEE] font-medium text-sm sm:text-base transition-all hover:-translate-y-0.5 cursor-pointer shadow-xs"
               >
-                <Play size={15} className="text-[#6366F1] fill-[#6366F1]" />
+                <Terminal size={16} className="text-[#6B7280] dark:text-[#8A9099]" />
                 <span>Try Live Compiler</span>
               </button>
             </div>
 
-            {/* Social Proof: Avatar Stack + Text */}
+            {/* Social Proof */}
             <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-3.5">
-              <div className="flex -space-x-2.5">
+              <div className="flex -space-x-2">
                 {avatars.map((av, idx) => (
                   <div
                     key={idx}
                     className={cn(
-                      "w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br text-white font-semibold text-xs flex items-center justify-center ring-2 ring-white dark:ring-[#090D16] shadow-sm",
+                      "w-8 h-8 sm:w-9 sm:h-9 rounded-full font-semibold text-[11px] flex items-center justify-center ring-2 ring-white dark:ring-[#0C0D0E] shadow-xs",
                       av.bg
                     )}
                   >
                     {av.initials}
                   </div>
                 ))}
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#EEF2FF] dark:bg-[#0F172A] border border-indigo-200 dark:border-[#1E293B] text-[#6366F1] dark:text-indigo-400 font-semibold text-xs flex items-center justify-center ring-2 ring-white dark:ring-[#090D16]">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#E5E7EB] dark:bg-[#1E2022] border border-[#D1D5DB] dark:border-[#2E3336] text-[#121314] dark:text-[#ECEDEE] font-semibold text-[11px] flex items-center justify-center ring-2 ring-white dark:ring-[#0C0D0E]">
                   +1k
                 </div>
               </div>
-              <div className="text-xs sm:text-sm font-normal text-slate-600 dark:text-slate-300">
-                Join <span className="text-slate-900 dark:text-white font-semibold">1,000+</span> passionate student developers
+              <div className="text-xs sm:text-sm font-normal text-[#6B7280] dark:text-[#8A9099]">
+                Join <span className="text-[#121314] dark:text-[#ECEDEE] font-semibold">1,000+</span> passionate student developers
               </div>
             </div>
           </div>
 
-          {/* Right Content: /hero.png Illustration scaled dynamically to screen height */}
+          {/* Right Column: Clean Developer Workstation / Code Editor Card Preview */}
           <div className="lg:col-span-6 relative flex items-center justify-center lg:justify-end">
-            <img
-              src="/hero.png"
-              alt="AarCode Developer Coding Illustration"
-              className="w-full max-w-[480px] sm:max-w-[540px] lg:max-w-full max-h-[45vh] sm:max-h-[55vh] lg:max-h-[76dvh] object-contain select-none dark:rounded-3xl"
-            />
+            <div className="w-full max-w-[560px] rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden transition-all duration-300 hover:border-[#D1D5DB] dark:hover:border-[#2C3133]">
+              {/* Window Titlebar */}
+              <div className="h-10 px-4 border-b border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#111213] flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]/80" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]/80" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]/80" />
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
+                  <Code2 size={13} className="text-[#00F076]" />
+                  <span>two_sum.py</span>
+                </div>
+                <span className="text-[11px] font-mono text-[#6B7280] dark:text-[#8A9099]">Python 3.11</span>
+              </div>
+
+              {/* Code Editor Body */}
+              <div className="p-4 sm:p-5 font-mono text-xs sm:text-[13px] leading-relaxed text-[#121314] dark:text-[#ECEDEE] overflow-x-auto bg-white dark:bg-[#151718]">
+                <div className="space-y-1">
+                  <p className="text-[#6B7280] dark:text-[#5B626A]"># Optimal O(N) Hash Map Lookup Pattern</p>
+                  <p>
+                    <span className="text-purple-600 dark:text-purple-400">def</span>{" "}
+                    <span className="text-blue-600 dark:text-blue-400 font-semibold">two_sum</span>
+                    (nums: List[int], target: int) -&gt; List[int]:
+                  </p>
+                  <p className="pl-4">
+                    seen = &#123;&#125;
+                  </p>
+                  <p className="pl-4">
+                    <span className="text-purple-600 dark:text-purple-400">for</span> i, n{" "}
+                    <span className="text-purple-600 dark:text-purple-400">in</span>{" "}
+                    <span className="text-amber-600 dark:text-amber-400">enumerate</span>(nums):
+                  </p>
+                  <p className="pl-8">
+                    diff = target - n
+                  </p>
+                  <p className="pl-8">
+                    <span className="text-purple-600 dark:text-purple-400">if</span> diff{" "}
+                    <span className="text-purple-600 dark:text-purple-400">in</span> seen:
+                  </p>
+                  <p className="pl-12">
+                    <span className="text-purple-600 dark:text-purple-400">return</span> [seen[diff], i]
+                  </p>
+                  <p className="pl-8">
+                    seen[n] = i
+                  </p>
+                  <p className="pl-4">
+                    <span className="text-purple-600 dark:text-purple-400">return</span> []
+                  </p>
+                </div>
+              </div>
+
+              {/* Terminal Execution / Judge Status Bar */}
+              <div className="border-t border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#111213] p-3.5 sm:p-4 space-y-3">
+                {/* Passed Status Pill */}
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00B8A3]/10 border border-[#00B8A3]/25 text-[#00B8A3] text-xs font-semibold">
+                    <span className="w-2 h-2 rounded-full bg-[#00B8A3] animate-pulse" />
+                    <span>All Test Cases Passed (3/3)</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-[11px] font-mono text-[#6B7280] dark:text-[#8A9099]">
+                    <span>Runtime: <strong className="text-[#121314] dark:text-[#ECEDEE] font-semibold">18ms</strong></span>
+                    <span>Memory: <strong className="text-[#121314] dark:text-[#ECEDEE] font-semibold">14.2 MB</strong></span>
+                  </div>
+                </div>
+
+                {/* Test verification chips */}
+                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
+                  <div className="p-2 rounded-lg bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-[#6B7280] dark:text-[#8A9099]">
+                    <span>Test 1: target=9</span>
+                    <span className="text-[#00B8A3] font-semibold">Passed</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-[#6B7280] dark:text-[#8A9099]">
+                    <span>Test 2: Hidden Case</span>
+                    <span className="text-[#00B8A3] font-semibold">Passed</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -136,275 +223,129 @@ function HeroCardSection({ navigate }: { navigate: (to: Route | string) => void 
 }
 
 /* ============================================================================
-   C. LANGUAGE & TECH STACK STRIP
+   C. SUPPORTED LANGUAGES STRIP
 ============================================================================ */
-const TECH_STACK = [
-  {
-    name: "Python",
-    badge: "DSA & AI",
-    svg: (
-      <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none">
-        <path
-          d="M11.9 2C7.8 2 8.2 3.8 8.2 3.8V5.9H12.1V6.6H6.5C6.5 6.6 4 6.3 4 10.3C4 14.3 6.2 14.1 6.2 14.1H7.5V12.2C7.5 12.2 7.4 10 9.7 10H13.8C13.8 10 15.8 10 15.8 8V4.2C15.8 4.2 16.1 2 11.9 2ZM9.8 3.3C10.2 3.3 10.6 3.7 10.6 4.1C10.6 4.5 10.2 4.9 9.8 4.9C9.4 4.9 9 4.5 9 4.1C9 3.7 9.4 3.3 9.8 3.3Z"
-          fill="#6366F1"
-        />
-        <path
-          d="M12.1 22C16.2 22 15.8 20.2 15.8 20.2V18.1H11.9V17.4H17.5C17.5 17.4 20 17.7 20 13.7C20 9.7 17.8 9.9 17.8 9.9H16.5V11.8C16.5 11.8 16.6 14 14.3 14H10.2C10.2 14 8.2 14 8.2 16V19.8C8.2 19.8 7.9 22 12.1 22ZM14.2 20.7C13.8 20.7 13.4 20.3 13.4 19.9C13.4 19.5 13.8 19.1 14.2 19.1C14.6 19.1 15 19.5 15 19.9C15 20.3 14.6 20.7 14.2 20.7Z"
-          fill="#818CF8"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "Java",
-    badge: "Enterprise & OOP",
-    svg: (
-      <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none">
-        <path
-          d="M9.5 14.5C9.5 14.5 8.5 15.1 10.2 15.4C12.3 15.7 13.4 15.6 15.7 15.1C15.7 15.1 16.3 15.5 17.2 15.8C12 18 5.4 15.7 9.5 14.5Z"
-          fill="#6366F1"
-        />
-        <path
-          d="M8.9 12.2C8.9 12.2 7.8 13 9.7 13.2C11.9 13.5 13.7 13.5 16.7 12.8C16.7 12.8 17.1 13.2 17.8 13.5C11.7 15.3 4.9 13.6 8.9 12.2Z"
-          fill="#818CF8"
-        />
-        <path
-          d="M13.5 2.5C15 4.5 12.2 6.3 12.2 8.2C12.2 9.5 13.6 10.5 13.6 10.5C13.6 10.5 11.2 9.6 11.8 7.6C12.3 5.8 14.5 4.9 13.5 2.5Z"
-          fill="#A78BFA"
-        />
-        <path
-          d="M6.5 18.5C9.5 19.8 15.8 19.7 18.5 18C18.5 18 17.9 19.5 14.2 20.2C10.1 21 5.1 20 6.5 18.5Z"
-          fill="#6366F1"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "C++",
-    badge: "Competitive",
-    svg: (
-      <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none">
-        <path
-          d="M12 2L3 7V17L12 22L21 17V7L12 2Z"
-          stroke="#6366F1"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M10 9.5C9.2 8.8 8 8.8 7.2 9.5C6.2 10.5 6.2 13.5 7.2 14.5C8 15.2 9.2 15.2 10 14.5"
-          stroke="#818CF8"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M13.5 12H16.5M15 10.5V13.5M17.5 12H20.5M19 10.5V13.5"
-          stroke="#A78BFA"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "JavaScript",
-    badge: "Full-Stack",
-    svg: (
-      <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none">
-        <rect
-          x="3"
-          y="3"
-          width="18"
-          height="18"
-          rx="4"
-          stroke="#6366F1"
-          strokeWidth="2"
-        />
-        <path
-          d="M11 11V16C11 17.1 10.1 17.5 9.2 17.5C8.5 17.5 8 17.1 7.8 16.6"
-          stroke="#818CF8"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M16.8 11.8C16.4 11.2 15.8 11 15 11C14.1 11 13.5 11.5 13.5 12.2C13.5 13 14.2 13.3 15.2 13.7C16.2 14.1 17 14.6 17 15.8C17 16.9 16.1 17.5 14.9 17.5C13.9 17.5 13.2 17 12.9 16.3"
-          stroke="#A78BFA"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "TypeScript",
-    badge: "Type-Safe",
-    svg: (
-      <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none">
-        <rect
-          x="3"
-          y="3"
-          width="18"
-          height="18"
-          rx="4"
-          stroke="#6366F1"
-          strokeWidth="2"
-        />
-        <path
-          d="M7.5 11H12.5M10 11V17.5"
-          stroke="#818CF8"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M17.5 11.8C17.1 11.2 16.5 11 15.7 11C14.8 11 14.2 11.5 14.2 12.2C14.2 13 14.9 13.3 15.9 13.7C16.9 14.1 17.7 14.6 17.7 15.8C17.7 16.9 16.8 17.5 15.6 17.5C14.6 17.5 13.9 17 13.6 16.3"
-          stroke="#A78BFA"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "HTML/CSS",
-    badge: "Web Core",
-    svg: (
-      <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none">
-        <path
-          d="M4 3L5.5 19L12 21L18.5 19L20 3H4Z"
-          stroke="#6366F1"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M8 7H16L15.5 11H9L9.3 14.5L12 15.3L14.7 14.5L15 12.5"
-          stroke="#818CF8"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
+const LANGUAGES = [
+  { name: "Python", track: "Algorithms & AI", code: "py" },
+  { name: "Java", track: "Enterprise OOP", code: "java" },
+  { name: "C++", track: "High-Performance", code: "cpp" },
+  { name: "JavaScript", track: "Full-Stack Web", code: "js" },
+  { name: "TypeScript", track: "Type-Safe Systems", code: "ts" },
+  { name: "HTML/CSS", track: "Responsive UI", code: "html" },
 ];
 
-function TechStackStrip({ navigate }: { navigate: (to: Route | string) => void }) {
+function SupportedLanguagesStrip({ navigate }: { navigate: (to: Route | string) => void }) {
   return (
-    <section aria-label="Supported Technologies">
-      <div className="rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-[#1E293B] shadow-lg shadow-slate-200/40 dark:shadow-none px-6 py-6 sm:px-10 sm:py-7">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 items-center">
-          {TECH_STACK.map((tech) => (
-            <button
-              key={tech.name}
-              onClick={() => navigate("compiler")}
-              className="group flex items-center justify-center sm:justify-start gap-3.5 px-4 py-3 rounded-2xl bg-[#F8FAFC] dark:bg-[#090D16] border border-slate-200/70 dark:border-[#1E293B] hover:border-[#6366F1]/60 dark:hover:border-[#6366F1]/60 hover:-translate-y-0.5 transition-all duration-200"
-            >
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/15 group-hover:bg-indigo-500/20 transition-colors shrink-0">
-                {tech.svg}
-              </div>
-              <div className="text-left">
-                <div className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
-                  {tech.name}
-                </div>
-                <div className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                  {tech.badge}
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
+    <section aria-label="Supported Languages" className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2 text-xs font-mono uppercase tracking-wider text-[#6B7280] dark:text-[#8A9099]">
+        <span>Multi-Language Standard Execution</span>
+        <span>Zero Local Setup Required</span>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        {LANGUAGES.map((lang) => (
+          <button
+            key={lang.name}
+            onClick={() => navigate("compiler")}
+            className="group p-4 rounded-xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] hover:border-[#121314] dark:hover:border-[#00F076]/60 transition-all duration-200 text-left cursor-pointer shadow-xs hover:-translate-y-0.5"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#1E2022] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#2C3133]">
+                .{lang.code}
+              </span>
+              <ArrowUpRight
+                size={14}
+                className="text-[#8A9099] group-hover:text-[#00F076] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+              />
+            </div>
+            <div className="text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-[#121314] dark:group-hover:text-[#00F076] transition-colors">
+              {lang.name}
+            </div>
+            <div className="text-[11px] font-normal text-[#6B7280] dark:text-[#8A9099] mt-0.5 truncate">
+              {lang.track}
+            </div>
+          </button>
+        ))}
       </div>
     </section>
   );
 }
 
 /* ============================================================================
-   D. TRUST & EVALUATION METRICS (SPLIT GRID)
+   D. EVALUATION METRICS (SPLIT LAYOUT)
 ============================================================================ */
-const METRIC_CARDS = [
+const METRICS = [
   {
     value: "99.8%",
     label: "Evaluation Accuracy",
-    detail: "Deterministic sandboxed test grading",
-    accent: "from-[#6366F1] to-[#7C3AED]",
+    detail: "Deterministic sandboxed test grading with isolated worker sandboxes.",
   },
   {
     value: "100+",
     label: "Curated Tasks & Test Cases",
-    detail: "Hand-crafted DSA & Web challenges",
-    accent: "from-[#4F46E5] to-[#6366F1]",
+    detail: "Hand-crafted algorithmic puzzles and real-world frontend tasks.",
   },
   {
     value: "0.2s",
-    label: "Average Code Execution Time",
-    detail: "Ultra-low latency compiler engine",
-    accent: "from-[#7C3AED] to-[#6366F1]",
+    label: "Average Execution Time",
+    detail: "High-throughput isolated micro-containers with low compilation lag.",
   },
   {
     value: "100%",
-    label: "Instant Browser Compilation",
-    detail: "Zero local setup required",
-    accent: "from-[#6366F1] to-indigo-400",
+    label: "Browser-Based Compilation",
+    detail: "Instant zero-dependency compilation across multiple programming languages.",
   },
 ];
 
-function TrustMetricsSection({ navigate }: { navigate: (to: Route | string) => void }) {
+function EvaluationMetricsSection({ navigate }: { navigate: (to: Route | string) => void }) {
   return (
     <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
       {/* Left Column */}
       <div className="lg:col-span-5 space-y-6">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold uppercase tracking-wider">
-          <Cpu size={14} className="text-[#6366F1]" />
-          <span>Battle-Tested Judge</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
+          <Cpu size={14} className="text-[#00F076]" />
+          <span>Industrial Judge Engine</span>
         </div>
 
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.12] text-slate-900 dark:text-white">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.12] text-[#121314] dark:text-[#ECEDEE]">
           10,000+ Submissions Evaluated
         </h2>
 
-        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-normal leading-relaxed">
-          From basic syntax to advanced algorithms, we help developers sharpen logic, pass hidden test cases, and crack technical rounds.
+        <p className="text-base sm:text-lg text-[#6B7280] dark:text-[#8A9099] font-normal leading-relaxed">
+          From basic syntax to advanced algorithms, sharpen your logic, pass hidden test cases, and prepare for top technical rounds.
         </p>
 
         <div className="pt-2">
           <button
             onClick={() => navigate("problems")}
-            className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-base shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-200"
+            className="group inline-flex items-center gap-2.5 px-6 sm:px-7 py-3.5 rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] hover:bg-slate-50 dark:hover:bg-[#1C1F20] text-[#121314] dark:text-[#ECEDEE] font-semibold text-sm sm:text-base transition-all hover:-translate-y-0.5 cursor-pointer shadow-xs"
           >
             <span>Explore Practice Arena</span>
             <ArrowRight
-              size={18}
-              className="group-hover:translate-x-1 transition-transform duration-200"
+              size={17}
+              className="text-[#6B7280] dark:text-[#8A9099] group-hover:text-[#121314] dark:group-hover:text-[#00F076] group-hover:translate-x-1 transition-all"
             />
           </button>
         </div>
       </div>
 
-      {/* Right Column: 4 Modern Floating Metric Cards */}
-      <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {METRIC_CARDS.map((metric, idx) => (
+      {/* Right Column: 4 Clean Floating Metric Cards (Balanced font weights) */}
+      <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+        {METRICS.map((metric, idx) => (
           <div
             key={metric.label}
             className={cn(
-              "group relative rounded-3xl bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] p-7 shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-[#6366F1]/60 dark:hover:border-[#6366F1]/60 hover:-translate-y-1 transition-all duration-300 overflow-hidden",
-              idx % 2 === 1 && "sm:translate-y-3"
+              "rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-6 sm:p-7 shadow-xs hover:border-[#D1D5DB] dark:hover:border-[#2C3133] transition-all duration-200",
+              idx % 2 === 1 && "sm:translate-y-2"
             )}
           >
-            {/* Subtle corner glow */}
-            <div className="pointer-events-none absolute -top-12 -right-12 w-28 h-28 rounded-full bg-indigo-500/10 group-hover:bg-indigo-500/20 blur-2xl transition-colors" />
-
-            <div
-              className={cn(
-                "text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-r bg-clip-text text-transparent mb-2",
-                metric.accent
-              )}
-            >
+            <div className="text-3xl sm:text-4xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] mb-2 font-mono">
               {metric.value}
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
+            <h3 className="text-base font-semibold text-[#121314] dark:text-[#ECEDEE] mb-1.5">
               {metric.label}
             </h3>
-            <p className="text-sm font-normal text-slate-500 dark:text-slate-400">
+            <p className="text-xs sm:text-sm font-normal text-[#6B7280] dark:text-[#8A9099] leading-relaxed">
               {metric.detail}
             </p>
           </div>
@@ -415,7 +356,7 @@ function TrustMetricsSection({ navigate }: { navigate: (to: Route | string) => v
 }
 
 /* ============================================================================
-   E. PRICING SECTION ("SIMPLE, TRANSPARENT LEARNING")
+   E. PRICING SECTION ("Simple, Transparent Learning")
 ============================================================================ */
 interface PricingPlan {
   name: string;
@@ -436,7 +377,7 @@ const PRICING_PLANS: PricingPlan[] = [
       "Public Practice Tasks",
       "In-Browser Compiler",
       "Basic Algorithm Tracks",
-      "Public Test Case Execution",
+      "Public Test Cases",
       "Community Forum",
     ],
   },
@@ -447,12 +388,12 @@ const PRICING_PLANS: PricingPlan[] = [
     tagline: "Unlock hidden test cases, full roadmaps, and deep debugging.",
     popular: true,
     features: [
-      "All Starter Features",
-      "Full Web Development Roadmaps",
-      "Hidden Test-Case Validations",
-      "Detailed Error Stacks & Hints",
-      "Global Leaderboard Ranking",
-      "Course Completion Badges",
+      "All Starter features",
+      "Full Web Dev Roadmaps",
+      "Hidden Test Cases",
+      "Error Stacks & Hints",
+      "Global Leaderboard",
+      "Completion Badges",
     ],
   },
   {
@@ -462,10 +403,10 @@ const PRICING_PLANS: PricingPlan[] = [
     tagline: "Built for coding clubs, bootcamps, and university cohorts.",
     features: [
       "Unlimited Student Accounts",
-      "Custom Problem Creator (Admin Panel)",
+      "Custom Problem Creator",
       "College Contest Hosting",
-      "Batch Analytics & Reports",
-      "Dedicated Priority Support",
+      "Batch Analytics",
+      "Priority Support",
     ],
   },
 ];
@@ -473,121 +414,92 @@ const PRICING_PLANS: PricingPlan[] = [
 function PricingSection({ navigate }: { navigate: (to: Route | string) => void }) {
   return (
     <section id="pricing" className="scroll-mt-24 space-y-12">
-      {/* Centered Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-4">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs font-semibold uppercase tracking-wider">
-          <Layers size={13} className="text-[#6366F1]" />
-          <span>Flexible Plans</span>
+      {/* Centered Header & Subtitle */}
+      <div className="text-center max-w-2xl mx-auto space-y-3.5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
+          <Layers size={13} className="text-[#00F076]" />
+          <span>Transparent Pricing</span>
         </div>
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
           Simple, Transparent Learning
         </h2>
-        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-normal">
+        <p className="text-base sm:text-lg text-[#6B7280] dark:text-[#8A9099] font-normal">
           Start free forever and upgrade as you scale your algorithmic &amp; full-stack mastery.
         </p>
       </div>
 
-      {/* 3-Card Pricing Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch">
+      {/* 3 Tier Cards with prices strictly in Indian Rupees (₹) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-7 items-stretch">
         {PRICING_PLANS.map((plan) => (
           <div
             key={plan.name}
             className={cn(
-              "relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-300",
+              "relative rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-200",
               plan.popular
-                ? "bg-[#090D16] dark:bg-[#0F172A] text-white border-2 border-[#6366F1] shadow-2xl shadow-indigo-500/25 lg:-translate-y-2"
-                : "bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white border border-slate-200/90 dark:border-[#1E293B] shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-indigo-500/40"
+                ? "bg-white dark:bg-[#151718] border-2 border-[#121314] dark:border-[#00F076] shadow-xl dark:shadow-[0_0_30px_rgba(0,240,118,0.12)] lg:-translate-y-2"
+                : "bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs hover:border-[#D1D5DB] dark:hover:border-[#2C3133]"
             )}
           >
-            {/* Highlighted Most Popular Pill */}
+            {/* Highlighted Terminal Pill for Pro Coder */}
             {plan.popular && (
-              <>
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-32 rounded-t-3xl bg-gradient-to-b from-[#6366F1]/20 to-transparent" />
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white text-xs font-semibold uppercase tracking-wider shadow-lg shadow-indigo-500/40">
-                  Most Popular
-                </div>
-              </>
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-[#121314] dark:bg-[#00F076] text-white dark:text-[#0C0D0E] text-[11px] font-mono font-semibold uppercase tracking-wider shadow-sm">
+                Most Popular
+              </div>
             )}
 
-            <div className="relative z-10 space-y-6">
+            <div className="space-y-6">
               <div>
-                <h3
-                  className={cn(
-                    "text-xl font-bold mb-2",
-                    plan.popular ? "text-white" : "text-slate-900 dark:text-white"
-                  )}
-                >
+                <h3 className="text-xl font-bold text-[#121314] dark:text-[#ECEDEE] mb-1.5">
                   {plan.name}
                 </h3>
-                <p
-                  className={cn(
-                    "text-sm font-normal min-h-[40px]",
-                    plan.popular ? "text-slate-300" : "text-slate-500 dark:text-slate-400"
-                  )}
-                >
+                <p className="text-xs sm:text-sm font-normal text-[#6B7280] dark:text-[#8A9099] min-h-[36px]">
                   {plan.tagline}
                 </p>
               </div>
 
               {/* Price Display */}
-              <div className="flex items-baseline gap-1.5 pt-2 pb-4 border-b border-slate-200/80 dark:border-[#1E293B]">
-                <span
-                  className={cn(
-                    "text-4xl sm:text-5xl font-bold tracking-tight",
-                    plan.popular ? "text-white" : "text-slate-900 dark:text-white"
-                  )}
-                >
+              <div className="flex items-baseline gap-1.5 pt-1 pb-4 border-b border-[#E5E7EB] dark:border-[#202425]">
+                <span className="text-4xl sm:text-5xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] font-mono">
                   {plan.price}
                 </span>
-                <span
-                  className={cn(
-                    "text-sm font-medium",
-                    plan.popular ? "text-indigo-300" : "text-slate-500 dark:text-slate-400"
-                  )}
-                >
+                <span className="text-xs sm:text-sm font-medium text-[#6B7280] dark:text-[#8A9099]">
                   {plan.period}
                 </span>
               </div>
 
-              {/* Checklist */}
-              <ul className="space-y-3.5">
+              {/* Features List */}
+              <ul className="space-y-3 pt-1">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3 text-sm font-medium">
+                  <li key={feature} className="flex items-start gap-3 text-xs sm:text-sm font-medium text-[#374151] dark:text-[#D1D5DB]">
                     <div
                       className={cn(
-                        "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
+                        "mt-0.5 w-4 h-4 rounded-full flex items-center justify-center shrink-0",
                         plan.popular
-                          ? "bg-[#6366F1] text-white"
-                          : "bg-indigo-500/15 text-[#6366F1] dark:text-indigo-400"
+                          ? "bg-[#00F076]/15 text-[#00F076]"
+                          : "bg-[#E5E7EB] dark:bg-[#202425] text-[#121314] dark:text-[#ECEDEE]"
                       )}
                     >
-                      <Check size={13} strokeWidth={2.5} />
+                      <Check size={11} strokeWidth={2.8} />
                     </div>
-                    <span
-                      className={cn(
-                        plan.popular ? "text-slate-200" : "text-slate-700 dark:text-slate-300"
-                      )}
-                    >
-                      {feature}
-                    </span>
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* CTA Button */}
-            <div className="relative z-10 pt-8">
+            <div className="pt-8">
               <button
                 onClick={() => navigate("signup")}
                 className={cn(
-                  "w-full py-3.5 px-6 rounded-full font-semibold text-sm sm:text-base transition-all duration-200 flex items-center justify-center gap-2",
+                  "w-full py-3 px-5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
                   plan.popular
-                    ? "bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white shadow-lg shadow-indigo-500/35 hover:shadow-indigo-500/50 hover:-translate-y-0.5"
-                    : "bg-slate-100 dark:bg-[#090D16] hover:bg-[#6366F1] dark:hover:bg-[#6366F1] text-slate-900 dark:text-white hover:text-white border border-slate-200 dark:border-[#1E293B] hover:border-transparent"
+                    ? "bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] shadow-sm hover:-translate-y-0.5"
+                    : "bg-[#F7F8FA] dark:bg-[#1E2022] hover:bg-[#E5E7EB] dark:hover:bg-[#262A2D] text-[#121314] dark:text-[#ECEDEE] border border-[#E5E7EB] dark:border-[#202425]"
                 )}
               >
                 <span>Get Started</span>
-                <ArrowRight size={16} />
+                <ArrowRight size={15} />
               </button>
             </div>
           </div>
@@ -598,107 +510,96 @@ function PricingSection({ navigate }: { navigate: (to: Route | string) => void }
 }
 
 /* ============================================================================
-   F. CORE SERVICES SHOWCASE (EVERYTHING YOU NEED TO MASTER CODE)
+   F. CORE PLATFORM FEATURES ("Everything You Need to Master Code")
 ============================================================================ */
-const CORE_SERVICES = [
+const CORE_FEATURES = [
   {
     icon: Terminal,
     title: "Interactive In-Browser Execution",
-    description: "Monaco editor runner across multiple languages",
+    description: "Monaco-powered multi-language execution across Python, C++, Java, JS, and HTML. Instant compilation with zero configuration.",
     route: "compiler" as Route,
     badge: "Real-Time IDE",
   },
   {
     icon: ShieldCheck,
     title: "Automated Judge Engine",
-    description: "Instant public & hidden testcase evaluation",
+    description: "Instant public and hidden test-case validation with real-time runtime benchmarks, execution memory profiles, and detailed error stacks.",
     route: "problems" as Route,
     badge: "Test Runner",
   },
   {
     icon: Compass,
     title: "Structured Roadmaps",
-    description: "Zero to mastery tracks for DSA & Web Dev",
+    description: "Zero to production-ready tracks for algorithms, data structures, and modern full-stack web development with guided milestones.",
     route: "courses" as Route,
     badge: "Guided Tracks",
   },
 ];
 
-function CoreServicesSection({ navigate }: { navigate: (to: Route | string) => void }) {
+function CoreFeaturesSection({ navigate }: { navigate: (to: Route | string) => void }) {
   return (
-    <section className="relative rounded-[2rem] bg-white dark:bg-[#0F172A] border border-slate-200/90 dark:border-[#1E293B] shadow-2xl shadow-slate-200/50 dark:shadow-none p-6 sm:p-10 lg:p-14 overflow-hidden">
-      {/* Subtle Ambient Glow */}
-      <div className="pointer-events-none absolute -bottom-28 -right-28 w-96 h-96 rounded-full bg-gradient-to-tl from-[#6366F1]/20 via-[#7C3AED]/15 to-transparent blur-3xl" />
-
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-        {/* Left Column */}
+    <section className="rounded-3xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-6 sm:p-10 lg:p-12 shadow-xs">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        {/* Left Column: Headline and summary */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/25 text-[#4F46E5] dark:text-indigo-300 text-xs sm:text-sm font-semibold">
-            <Layers size={14} className="text-[#6366F1]" />
-            <span>AarCode Services</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F7F8FA] dark:bg-[#1E2022] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
+            <Sparkles size={13} className="text-[#00F076]" />
+            <span>Platform Capabilities</span>
           </div>
 
-          {/* Title */}
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.12] text-slate-900 dark:text-white">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.12] text-[#121314] dark:text-[#ECEDEE]">
             Everything You Need to Master Code
           </h2>
 
-          {/* Subtitle */}
-          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-normal leading-relaxed">
-            Practical tools, interactive editors, and automated test runners to help you learn faster and build real projects.
+          <p className="text-base sm:text-lg text-[#6B7280] dark:text-[#8A9099] font-normal leading-relaxed">
+            Practical tools, interactive editors, and automated test runners engineered to help you learn faster and build real software.
           </p>
 
-          {/* CTA Button */}
           <div className="pt-2">
             <button
               onClick={() => navigate("courses")}
-              className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-gradient-to-r from-[#6366F1] via-[#4F46E5] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-semibold text-base shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-200"
+              className="group inline-flex items-center gap-2.5 px-6 sm:px-7 py-3.5 rounded-xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#111213] hover:bg-slate-50 dark:hover:bg-[#1A1C1D] text-[#121314] dark:text-[#ECEDEE] font-semibold text-sm sm:text-base transition-all hover:-translate-y-0.5 cursor-pointer shadow-xs"
             >
               <span>Explore All Tracks</span>
               <ArrowRight
-                size={18}
-                className="group-hover:translate-x-1 transition-transform duration-200"
+                size={17}
+                className="text-[#6B7280] dark:text-[#8A9099] group-hover:text-[#121314] dark:group-hover:text-[#00F076] group-hover:translate-x-1 transition-all"
               />
             </button>
           </div>
         </div>
 
-        {/* Right Column: 3 Interactive Feature List Cards */}
-        <div className="lg:col-span-7 space-y-4">
-          {CORE_SERVICES.map((service) => {
-            const Icon = service.icon;
+        {/* Right Column: 3 Interactive Feature Cards */}
+        <div className="lg:col-span-7 space-y-3.5">
+          {CORE_FEATURES.map((item) => {
+            const Icon = item.icon;
             return (
               <button
-                key={service.title}
-                onClick={() => navigate(service.route)}
-                className="group w-full text-left rounded-2xl bg-[#F8FAFC] dark:bg-[#090D16] border border-slate-200/90 dark:border-[#1E293B] hover:border-[#6366F1] dark:hover:border-[#6366F1] p-5 sm:p-6 flex items-center justify-between gap-4 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-0.5 transition-all duration-200"
+                key={item.title}
+                onClick={() => navigate(item.route)}
+                className="group w-full text-left rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] hover:border-[#121314] dark:hover:border-[#00F076]/60 p-5 sm:p-6 flex items-center justify-between gap-4 transition-all duration-200 cursor-pointer shadow-xs hover:-translate-y-0.5"
               >
                 <div className="flex items-start sm:items-center gap-4 sm:gap-5">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#6366F1]/15 to-[#7C3AED]/15 dark:from-[#6366F1]/20 dark:to-[#7C3AED]/20 border border-indigo-500/25 flex items-center justify-center text-[#6366F1] dark:text-indigo-400 group-hover:bg-[#6366F1] group-hover:text-white transition-all duration-200 shrink-0">
-                    <Icon size={24} />
+                  <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] flex items-center justify-center text-[#121314] dark:text-[#00F076] group-hover:border-[#00F076]/40 transition-all shrink-0">
+                    <Icon size={22} />
                   </div>
                   <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <h3 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white group-hover:text-[#6366F1] dark:group-hover:text-indigo-400 transition-colors">
-                        {service.title}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-base sm:text-lg font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-[#121314] dark:group-hover:text-[#00F076] transition-colors">
+                        {item.title}
                       </h3>
-                      <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300 border border-indigo-500/20">
-                        {service.badge}
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white dark:bg-[#151718] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#202425]">
+                        {item.badge}
                       </span>
                     </div>
-                    <p className="text-sm sm:text-base font-normal text-slate-600 dark:text-slate-400">
-                      {service.description}
+                    <p className="text-xs sm:text-sm font-normal text-[#6B7280] dark:text-[#8A9099] leading-relaxed">
+                      {item.description}
                     </p>
                   </div>
                 </div>
 
-                {/* Hover Arrow */}
-                <div className="w-10 h-10 rounded-full border border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#0F172A] group-hover:bg-[#6366F1] group-hover:border-[#6366F1] flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:text-white transition-all duration-200 shrink-0">
-                  <ArrowUpRight
-                    size={18}
-                    className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200"
-                  />
+                <div className="w-8 h-8 rounded-lg border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] flex items-center justify-center text-[#6B7280] dark:text-[#8A9099] group-hover:text-[#121314] dark:group-hover:text-[#00F076] group-hover:border-[#00F076]/40 transition-all shrink-0">
+                  <ArrowUpRight size={15} />
                 </div>
               </button>
             );
