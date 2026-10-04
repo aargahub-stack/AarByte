@@ -37,6 +37,8 @@ import { progressStorage } from "@/services/storage/progressStorage";
 import { enrollmentStorage } from "@/services/storage/enrollmentStorage";
 import { DEMO_COURSES } from "@/data/demoCourses";
 import { supabase } from "@/services/supabase";
+import { planStorage } from "@/services/storage/planStorage";
+import { ProUpgradeModal } from "@/components/modals/ProUpgradeModal";
 import { cn } from "@/utils/cn";
 
 export interface ModuleTaskItem {
@@ -773,6 +775,13 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
   const [customRunResult, setCustomRunResult] = useState<ExecutionResult | null>(null);
   const [executionError, setExecutionError] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [showProModal, setShowProModal] = useState(false);
+
+  const isTaskPro = Boolean(
+    (task as any)?.is_pro_only ||
+    task?.hints?.some((h) => typeof h === "string" && (h.includes("Pro: true") || h.includes("Pro Tier"))) ||
+    (courseContext?.moduleTitle && /Module [5-9]|Pro Tier/i.test(courseContext.moduleTitle))
+  );
 
   useEffect(() => {
     setActiveTaskId(taskId);
@@ -1012,6 +1021,10 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
   // Run code against test cases or custom stdin
   const handleRunCode = async () => {
     if (!task) return;
+    if (isTaskPro && !planStorage.isProUser()) {
+      setShowProModal(true);
+      return;
+    }
     if (activeTab === "custom") {
       await handleRunCustomTest();
       return;
@@ -1088,6 +1101,10 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
   // Submit against ALL test cases (Public + Hidden)
   const handleSubmit = async () => {
     if (!task) return;
+    if (isTaskPro && !planStorage.isProUser()) {
+      setShowProModal(true);
+      return;
+    }
 
     setIsSubmitting(true);
     setActiveTab("result");
@@ -1972,54 +1989,75 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="rounded-2xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] p-4 space-y-2 shadow-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-[#121314] dark:text-[#ECEDEE] flex items-center gap-2">
-                        <Lock size={14} className="text-[#8A9099]" />
-                        <span>Benchmark Case 1: Edge Cases & Zero Boundaries</span>
-                      </span>
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#202425]">
-                        {judgeResult?.status === "passed" ? "Passed" : "Locked"}
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#6B7280] dark:text-[#8A9099]">
-                      Verifies minimum constraint edge cases, empty boundaries, and single-element inputs.
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] p-4 space-y-2 shadow-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-[#121314] dark:text-[#ECEDEE] flex items-center gap-2">
-                        <Lock size={14} className="text-[#8A9099]" />
-                        <span>Benchmark Case 2: Maximum Input Scale & Timeout</span>
-                      </span>
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#202425]">
-                        {judgeResult?.status === "passed" ? "Passed" : "Locked"}
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#6B7280] dark:text-[#8A9099]">
-                      Stress tests runtime performance against maximal input size to verify asymptotic complexity.
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 flex items-center justify-between shadow-xs">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
-                        <Award size={20} />
+                  {!planStorage.isProUser() ? (
+                    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 space-y-3">
+                      <div className="flex items-center gap-2.5 text-amber-500 font-bold text-sm">
+                        <Lock size={18} />
+                        <span>Pro Feature: Hidden Test-Case Diagnostics</span>
                       </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-[#121314] dark:text-[#ECEDEE]">
-                          Submission Completion Reward
-                        </h4>
-                        <p className="text-[11px] text-[#6B7280] dark:text-[#8A9099]">
-                          Passing all sample and hidden tests unlocks full completion credit.
+                      <p className="text-xs text-[#6B7280] dark:text-[#8A9099] leading-relaxed">
+                        Upgrade to Pro Coder for ₹49/month to unlock all advanced DSA tracks, hidden test cases, and company roadmaps.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setShowProModal(true)}
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-emerald-500 text-white font-bold text-xs shadow-md hover:opacity-95 transition-all"
+                      >
+                        Upgrade to Pro Coder (₹49/mo) →
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="rounded-2xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] p-4 space-y-2 shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-xs text-[#121314] dark:text-[#ECEDEE] flex items-center gap-2">
+                            <Lock size={14} className="text-[#8A9099]" />
+                            <span>Benchmark Case 1: Edge Cases & Zero Boundaries</span>
+                          </span>
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#202425]">
+                            {judgeResult?.status === "passed" ? "Passed" : "Locked"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#6B7280] dark:text-[#8A9099]">
+                          Verifies minimum constraint edge cases, empty boundaries, and single-element inputs.
                         </p>
                       </div>
-                    </div>
-                    <span className="text-sm font-bold font-mono text-amber-500">
-                      +{task.points || 10} XP
-                    </span>
-                  </div>
+
+                      <div className="rounded-2xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] p-4 space-y-2 shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-xs text-[#121314] dark:text-[#ECEDEE] flex items-center gap-2">
+                            <Lock size={14} className="text-[#8A9099]" />
+                            <span>Benchmark Case 2: Maximum Input Scale & Timeout</span>
+                          </span>
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#202425]">
+                            {judgeResult?.status === "passed" ? "Passed" : "Locked"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#6B7280] dark:text-[#8A9099]">
+                          Stress tests runtime performance against maximal input size to verify asymptotic complexity.
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 flex items-center justify-between shadow-xs">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
+                            <Award size={20} />
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-[#121314] dark:text-[#ECEDEE]">
+                              Submission Completion Reward
+                            </h4>
+                            <p className="text-[11px] text-[#6B7280] dark:text-[#8A9099]">
+                              Passing all sample and hidden tests unlocks full completion credit.
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-sm font-bold font-mono text-amber-500">
+                          +{task.points || 10} XP
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -2402,6 +2440,11 @@ export function TaskArenaPage({ taskId, theme, navigate }: TaskArenaPageProps) {
           </div>
         </div>
       )}
+
+      <ProUpgradeModal
+        isOpen={showProModal}
+        onClose={() => setShowProModal(false)}
+      />
     </div>
   );
 }

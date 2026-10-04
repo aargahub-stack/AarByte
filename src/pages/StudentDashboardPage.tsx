@@ -25,6 +25,7 @@ import {
   ChevronDown,
   ChevronUp,
   RotateCcw,
+  Users,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/services/supabase";
@@ -91,7 +92,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
     courseSlug: "python-dsa",
     modulesCount: 3,
     durationEst: "3 Months",
-    totalProblems: 180,
+    totalProblems: 84,
     practiceAreas: [
       {
         title: "Arrays & Two Pointers",
@@ -135,7 +136,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
     courseSlug: "cpp-competitive-core",
     modulesCount: 4,
     durationEst: "4 Months",
-    totalProblems: 220,
+    totalProblems: 103,
     practiceAreas: [
       {
         title: "Fast I/O & STL Vectors",
@@ -179,7 +180,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
     courseSlug: "java-core-algorithms",
     modulesCount: 5,
     durationEst: "4 Months",
-    totalProblems: 195,
+    totalProblems: 86,
     practiceAreas: [
       {
         title: "Strings & Frequency Arrays",
@@ -223,7 +224,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
     courseSlug: "javascript-mastery",
     modulesCount: 4,
     durationEst: "3 Months",
-    totalProblems: 160,
+    totalProblems: 69,
     practiceAreas: [
       {
         title: "Array Transforms & Closures",
@@ -267,7 +268,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
     courseSlug: "cpp-competitive-core",
     modulesCount: 3,
     durationEst: "3 Months",
-    totalProblems: 130,
+    totalProblems: 71,
     practiceAreas: [
       {
         title: "Pointers & Memory Allocation",
@@ -324,8 +325,14 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
           courseService.getLeaderboard(5),
         ]);
 
-        const activeCourses =
+        const rawCourses =
           fetchedCourses && fetchedCourses.length > 0 ? fetchedCourses : DEMO_COURSES;
+        // Filter out dummy test courses like "Entry Course (Study well)"
+        const activeCourses = rawCourses.filter((c) => {
+          const t = (c.title || "").toLowerCase();
+          const d = (c.description || "").toLowerCase();
+          return !t.includes("entry course") && !d.includes("study well");
+        });
         setCourses(activeCourses);
 
         if (fetchedLeaderboard) {
@@ -396,13 +403,13 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
         setProgressMap(mergedProgress);
 
-        // 3. Sync all active database courses into enrollment so all curriculum tracks are immediately accessible
-        activeCourses.forEach((c) => {
-          enrollmentStorage.enroll(c.id);
-          if (c.slug && c.slug !== "#") enrollmentStorage.enroll(c.slug);
-        });
-        const storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers();
-        setEnrolledIds(storedEnrolled);
+        // 3. User enrolled tracks (scoped to user.id)
+        if (user?.id) {
+          const storedEnrolled = enrollmentStorage.getEnrolledCourseIdentifiers(user.id);
+          setEnrolledIds(storedEnrolled);
+        } else {
+          setEnrolledIds([]);
+        }
       } catch (err) {
         console.error("[StudentDashboard] Error loading data:", err);
       } finally {
@@ -413,7 +420,11 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
     loadDashboardData();
 
     const handleSync = () => {
-      setEnrolledIds(enrollmentStorage.getEnrolledCourseIdentifiers());
+      if (user?.id) {
+        setEnrolledIds(enrollmentStorage.getEnrolledCourseIdentifiers(user.id));
+      } else {
+        setEnrolledIds([]);
+      }
       loadDashboardData();
     };
     window.addEventListener("aarcode_progress_updated", handleSync);
@@ -449,17 +460,23 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
       ? "Good Afternoon"
       : "Good Evening";
 
-  // Filter ONLY enrolled courses for the "Continue Learning" section
+  // Filter ONLY enrolled courses for the "Continue Learning" section (excluding dummy tracks)
   const enrolledCourses = useMemo(() => {
     return courses
       .filter((course) => {
+        const t = (course.title || "").toLowerCase();
+        const d = (course.description || "").toLowerCase();
+        if (t.includes("entry course") || d.includes("study well")) {
+          return false;
+        }
+
         const taskIds = course.modules.flatMap((m) => (m.tasks || []).map((t) => t.id));
         const hasSolvedAny = taskIds.some((t) => progressMap[t]?.is_completed);
         return (
           hasSolvedAny ||
           enrolledIds.includes(course.id) ||
           (course.slug && enrolledIds.includes(course.slug)) ||
-          enrollmentStorage.isEnrolled(course.id, course.slug, taskIds)
+          enrollmentStorage.isEnrolled(course.id, course.slug, taskIds, user?.id)
         );
       })
       .sort((a, b) => {
@@ -470,16 +487,259 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
         if (bSolved !== aSolved) return bSolved - aSolved;
         return a.title.localeCompare(b.title);
       });
-  }, [courses, enrolledIds, progressMap]);
+  }, [courses, enrolledIds, progressMap, user?.id]);
 
-  // Dynamic Featured Course from real database courses
-  const featuredCourse = courses[0] || DEMO_COURSES[0];
-  const featuredSlug =
-    featuredCourse?.slug && featuredCourse.slug !== "#"
-      ? featuredCourse.slug
-      : featuredCourse?.id || "python-dsa";
-  const featuredTasksCount =
-    featuredCourse?.modules?.flatMap((m) => m.tasks || []).length || 0;
+  // =========================================================================
+  // DYNAMIC HERO CTA SMART RESOLVER (4 Priorities - Requirement 2)
+  // =========================================================================
+  const heroCta = useMemo(() => {
+    const activeTrack =
+      enrolledCourses[0] ||
+      courses.find((c) => c.slug === "basics-to-advanced-dsa") ||
+      courses[0] ||
+      DEMO_COURSES[0];
+
+    if (!activeTrack) {
+      return {
+        label: "Start Basics: Variables & I/O →",
+        action: () => navigate("courses"),
+      };
+    }
+
+    // Priority 4 (Part A): Brand new user (0 solved tasks)
+    if (solvedTasksCount === 0) {
+      const firstMod = activeTrack.modules[0];
+      const firstTask = firstMod?.tasks?.[0];
+      return {
+        label: firstTask
+          ? `Start Basics: ${firstTask.title} (${firstMod.title.split(":")[0]}) →`
+          : "Start Learning Basics →",
+        action: () => {
+          if (firstTask) {
+            navigate("task", { taskId: firstTask.id });
+          } else {
+            navigate("course", { slug: activeTrack.slug || activeTrack.id });
+          }
+        },
+      };
+    }
+
+    // Priority 1 & 2: Check current track modules
+    let currentModuleIndex = -1;
+    let inProgressModule: any = null;
+    let firstUnsolvedInModule: any = null;
+
+    for (let i = 0; i < activeTrack.modules.length; i++) {
+      const mod = activeTrack.modules[i];
+      const modTasks = mod.tasks || [];
+      const solvedInMod = modTasks.filter((t) => progressMap[t.id]?.is_completed).length;
+
+      if (solvedInMod < modTasks.length) {
+        currentModuleIndex = i;
+        inProgressModule = mod;
+        firstUnsolvedInModule = modTasks.find((t) => !progressMap[t.id]?.is_completed);
+        break;
+      }
+    }
+
+    // Priority 1: User left unsolved questions in current module
+    if (inProgressModule && firstUnsolvedInModule) {
+      const modShortName = inProgressModule.title.includes(":")
+        ? inProgressModule.title.split(":")[0].trim()
+        : inProgressModule.title;
+      return {
+        label: `Resume: ${firstUnsolvedInModule.title} (${modShortName}) →`,
+        action: () => navigate("task", { taskId: firstUnsolvedInModule.id }),
+      };
+    }
+
+    // Priority 2: Current module 100% finished but next module exists
+    if (currentModuleIndex >= 0 && currentModuleIndex + 1 < activeTrack.modules.length) {
+      const nextMod = activeTrack.modules[currentModuleIndex + 1];
+      const nextTask = nextMod.tasks?.[0];
+      const nextModTitle = nextMod.title.replace(/^Module \d+:\s*/, "");
+      return {
+        label: `Start Next: Module ${nextMod.order_index} - ${nextModTitle} →`,
+        action: () => {
+          if (nextTask) {
+            navigate("task", { taskId: nextTask.id });
+          } else {
+            navigate("course", { slug: activeTrack.slug || activeTrack.id });
+          }
+        },
+      };
+    }
+
+    // Priority 3: Current course is fully finished -> Check other enrolled tracks
+    const otherPendingCourse = enrolledCourses.find((c) => {
+      if (c.id === activeTrack.id) return false;
+      const cTasks = c.modules.flatMap((m) => m.tasks || []);
+      const cSolved = cTasks.filter((t) => progressMap[t.id]?.is_completed).length;
+      return cSolved < cTasks.length;
+    });
+
+    if (otherPendingCourse) {
+      let targetTask: any = null;
+      let targetMod: any = null;
+      for (const mod of otherPendingCourse.modules) {
+        const unsolved = (mod.tasks || []).find((t) => !progressMap[t.id]?.is_completed);
+        if (unsolved) {
+          targetTask = unsolved;
+          targetMod = mod;
+          break;
+        }
+      }
+
+      if (targetTask && targetMod) {
+        const modShortName = targetMod.title.includes(":")
+          ? targetMod.title.split(":")[0].trim()
+          : targetMod.title;
+        return {
+          label: `Resume: ${targetTask.title} (${otherPendingCourse.title.split(" ")[0]} - ${modShortName}) →`,
+          action: () => navigate("task", { taskId: targetTask.id }),
+        };
+      }
+
+      return {
+        label: `Start Track: ${otherPendingCourse.title} →`,
+        action: () => navigate("course", { slug: otherPendingCourse.slug || otherPendingCourse.id }),
+      };
+    }
+
+    // Priority 4 (Part B): All courses finished -> Daily Challenge
+    const dailyChallengeTask =
+      allTasks.find(
+        (t) =>
+          t.slug === "two-sum-hashmap" ||
+          t.slug === "climbing-stairs-dp" ||
+          t.slug === "valid-palindrome-string"
+      ) || allTasks[0];
+
+    return {
+      label: dailyChallengeTask
+        ? `Daily Challenge: ${dailyChallengeTask.title} (Mastery) →`
+        : "Solve Daily Challenge →",
+      action: () => {
+        if (dailyChallengeTask) {
+          navigate("task", { taskId: dailyChallengeTask.id });
+        } else {
+          navigate("problems");
+        }
+      },
+    };
+  }, [enrolledCourses, courses, allTasks, progressMap, solvedTasksCount, navigate]);
+
+  // =========================================================================
+  // ANALYTICS-DRIVEN RECOMMENDATION ENGINE (Requirement 3)
+  // =========================================================================
+  const recommendation = useMemo(() => {
+    const langCounts: Record<string, number> = { java: 0, python: 0, cpp: 0, javascript: 0 };
+    const catCounts: Record<string, number> = {
+      Arrays: 0,
+      Strings: 0,
+      Loops: 0,
+      Recursion: 0,
+      Trees: 0,
+      DP: 0,
+      Basics: 0,
+    };
+
+    allTasks.forEach((t) => {
+      if (progressMap[t.id]?.is_completed) {
+        const lang = (t.language || "").toLowerCase();
+        if (lang.includes("java") && !lang.includes("script")) langCounts.java++;
+        else if (lang.includes("py")) langCounts.python++;
+        else if (lang.includes("c++") || lang.includes("cpp")) langCounts.cpp++;
+        else if (lang.includes("js") || lang.includes("script")) langCounts.javascript++;
+
+        const text = (t.title + " " + t.description).toLowerCase();
+        if (text.includes("array") || text.includes("matrix")) catCounts.Arrays++;
+        else if (text.includes("string") || text.includes("anagram") || text.includes("palindrome")) catCounts.Strings++;
+        else if (text.includes("tree") || text.includes("bst")) catCounts.Trees++;
+        else if (text.includes("recursion") || text.includes("backtrack")) catCounts.Recursion++;
+        else if (text.includes("dynamic") || text.includes("climb") || text.includes("coin")) catCounts.DP++;
+        else if (text.includes("loop") || text.includes("for") || text.includes("while")) catCounts.Loops++;
+        else catCounts.Basics++;
+      }
+    });
+
+    let topLanguage = "Python";
+    let maxLang = 0;
+    Object.entries(langCounts).forEach(([l, cnt]) => {
+      if (cnt > maxLang) {
+        maxLang = cnt;
+        topLanguage = l.toUpperCase();
+      }
+    });
+
+    let topCategory = "Arrays";
+    let maxCat = 0;
+    Object.entries(catCounts).forEach(([c, cnt]) => {
+      if (cnt > maxCat) {
+        maxCat = cnt;
+        topCategory = c;
+      }
+    });
+
+    const allCoursesFinished =
+      enrolledCourses.length > 0 &&
+      enrolledCourses.every((c) => {
+        const cTasks = c.modules.flatMap((m) => m.tasks || []);
+        return cTasks.length > 0 && cTasks.every((t) => progressMap[t.id]?.is_completed);
+      });
+
+    if (allCoursesFinished || solvedTasksCount >= 40) {
+      const interviewCourse =
+        courses.find((c) => c.slug === "zoho-tcs-assessment") ||
+        DEMO_COURSES.find((c) => c.slug === "zoho-tcs-assessment");
+      return {
+        badge: "Curated Interview Track",
+        title: "Zoho & TCS Technical Assessment Track",
+        reason: `Based on your high problem solving benchmark (${solvedTasksCount} challenges solved)`,
+        description:
+          "High-frequency machine coding, spiral matrices, pattern challenges, and real technical round questions from Zoho, TCS Digital, and product companies.",
+        courseSlug: interviewCourse?.slug || "zoho-tcs-assessment",
+      };
+    }
+
+    if (topLanguage.toLowerCase() === "java" || (maxLang === 0 && topCategory === "Arrays")) {
+      const javaCourse =
+        courses.find((c) => c.slug === "java-core-oop") ||
+        DEMO_COURSES.find((c) => c.slug === "java-core-oop");
+      return {
+        badge: "Recommended Next Step",
+        title: "Java Core & Advanced OOP",
+        reason: `Tailored from your ${topLanguage} practice & ${topCategory} focus`,
+        description:
+          "Master JVM memory model (Stack vs Heap), multi-threading, clean design patterns, and enterprise object-oriented algorithmic architectures.",
+        courseSlug: javaCourse?.slug || "java-core-oop",
+      };
+    }
+
+    const nextStepCourse =
+      courses.find((c) => c.slug === "basics-to-advanced-dsa") ||
+      courses[0] ||
+      DEMO_COURSES[0];
+    return {
+      badge: "Next Logical Step Track",
+      title: nextStepCourse?.title || "Basics of Programming to Advanced DSA",
+      reason: `Recommended from your ${topLanguage} problem solving history`,
+      description:
+        nextStepCourse?.description ||
+        "Advance through essential data structures, two-pointers, hash tables, and dynamic programming.",
+      courseSlug: nextStepCourse?.slug || "basics-to-advanced-dsa",
+    };
+  }, [allTasks, progressMap, enrolledCourses, courses, solvedTasksCount]);
+
+  // Problem of the Day (POTD) Dynamic Resolver
+  const potdTask = useMemo(() => {
+    return (
+      allTasks.find((t) => t.slug === "valid-palindrome-string" || t.slug?.includes("palindrome")) ||
+      allTasks.find((t) => t.difficulty === "easy") ||
+      allTasks[0] ||
+      null
+    );
+  }, [allTasks]);
 
   // =========================================================================
   // SMART LANGUAGE & ROADMAP ANALYZER:
@@ -698,18 +958,15 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 of your weekly goal. Keep practicing to level up your engineering skills and climb the leaderboard.
               </p>
 
-              {/* Quick Action Badges */}
               <div className="pt-2 flex flex-wrap items-center gap-3">
-                {nextTask && (
-                  <button
-                    onClick={() => navigate("task", { taskId: nextTask.id })}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all cursor-pointer"
-                  >
-                    <Play size={14} className="fill-[#0C0D0E]" />
-                    <span>Resume: {nextTask.title}</span>
-                    <ArrowRight size={14} />
-                  </button>
-                )}
+                {/* Dynamic Hero CTA Smart Resolver (Requirement 2) */}
+                <button
+                  onClick={heroCta.action}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all cursor-pointer"
+                >
+                  <Play size={14} className="fill-[#0C0D0E]" />
+                  <span>{heroCta.label}</span>
+                </button>
 
                 <button
                   onClick={() => navigate("compiler")}
@@ -828,6 +1085,33 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                     </button>
                   </div>
 
+                  {/* Smart Recommendation Engine Card (Requirement 3) */}
+                  <div className="rounded-2xl bg-white dark:bg-[#151718] border border-emerald-500/30 hover:border-emerald-500/50 p-4 sm:p-5 shadow-xs transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-1.5 max-w-xl">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#00F076]/15 border border-[#00F076]/30 text-emerald-600 dark:text-[#00F076]">
+                          {recommendation.badge}
+                        </span>
+                        <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">
+                          • {recommendation.reason}
+                        </span>
+                      </div>
+                      <h3 className="text-sm sm:text-base font-bold text-[#121314] dark:text-[#ECEDEE]">
+                        <span>{recommendation.title}</span>
+                      </h3>
+                      <p className="text-xs text-[#6B7280] dark:text-[#8A9099] leading-relaxed line-clamp-2">
+                        {recommendation.description}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => navigate("course", { slug: recommendation.courseSlug })}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-bold text-xs shadow-[0_0_15px_rgba(0,240,118,0.2)] active:scale-[0.98] transition-all shrink-0 cursor-pointer self-start md:self-auto"
+                    >
+                      <span>Explore Track</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  </div>
+
                   {/* LIST TYPE PRESENTATION (flex-col rows, clean horizontal cards) */}
                   <div className="flex flex-col gap-3">
                     {(enrolledCourses.length > 0 ? enrolledCourses : courses.slice(0, 3)).map((course, idx) => {
@@ -913,10 +1197,24 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                                 e.stopPropagation();
                                 navigate("course", { slug: courseSlugOrId });
                               }}
-                              className="px-3.5 py-1.5 rounded-xl bg-[#F7F8FA] dark:bg-[#202425] group-hover:bg-[#00F076] text-[#121314] dark:text-[#ECEDEE] group-hover:text-[#0C0D0E] text-xs font-semibold inline-flex items-center gap-1 transition-all shadow-xs shrink-0 cursor-pointer"
+                              className={cn(
+                                "px-3.5 py-1.5 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-xs shrink-0 cursor-pointer",
+                                coursePct >= 100
+                                  ? "bg-transparent border border-emerald-500/40 text-emerald-600 dark:text-[#00F076] hover:bg-emerald-500/10"
+                                  : "bg-[#F7F8FA] dark:bg-[#202425] group-hover:bg-[#00F076] text-[#121314] dark:text-[#ECEDEE] group-hover:text-[#0C0D0E]"
+                              )}
                             >
-                              <span>{courseSolved > 0 ? "Resume" : "Start"}</span>
-                              <ArrowRight size={13} />
+                              {coursePct >= 100 ? (
+                                <>
+                                  <Check size={13} strokeWidth={2.5} />
+                                  <span>Review Track</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{courseSolved > 0 ? "Resume" : "Start"}</span>
+                                  <ArrowRight size={13} />
+                                </>
+                              )}
                             </button>
                           </div>
                         </div>
@@ -926,97 +1224,70 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 </div>
 
                 {/* -------------------------------------------------------------
-                    FEATURED TRACK OF THE MONTH (Dynamic from DB)
+                    DAILY PROBLEM OF THE DAY (POTD) CARD
                 ------------------------------------------------------------- */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2.5">
-                    <h2 className="text-lg sm:text-xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] flex items-center gap-2">
-                      <Award size={19} className="text-emerald-500" />
-                      <span>Featured Track of the Month</span>
-                    </h2>
-                    <span className="text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-[#00F076]">
-                      Spotlight
-                    </span>
+                <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 sm:p-6 shadow-xs hover:border-emerald-500/40 transition-all space-y-4 group">
+                  {/* Header Row: Badge & XP Reward Pill */}
+                  <div className="flex items-center justify-between gap-3 border-b border-[#E5E7EB] dark:border-[#202425] pb-3.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 shadow-2xs">
+                        <Zap size={13} className="fill-amber-500 text-amber-500" />
+                        <span>PROBLEM OF THE DAY</span>
+                      </span>
+                      <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium hidden xs:inline">
+                        • Daily Challenge
+                      </span>
+                    </div>
+
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-600 dark:text-[#00F076] text-xs font-bold font-mono shrink-0">
+                      <Award size={13} className="text-emerald-500" />
+                      <span>+30 XP</span>
+                    </div>
                   </div>
 
-                  <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 sm:p-6 shadow-xs hover:border-emerald-500/40 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-5">
-                    <div className="flex items-start gap-4">
-                      {/* Visual Track Badge / Thumbnail */}
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col items-center justify-center shrink-0">
-                        <div className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-[#00F076] tracking-wider font-mono">
-                          {featuredCourse.title.slice(0, 3).toUpperCase()}
-                        </div>
-                        <Layers size={17} className="text-emerald-500 mt-1" />
+                  {/* Body Content & CTA Action */}
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+                    <div className="space-y-2 max-w-xl">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-base sm:text-lg font-bold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors">
+                          {potdTask?.title || "Valid Palindrome II"}
+                        </h3>
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20">
+                          {potdTask?.difficulty || "Easy"}
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#6B7280] dark:text-[#8A9099]">
+                          Two Pointers / Strings
+                        </span>
                       </div>
 
-                      <div className="space-y-1.5 max-w-xl">
-                        <h3 className="text-base sm:text-lg font-semibold text-[#121314] dark:text-[#ECEDEE]">
-                          {featuredCourse.title}
-                        </h3>
-                        <p className="text-xs sm:text-sm font-normal text-[#6B7280] dark:text-[#8A9099] leading-relaxed">
-                          {featuredCourse.description ||
-                            "Master algorithmic problem solving, clean code patterns, and interview readiness with live sandbox evaluation."}
-                        </p>
+                      <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#8A9099] leading-relaxed line-clamp-2">
+                        {potdTask?.description?.replace(/###.*/g, "").trim() ||
+                          "Given a string s, return true if the string can be palindrome after deleting at most one character from it. Verify your two-pointer approach against corner-case edge tests."}
+                      </p>
 
-                        <div className="flex flex-wrap items-center gap-2 pt-1 text-xs font-medium text-[#6B7280] dark:text-[#8A9099]">
-                          <span className="px-2.5 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
-                            {featuredCourse.modules.length} Modules
-                          </span>
-                          <span className="px-2.5 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
-                            {featuredTasksCount} Practice Tasks
-                          </span>
-                          <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20">
-                            Curated Curriculum
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-1.5 text-xs text-[#6B7280] dark:text-[#8A9099] pt-0.5 font-medium">
+                        <Users size={13} className="text-emerald-500" />
+                        <span>Solved by 380+ students today</span>
                       </div>
                     </div>
 
                     <div className="shrink-0 flex sm:flex-col items-center gap-2">
                       <button
-                        onClick={() => navigate("course", { slug: featuredSlug })}
-                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all cursor-pointer"
+                        onClick={() => {
+                          if (potdTask?.id) {
+                            navigate("task", { taskId: potdTask.id });
+                          } else {
+                            navigate("problems");
+                          }
+                        }}
+                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all cursor-pointer"
                       >
-                        <span>Start Track</span>
+                        <span>Solve Now</span>
                         <ArrowRight size={14} />
                       </button>
                     </div>
                   </div>
                 </div>
-
-                {/* -------------------------------------------------------------
-                    RECOMMENDED NEXT CHALLENGE (Quick Action Card)
-                ------------------------------------------------------------- */}
-                {nextTask && (
-                  <div className="rounded-2xl bg-[#151718] text-[#ECEDEE] p-5 sm:p-6 shadow-sm border border-[#202425] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="space-y-1.5 max-w-xl">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20">
-                          Next Coding Challenge
-                        </span>
-                        <span className="text-xs text-[#8A9099] font-medium">
-                          {nextTask.difficulty || "Medium"}
-                        </span>
-                      </div>
-                      <h4 className="text-base sm:text-lg font-semibold text-[#ECEDEE]">
-                        {nextTask.title}
-                      </h4>
-                      <p className="text-xs text-[#8A9099] line-clamp-2">
-                        {nextTask.description ||
-                          "Solve this challenge to level up your engineering skills and increase your streak score."}
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => navigate("task", { taskId: nextTask.id })}
-                      className="px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] text-xs sm:text-sm font-semibold inline-flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,240,118,0.22)] shrink-0 transition-all cursor-pointer"
-                    >
-                      <Play size={13} className="fill-[#0C0D0E]" />
-                      <span>Solve Now</span>
-                      <ArrowRight size={13} />
-                    </button>
-                  </div>
-                )}
               </div>
 
               {/* ===============================================================
@@ -1191,17 +1462,6 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       <span className="flex items-center gap-2">
                         <TrendingUp size={14} />
                         <span>Explore Full Analytics</span>
-                      </span>
-                      <ArrowRight size={13} />
-                    </button>
-
-                    <button
-                      onClick={() => navigate("compiler")}
-                      className="w-full py-2 px-4 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] hover:bg-[#E5E7EB] dark:hover:bg-[#202425] text-[#121314] dark:text-[#ECEDEE] text-xs font-semibold flex items-center justify-between transition-all border border-[#E5E7EB] dark:border-[#202425] cursor-pointer"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Terminal size={13} className="text-[#8A9099]" />
-                        <span>Launch Compiler Playground</span>
                       </span>
                       <ArrowRight size={13} />
                     </button>
@@ -1497,7 +1757,9 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                         <span>•</span>
                         <span className="flex items-center gap-1.5">
                           <Target size={14} className="text-emerald-500" />
-                          <span>{activeRoadmapConfig.totalProblems} Problems</span>
+                          <span>
+                            {activeRoadmapConfig.practiceAreas.reduce((acc, a) => acc + a.problemCount, 0)} Problems
+                          </span>
                         </span>
                       </div>
                     </div>

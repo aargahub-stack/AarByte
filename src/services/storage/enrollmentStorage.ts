@@ -1,17 +1,43 @@
 import { progressStorage } from "./progressStorage";
 
-const STORAGE_KEY = "aarcode_enrolled_courses";
-
 export const enrollmentStorage = {
   /**
-   * Get list of enrolled course identifiers (IDs or slugs)
+   * Get the localStorage key scoped to the authenticated user.
    */
-  getEnrolledCourseIdentifiers(): string[] {
+  getStorageKey(userId?: string): string {
+    return userId ? `aarcode_enrolled_courses_${userId}` : "aarcode_enrolled_courses_guest";
+  },
+
+  /**
+   * Get list of enrolled course identifiers (IDs or slugs) for a specific user.
+   * If no user is logged in, returns an empty array.
+   */
+  getEnrolledCourseIdentifiers(userId?: string): string[] {
+    if (!userId) {
+      return [];
+    }
+
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
+      // 1. Check user-scoped storage key
+      const userKey = this.getStorageKey(userId);
+      const raw = localStorage.getItem(userKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+
+      // 2. One-time migration from legacy key if user-scoped key is empty
+      const legacyRaw = localStorage.getItem("aarcode_enrolled_courses");
+      if (legacyRaw) {
+        const legacyParsed = JSON.parse(legacyRaw);
+        if (Array.isArray(legacyParsed) && legacyParsed.length > 0) {
+          localStorage.setItem(userKey, JSON.stringify(legacyParsed));
+          localStorage.removeItem("aarcode_enrolled_courses");
+          return legacyParsed;
+        }
+      }
+
+      return [];
     } catch (e) {
       console.warn("[enrollmentStorage] Failed to read enrolled courses:", e);
       return [];
@@ -19,41 +45,44 @@ export const enrollmentStorage = {
   },
 
   /**
-   * Check if a course is enrolled either explicitly or via completed tasks in that course.
+   * Check if a course is enrolled by the authenticated user.
+   * Unauthenticated guests are never enrolled.
    */
-  isEnrolled(courseId: string, courseSlug?: string, taskIds: string[] = []): boolean {
-    const enrolled = this.getEnrolledCourseIdentifiers();
-    if (enrolled.includes(courseId) || (courseSlug && enrolled.includes(courseSlug))) {
-      return true;
+  isEnrolled(
+    courseId: string,
+    courseSlug?: string,
+    taskIds: string[] = [],
+    userId?: string
+  ): boolean {
+    if (!userId) {
+      return false;
     }
 
-    // Auto-enroll if the user has solved any task in this course
-    if (taskIds.length > 0) {
-      const completed = progressStorage.getCompletedTasks();
-      const hasSolvedAny = taskIds.some((id) => completed[id]?.is_completed);
-      if (hasSolvedAny) {
-        // Persist the enrollment so it remains explicitly remembered
-        this.enroll(courseId);
-        if (courseSlug) this.enroll(courseSlug);
-        return true;
-      }
+    const enrolled = this.getEnrolledCourseIdentifiers(userId);
+    if (enrolled.includes(courseId) || (courseSlug && enrolled.includes(courseSlug))) {
+      return true;
     }
 
     return false;
   },
 
   /**
-   * Enroll the user in a course
+   * Enroll the authenticated user in a course.
    */
-  enroll(courseIdOrSlug: string): void {
+  enroll(courseIdOrSlug: string, userId?: string): void {
+    if (!userId) {
+      return;
+    }
+
     try {
-      const current = this.getEnrolledCourseIdentifiers();
+      const userKey = this.getStorageKey(userId);
+      const current = this.getEnrolledCourseIdentifiers(userId);
       if (!current.includes(courseIdOrSlug)) {
         current.push(courseIdOrSlug);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+        localStorage.setItem(userKey, JSON.stringify(current));
         window.dispatchEvent(
           new CustomEvent("aarcode_enrollment_updated", {
-            detail: { courseIdOrSlug, enrolled: true },
+            detail: { courseIdOrSlug, enrolled: true, userId },
           })
         );
       }
@@ -63,16 +92,21 @@ export const enrollmentStorage = {
   },
 
   /**
-   * Unenroll from a course
+   * Unenroll the authenticated user from a course.
    */
-  unenroll(courseIdOrSlug: string): void {
+  unenroll(courseIdOrSlug: string, userId?: string): void {
+    if (!userId) {
+      return;
+    }
+
     try {
-      let current = this.getEnrolledCourseIdentifiers();
+      const userKey = this.getStorageKey(userId);
+      let current = this.getEnrolledCourseIdentifiers(userId);
       current = current.filter((id) => id !== courseIdOrSlug);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+      localStorage.setItem(userKey, JSON.stringify(current));
       window.dispatchEvent(
         new CustomEvent("aarcode_enrollment_updated", {
-          detail: { courseIdOrSlug, enrolled: false },
+          detail: { courseIdOrSlug, enrolled: false, userId },
         })
       );
     } catch (e) {

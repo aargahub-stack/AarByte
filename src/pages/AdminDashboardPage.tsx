@@ -31,6 +31,7 @@ import {
   HelpCircle,
   Menu,
   X,
+  Lock,
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { adminService } from "@/services/adminService";
@@ -1215,6 +1216,37 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       </div>
 
                       <div className="flex items-center gap-2">
+                        {/* Course Enrollment Status Toggle ('open' | 'closed') */}
+                        <button
+                          type="button"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            const currentStatus = (c as any).enrollment_status || "open";
+                            const nextStatus = currentStatus === "open" ? "closed" : "open";
+                            try {
+                              await supabase.from("courses").update({ enrollment_status: nextStatus }).eq("id", c.id);
+                              setCourses((prev) =>
+                                prev.map((item) =>
+                                  item.id === c.id ? ({ ...item, enrollment_status: nextStatus } as any) : item
+                                )
+                              );
+                              showToast("success", `Track enrollment set to ${nextStatus.toUpperCase()}`);
+                            } catch (err) {
+                              showToast("error", "Failed to update enrollment status");
+                            }
+                          }}
+                          className={cn(
+                            "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase transition-all flex items-center gap-1 cursor-pointer",
+                            ((c as any).enrollment_status || "open") === "open"
+                              ? "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border border-emerald-500/30 hover:bg-emerald-500/25"
+                              : "bg-rose-500/15 text-rose-500 border border-rose-500/30 hover:bg-rose-500/25"
+                          )}
+                          title="Click to toggle Enrollment: Open / Closed"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                          <span>{((c as any).enrollment_status || "open") === "open" ? "Open" : "Closed"}</span>
+                        </button>
+
                         <span
                           className={cn(
                             "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
@@ -1287,6 +1319,35 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
+                            {/* Module Pro Tier Toggle ('Free Starter' vs 'Pro ₹49') */}
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const nextPro = !(m as any).is_pro_only;
+                                try {
+                                  await supabase.from("modules").update({ is_pro_only: nextPro }).eq("id", m.id);
+                                  setModules((prev) =>
+                                    prev.map((item) =>
+                                      item.id === m.id ? ({ ...item, is_pro_only: nextPro } as any) : item
+                                    )
+                                  );
+                                  showToast("success", `Module tier set to ${nextPro ? "Pro (₹49)" : "Starter Free"}`);
+                                } catch (err) {
+                                  showToast("error", "Failed to update module tier");
+                                }
+                              }}
+                              className={cn(
+                                "inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border cursor-pointer",
+                                (m as any).is_pro_only
+                                  ? "bg-amber-500/15 text-amber-500 border-amber-500/30 hover:bg-amber-500/25"
+                                  : "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border-emerald-500/30 hover:bg-emerald-500/25"
+                              )}
+                              title="Toggle Module Access Tier: Free Starter vs Pro ₹49"
+                            >
+                              <Lock size={12} />
+                              <span>{(m as any).is_pro_only ? "Pro (₹49)" : "Starter"}</span>
+                            </button>
+
                             <button
                               onClick={() => handleOpenEditModule(m)}
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300 hover:bg-[#6366F1] hover:text-white text-xs font-bold transition-all"
@@ -1420,6 +1481,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                           <th className="py-3 px-4">Track / Module</th>
                           <th className="py-3 px-4">Language</th>
                           <th className="py-3 px-4">Difficulty</th>
+                          <th className="py-3 px-4">Tier</th>
                           <th className="py-3 px-4">Points</th>
                           <th className="py-3 px-4 text-right">Actions</th>
                         </tr>
@@ -1450,6 +1512,36 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                               >
                                 {t.difficulty}
                               </span>
+                            </td>
+                            <td className="py-3 px-4">
+                              {/* Task is_pro_only toggle */}
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  const nextPro = !(t as any).is_pro_only;
+                                  try {
+                                    await supabase.from("tasks").update({ is_pro_only: nextPro }).eq("id", t.id);
+                                    setAllTasks((prev) =>
+                                      prev.map((item) =>
+                                        item.id === t.id ? ({ ...item, is_pro_only: nextPro } as any) : item
+                                      )
+                                    );
+                                    showToast("success", `Question tier set to ${nextPro ? "Pro (₹49)" : "Starter Free"}`);
+                                  } catch (err) {
+                                    showToast("error", "Failed to update question tier");
+                                  }
+                                }}
+                                className={cn(
+                                  "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition-all flex items-center gap-1 border cursor-pointer",
+                                  (t as any).is_pro_only
+                                    ? "bg-amber-500/15 text-amber-500 border-amber-500/30 hover:bg-amber-500/25"
+                                    : "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border-emerald-500/30 hover:bg-emerald-500/25"
+                                )}
+                                title="Click to toggle Pro vs Free Starter"
+                              >
+                                <Lock size={10} />
+                                <span>{(t as any).is_pro_only ? "Pro" : "Starter"}</span>
+                              </button>
                             </td>
                             <td className="py-3 px-4 font-mono font-bold text-amber-500">
                               +{t.points || 10} XP
