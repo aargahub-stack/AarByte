@@ -1,33 +1,24 @@
 import { useState, useEffect } from "react";
 import {
   ChevronLeft,
-  ChevronDown,
-  ChevronUp,
   CheckCircle2,
   Lock,
-  PlayCircle,
   Clock,
-  Zap,
   ArrowRight,
   Code2,
   BookOpen,
-  Trophy,
   Loader2,
   Plus,
   Check,
-  GraduationCap,
   Play,
   ExternalLink,
   Copy,
   CheckCheck,
   Video,
-  FileText,
-  Lightbulb,
   Terminal,
-  Layers,
 } from "lucide-react";
 import { courseService } from "@/services/courseService";
-import type { CourseWithModules, Task, UserTaskProgress, Module } from "@/types/database.types";
+import type { CourseWithModules, Task, UserTaskProgress } from "@/types/database.types";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import { enrollmentStorage } from "@/services/storage/enrollmentStorage";
@@ -42,7 +33,7 @@ interface CourseDetailsPageProps {
   navigate: (to: string, params?: Record<string, string>) => void;
 }
 
-type ModuleTabMode = "about" | "youtube" | "tasks";
+type ModuleTabMode = "tasks" | "about" | "youtube";
 
 export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
   const { user } = useAuth();
@@ -50,8 +41,8 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
   const [course, setCourse] = useState<CourseWithModules | null>(null);
   const [progressMap, setProgressMap] = useState<Record<string, UserTaskProgress>>({});
   const [isEnrolled, setIsEnrolled] = useState(false);
-  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
-  const [moduleTabs, setModuleTabs] = useState<Record<string, ModuleTabMode>>({});
+  const [activeModuleId, setActiveModuleId] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<ModuleTabMode>("tasks");
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,22 +56,21 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
         const { data, error: courseErr } = await courseService.getCourseBySlug(slug);
 
         if (courseErr || !data) {
-          // Fallback if not found in db yet
           const { data: allCourses } = await courseService.getCourses();
           const found =
             (allCourses || []).find((c) => c.slug === slug || c.id === slug) ||
             DEMO_COURSES.find((c) => c.slug === slug || c.id === slug);
           if (found) {
             setCourse(found);
-            initAccordion(found);
             loadProgress(found);
+            initActiveModule(found);
           } else {
             setError("Course not found");
           }
         } else {
           setCourse(data);
-          initAccordion(data);
           loadProgress(data);
+          initActiveModule(data);
         }
       } catch (err: any) {
         setError(err.message || "Failed to load course");
@@ -119,17 +109,13 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
       setIsEnrolled(enrolled);
     }
 
-    function initAccordion(c: CourseWithModules) {
-      // By default open the first 2 modules
-      const initial: Record<string, boolean> = {};
-      const initialTabs: Record<string, ModuleTabMode> = {};
-      c.modules.forEach((mod, idx) => {
-        initial[mod.id] = idx < 2;
-        // Default to "tasks" or "about"
-        initialTabs[mod.id] = "tasks";
-      });
-      setExpandedModules(initial);
-      setModuleTabs(initialTabs);
+    function initActiveModule(c: CourseWithModules) {
+      if (c.modules.length > 0) {
+        setActiveModuleId((prev) => {
+          if (prev && c.modules.some((m) => m.id === prev)) return prev;
+          return c.modules[0].id;
+        });
+      }
     }
 
     loadCourse();
@@ -147,20 +133,6 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
     }
   };
 
-  const toggleModule = (moduleId: string) => {
-    setExpandedModules((prev) => ({
-      ...prev,
-      [moduleId]: !prev[moduleId],
-    }));
-  };
-
-  const setModuleTab = (moduleId: string, tab: ModuleTabMode) => {
-    setModuleTabs((prev) => ({
-      ...prev,
-      [moduleId]: tab,
-    }));
-  };
-
   const handleCopyCode = (id: string, code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCodeId(id);
@@ -168,7 +140,6 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
     showToast("success", "Code snippet copied to clipboard");
   };
 
-  // Convert standard YouTube URLs to Embed URLs
   const getYouTubeEmbedUrl = (url: string | null | undefined): string | null => {
     if (!url) return null;
     try {
@@ -189,9 +160,9 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center py-20 bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#6B7280] dark:text-[#8A9099] font-urbanist">
-        <Loader2 size={32} className="animate-spin text-emerald-500 mb-2" />
-        <span className="ml-3 text-sm font-medium">Loading course curriculum...</span>
+      <div className="min-h-screen flex items-center justify-center py-20 bg-[#F7F8FA] dark:bg-[#0C0D0E] text-slate-700 dark:text-zinc-400 font-urbanist">
+        <Loader2 size={28} className="animate-spin text-emerald-500 mb-2" />
+        <span className="ml-3 text-xs sm:text-sm font-semibold">Loading curriculum workspace...</span>
       </div>
     );
   }
@@ -199,604 +170,716 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
   if (error || !course) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center py-20 px-4 bg-[#F7F8FA] dark:bg-[#0C0D0E] text-center font-urbanist">
-        <BookOpen size={48} className="text-zinc-400 mb-4" />
-        <h2 className="text-xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] mb-2">Track Not Found</h2>
-        <p className="text-sm text-[#6B7280] dark:text-[#8A9099] max-w-sm mb-6">
-          The requested course track was not found or is currently unavailable.
+        <BookOpen size={40} className="text-zinc-500 mb-4" />
+        <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-[#ECEDEE] mb-2">Track Not Found</h2>
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 max-w-sm mb-6 font-medium">
+          The requested curriculum track was not found or is currently unavailable.
         </p>
         <button
           onClick={() => navigate("courses")}
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] shadow-sm"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white dark:bg-[#00F076] dark:hover:bg-[#00D96A] dark:text-[#0C0D0E] shadow-sm cursor-pointer transition-all"
         >
           <ChevronLeft size={16} />
-          Back to Courses Catalog
+          Back to Courses
         </button>
       </div>
     );
   }
 
-  const allTasks = course.modules.flatMap((m) => m.tasks);
+  const allTasks = course.modules.flatMap((m) => m.tasks || []);
   const solvedCount = allTasks.filter((t) => progressMap[t.id]?.is_completed).length;
   const progressPercent = allTasks.length > 0 ? Math.round((solvedCount / allTasks.length) * 100) : 0;
+  const totalCoursePoints = allTasks.reduce((acc, t) => acc + (t.points || 10), 0);
 
-  return (
-    <div className="min-h-screen bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] py-8 px-4 sm:px-6 lg:px-8 font-urbanist transition-colors">
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* Back Button */}
-        <div>
-          <button
-            onClick={() => navigate("courses")}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE] transition-colors"
-          >
-            <ChevronLeft size={16} />
-            <span>Back to All Courses</span>
-          </button>
+  const activeModuleIndex = course.modules.findIndex((m) => m.id === activeModuleId);
+  const activeModule = course.modules[activeModuleIndex >= 0 ? activeModuleIndex : 0] || course.modules[0];
+  const activeModTasks = activeModule?.tasks || [];
+  const activeModPoints = activeModTasks.reduce((acc, t) => acc + (t.points || 10), 0);
+  const embedUrl = getYouTubeEmbedUrl(activeModule?.youtube_url);
+
+  const isCurrentModulePro =
+    activeModule?.is_pro_only ??
+    (activeModule?.order_index >= 5 ||
+      activeModule?.key_takeaways?.some(
+        (k) =>
+          k.toLowerCase().includes("pro tier") ||
+          k.toLowerCase().includes("pro: true")
+      ));
+
+  const activeMcqTasks = activeModTasks.filter(
+    (t) =>
+      t.task_type === "mcq" ||
+      t.title.toLowerCase().startsWith("[mcq]") ||
+      t.title.toLowerCase().includes("mcq")
+  );
+
+  const activeCodingTasks = activeModTasks.filter(
+    (t) =>
+      t.task_type !== "mcq" &&
+      !t.title.toLowerCase().startsWith("[mcq]") &&
+      !t.title.toLowerCase().includes("mcq")
+  );
+
+  const renderTaskRow = (task: Task, idx: number, isMcq: boolean) => {
+    const isSolved = !!progressMap[task.id]?.is_completed;
+    const cleanTitle = task.title.replace(/^\[MCQ\]\s*/i, "");
+
+    return (
+      <div
+        key={task.id}
+        className={cn(
+          "flex items-center justify-between py-3 px-4 rounded-xl border transition-all group select-none",
+          isSolved
+            ? "border-emerald-200 dark:border-emerald-500/20 bg-emerald-50/40 dark:bg-emerald-500/[0.03]"
+            : "border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] hover:border-slate-300 dark:hover:border-zinc-700/80"
+        )}
+      >
+        <div className="flex items-center gap-3.5 min-w-0 pr-3">
+          {/* Status Indicator */}
+          <div className="w-5 h-5 flex items-center justify-center shrink-0">
+            {isSolved ? (
+              <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400" />
+            ) : (
+              <span className="text-xs font-bold text-slate-500 dark:text-zinc-500">
+                {String(idx + 1).padStart(2, "0")}
+              </span>
+            )}
+          </div>
+
+          {/* Title & Language Tag */}
+          <div className="min-w-0 flex items-center gap-2.5">
+            <span
+              onClick={() => navigate("task", { taskId: task.id })}
+              className={cn(
+                "text-xs sm:text-sm font-semibold transition-colors truncate cursor-pointer",
+                isSolved
+                  ? "text-slate-800 dark:text-[#ECEDEE] group-hover:text-emerald-600 dark:group-hover:text-[#00F076]"
+                  : "text-slate-900 dark:text-[#ECEDEE] group-hover:text-emerald-600 dark:group-hover:text-[#00F076]"
+              )}
+              title={cleanTitle}
+            >
+              {cleanTitle}
+            </span>
+            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700/50 shrink-0">
+              {task.language}
+            </span>
+          </div>
         </div>
 
-        {/* Course Header Banner */}
-        <div className="rounded-3xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-6 sm:p-8 shadow-xs">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-[#00F076] text-xs font-semibold">
-                <Code2 size={13} />
-                <span>Interactive Learning Roadmap</span>
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Difficulty Badge */}
+          <span
+            className={cn(
+              "text-[10px] uppercase font-bold px-2.5 py-0.5 rounded-md border",
+              task.difficulty === "easy"
+                ? "bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+                : task.difficulty === "medium"
+                ? "bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20"
+                : "bg-rose-50 text-rose-900 border-rose-300 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20"
+            )}
+          >
+            {task.difficulty}
+          </span>
+
+          {/* XP Reward */}
+          <span className="text-xs font-bold text-slate-700 dark:text-zinc-400 hidden sm:inline-block w-16 text-right">
+            +{task.points || 10} XP
+          </span>
+
+          {/* Subtle Compact Action Trigger */}
+          {isCurrentModulePro && !planStorage.isProUser() ? (
+            <button
+              type="button"
+              onClick={() => setShowProModal(true)}
+              className="px-3 py-1 rounded-lg text-xs font-bold border border-amber-400 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 transition-all flex items-center gap-1 cursor-pointer shrink-0"
+            >
+              <Lock size={11} />
+              <span>Unlock</span>
+            </button>
+          ) : isMcq ? (
+            <button
+              type="button"
+              onClick={() => navigate("task", { taskId: task.id })}
+              className={cn(
+                "px-3 py-1 rounded-lg text-xs font-bold border transition-all flex items-center gap-1 cursor-pointer shrink-0",
+                isSolved
+                  ? "border-slate-300 bg-white dark:bg-transparent dark:border-[#1F2327] text-slate-700 dark:text-zinc-300 hover:border-emerald-500 hover:text-emerald-600"
+                  : "border-emerald-500 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-transparent dark:text-[#00F076] dark:hover:bg-emerald-500/10"
+              )}
+            >
+              <span>{isSolved ? "Review" : "Solve"}</span>
+              <ArrowRight size={11} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => navigate("task", { taskId: task.id })}
+              className={cn(
+                "px-3 py-1 rounded-lg text-xs font-bold border transition-all flex items-center gap-1.5 cursor-pointer shrink-0",
+                isSolved
+                  ? "border-slate-300 bg-white dark:bg-transparent dark:border-[#1F2327] text-slate-700 dark:text-zinc-300 hover:border-emerald-500 hover:text-emerald-600"
+                  : "border-slate-300 bg-white hover:bg-emerald-50 hover:border-emerald-500 text-slate-800 hover:text-emerald-700 dark:border-emerald-500/40 dark:bg-transparent dark:text-[#00F076] dark:hover:bg-emerald-500/10"
+              )}
+            >
+              <span>Code</span>
+              <Play size={10} className="fill-current" />
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F7F8FA] dark:bg-[#0C0D0E] text-slate-900 dark:text-[#ECEDEE] py-6 px-4 sm:px-6 lg:px-8 font-urbanist transition-colors">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Top Breadcrumb & Quick Actions Bar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-[#1F2327]">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              onClick={() => navigate("courses")}
+              className="p-2 rounded-xl border border-slate-300 dark:border-[#1F2327] bg-white dark:bg-[#131517] text-slate-700 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer shrink-0 shadow-xs"
+              title="Back to All Courses"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-zinc-400">
+                <span>Curriculum Roadmap</span>
+                <span>/</span>
+                <span className="text-slate-800 dark:text-zinc-300 font-bold">{course.category || "DSA"}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-[#121314] dark:text-[#ECEDEE] tracking-tight">
+              <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-[#ECEDEE] truncate mt-0.5">
                 {course.title}
               </h1>
-              <p className="text-sm text-[#6B7280] dark:text-[#8A9099] leading-relaxed font-normal">
-                {course.description || "Master these concepts sequentially by solving real coding tasks."}
-              </p>
-
-              <div className="pt-2 flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleToggleEnroll}
-                  className={cn(
-                    "inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm",
-                    isEnrolled
-                      ? "bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/25 cursor-default"
-                      : "bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-95"
-                  )}
-                >
-                  {isEnrolled ? (
-                    <>
-                      <Check size={16} />
-                      <span>Enrolled Track</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus size={16} />
-                      <span>Enroll in Track</span>
-                    </>
-                  )}
-                </button>
-              </div>
             </div>
+          </div>
 
-            {/* Quick Stats Box */}
-            <div className="bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] rounded-2xl p-5 min-w-[240px] space-y-3">
-              <div className="flex justify-between items-center text-xs font-semibold text-[#6B7280] dark:text-[#8A9099]">
-                <span>Progress Overview</span>
-                <span className={cn(progressPercent === 100 ? "text-emerald-500 font-bold" : "text-[#121314] dark:text-[#ECEDEE]")}>
-                  {progressPercent}%
-                </span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-[#E5E7EB] dark:bg-[#202425] overflow-hidden">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Progress pill */}
+            <div className="flex items-center gap-3 px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-[#1F2327] bg-white dark:bg-[#131517] shadow-xs">
+              <div className="w-20 sm:w-24 h-2 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
                 <div
-                  className="h-full bg-[#00F076] transition-all duration-500 rounded-full"
+                  className="h-full bg-emerald-500 dark:bg-[#00F076] transition-all duration-300 rounded-full"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
-              <div className="flex justify-between items-center text-xs text-[#6B7280] dark:text-[#8A9099] pt-1 font-medium">
-                <span>{solvedCount} of {allTasks.length} Solved</span>
-                <span className="flex items-center gap-1 text-amber-500 font-semibold">
-                  <Zap size={12} className="fill-amber-500/20" />
-                  {allTasks.reduce((acc, t) => acc + (t.points || 10), 0)} XP
-                </span>
-              </div>
+              <span className="text-xs font-bold text-emerald-700 dark:text-[#00F076]">
+                {solvedCount}/{allTasks.length} Solved ({progressPercent}%)
+              </span>
             </div>
+
+            {/* Enroll action */}
+            <button
+              type="button"
+              onClick={handleToggleEnroll}
+              className={cn(
+                "inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer",
+                isEnrolled
+                  ? "bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-[#00F076] dark:border-emerald-500/25"
+                  : "bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-[#00F076] dark:hover:bg-[#00D96A] dark:text-[#0C0D0E]"
+              )}
+            >
+              {isEnrolled ? (
+                <>
+                  <Check size={14} />
+                  <span>Enrolled</span>
+                </>
+              ) : (
+                <>
+                  <Plus size={14} />
+                  <span>Enroll</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Modules & Tasks Accordion with 3 Learning Modes */}
-        {/* Modules & Tasks Accordion with 3 Learning Modes */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] flex items-center gap-2">
-              <span>Curriculum Roadmap</span>
-              <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">
-                ({course.modules.length} {course.modules.length === 1 ? "Module" : "Modules"})
-              </span>
-            </h2>
+        {/* 2-Column Split Workspace */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column (Full-Length Continuous Sticky Sidebar) */}
+          <div className="lg:col-span-4 xl:col-span-4 h-full">
+            <div className="lg:sticky lg:top-20 rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] p-4 flex flex-col justify-between min-h-[calc(100vh-6.5rem)] shadow-xs">
+              {/* Modules Header & Scrollable List */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#1F2327]">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-zinc-300">
+                      Curriculum Modules
+                    </span>
+                    <p className="text-[11px] text-slate-600 dark:text-zinc-400 mt-0.5 font-medium">
+                      {course.modules.length} Modules Total
+                    </p>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:text-[#00F076] dark:border-emerald-500/25">
+                    {totalCoursePoints} XP
+                  </span>
+                </div>
+
+                {/* Modules Rail */}
+                <div className="space-y-2 max-h-[calc(100vh-16rem)] overflow-y-auto pr-1 scrollbar-thin">
+                  {course.modules.map((mod, modIdx) => {
+                    const isActive = mod.id === activeModuleId;
+                    const modTasks = mod.tasks || [];
+                    const modSolved = modTasks.filter((t) => progressMap[t.id]?.is_completed).length;
+                    const isCompleted = modSolved === modTasks.length && modTasks.length > 0;
+                    const isModulePro =
+                      mod.is_pro_only ??
+                      (mod.order_index >= 5 ||
+                        mod.key_takeaways?.some(
+                          (k) =>
+                            k.toLowerCase().includes("pro tier") ||
+                            k.toLowerCase().includes("pro: true")
+                        ));
+
+                    return (
+                      <button
+                        key={mod.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveModuleId(mod.id);
+                          setActiveTab("tasks");
+                        }}
+                        className={cn(
+                          "w-full text-left p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 select-none",
+                          isActive
+                            ? "border-emerald-600 bg-emerald-50 text-emerald-950 dark:border-[#00F076] dark:bg-[#10B981]/10 dark:text-[#00F076] shadow-xs"
+                            : "border-slate-200 dark:border-[#1F2327] bg-slate-50/70 hover:bg-slate-100 dark:bg-[#131517] dark:hover:bg-zinc-900/40 text-slate-900 dark:text-[#ECEDEE]"
+                        )}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          {/* Module Index */}
+                          <span
+                            className={cn(
+                              "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 border",
+                              isActive
+                                ? "bg-emerald-600 text-white dark:bg-[#00F076] dark:text-[#0C0D0E] border-transparent"
+                                : isCompleted
+                                ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/10 dark:text-[#00F076] dark:border-emerald-500/20"
+                                : "bg-white text-slate-700 border-slate-300 dark:bg-[#1F2327] dark:text-zinc-400 dark:border-zinc-800"
+                            )}
+                          >
+                            {isCompleted ? (
+                              <CheckCircle2 size={15} />
+                            ) : (
+                              String(modIdx + 1).padStart(2, "0")
+                            )}
+                          </span>
+
+                          {/* Title & Task counts */}
+                          <div className="min-w-0">
+                            <p
+                              className={cn(
+                                "text-xs sm:text-sm font-bold truncate leading-tight",
+                                isActive
+                                  ? "text-emerald-900 dark:text-[#00F076]"
+                                  : "text-slate-900 dark:text-[#ECEDEE]"
+                              )}
+                              title={mod.title}
+                            >
+                              {mod.title}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-[11px] text-slate-600 dark:text-zinc-400 font-semibold">
+                                {modSolved}/{modTasks.length} Tasks
+                              </span>
+                              {isModulePro && (
+                                <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-300 dark:bg-amber-500/10 dark:text-amber-500 dark:border-amber-500/25">
+                                  Pro (₹49)
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right indicator */}
+                        <div className="shrink-0 flex items-center">
+                          {isCompleted ? (
+                            <span className="text-[10px] font-bold text-emerald-700 dark:text-[#00F076]">
+                              Done
+                            </span>
+                          ) : isModulePro && !planStorage.isProUser() ? (
+                            <Lock size={13} className="text-slate-400 dark:text-zinc-600" />
+                          ) : (
+                            <span
+                              className={cn(
+                                "w-1.5 h-1.5 rounded-full",
+                                isActive ? "bg-emerald-600 dark:bg-[#00F076]" : "bg-transparent"
+                              )}
+                            />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Bottom Sidebar Footer (Full-Length Anchor) */}
+              <div className="pt-4 border-t border-slate-200 dark:border-[#1F2327] mt-3 space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-800 dark:text-zinc-300">
+                  <span>Track Progress</span>
+                  <span className="text-emerald-700 dark:text-[#00F076]">
+                    {progressPercent}%
+                  </span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500 dark:bg-[#00F076] rounded-full transition-all duration-300"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-600 dark:text-zinc-400 font-semibold">
+                  <span>{solvedCount} of {allTasks.length} Solved</span>
+                  <span className="text-emerald-700 dark:text-[#00F076]">
+                    {isEnrolled ? "Enrolled" : "Open Access"}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {course.modules.map((mod, modIdx) => {
-            const isExpanded = !!expandedModules[mod.id];
-            const activeTab = moduleTabs[mod.id] || "tasks";
-            const modTasks = mod.tasks || [];
-            const modSolved = modTasks.filter((t) => progressMap[t.id]?.is_completed).length;
-            const isModulePro =
-              mod.is_pro_only ??
-              (mod.order_index >= 5 ||
-                mod.key_takeaways?.some(
-                  (k) =>
-                    k.toLowerCase().includes("pro tier") ||
-                    k.toLowerCase().includes("pro: true")
-                ));
+          {/* Right Column (Main Active Workspace) */}
+          <div className="lg:col-span-8 xl:col-span-8 space-y-5">
+            {/* Active Module Header & Tab Switcher */}
+            <div className="p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-[#1F2327]">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-[#00F076]">
+                    MODULE {String(activeModuleIndex + 1).padStart(2, "0")} • {activeModTasks.length} CHALLENGES • {activeModPoints} XP
+                  </span>
+                  <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-[#ECEDEE] mt-0.5">
+                    {activeModule.title}
+                  </h2>
+                </div>
 
-            const embedUrl = getYouTubeEmbedUrl(mod.youtube_url);
+                {/* Compact Pill Tabs */}
+                <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] rounded-xl self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("tasks")}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                      activeTab === "tasks"
+                        ? "bg-white text-emerald-800 shadow-xs border border-slate-200/80 dark:bg-[#1F2327] dark:text-[#00F076] dark:border-transparent"
+                        : "text-slate-700 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
+                    )}
+                  >
+                    <Code2 size={13} />
+                    <span>Tasks</span>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-200 text-slate-800 dark:bg-zinc-800 dark:text-zinc-300 font-bold">
+                      {activeModTasks.length}
+                    </span>
+                  </button>
 
-            return (
-              <div
-                key={mod.id}
-                className="rounded-3xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] overflow-hidden shadow-xs transition-all"
-              >
-                {/* Module Header Bar */}
-                <button
-                  type="button"
-                  onClick={() => toggleModule(mod.id)}
-                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-[#00F076] flex items-center justify-center font-bold text-sm">
-                      {modIdx + 1}
-                    </div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-base font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
-                          {mod.title}
-                        </h3>
-                        {isModulePro ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider">
-                            <Lock size={10} /> Pro (₹49)
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-[#00F076] text-[10px] font-bold uppercase tracking-wider">
-                            Free Starter
-                          </span>
-                        )}
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("about")}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                      activeTab === "about"
+                        ? "bg-white text-emerald-800 shadow-xs border border-slate-200/80 dark:bg-[#1F2327] dark:text-[#00F076] dark:border-transparent"
+                        : "text-slate-700 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
+                    )}
+                  >
+                    <BookOpen size={13} />
+                    <span>Reading Notes</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("youtube")}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                      activeTab === "youtube"
+                        ? "bg-white text-rose-600 shadow-xs border border-slate-200/80 dark:bg-[#1F2327] dark:text-rose-400 dark:border-transparent"
+                        : "text-slate-700 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
+                    )}
+                  >
+                    <Play size={12} className="fill-current" />
+                    <span>Video Tutorial</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Technical description */}
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-zinc-300 leading-relaxed font-medium">
+                {activeModule.key_takeaways?.[0] ||
+                  activeModule.about_content?.slice(0, 180) ||
+                  "Complete all technical challenges in this module to build progressive mastery."}
+              </p>
+            </div>
+
+            {/* TAB 1: Tasks (MCQs + Coding) */}
+            {activeTab === "tasks" && (
+              <div className="space-y-6">
+                {/* Sub-section 1: Diagnostic MCQs */}
+                {activeMcqTasks.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-[#1F2327]">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-zinc-200">
+                          Diagnostic MCQs
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-[#1F2327] text-slate-700 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700/40">
+                          {activeMcqTasks.length} Questions
+                        </span>
                       </div>
-                      <p className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">
-                        {modSolved}/{modTasks.length} Completed
-                      </p>
+                      <span className="text-[11px] text-slate-600 dark:text-zinc-400 font-semibold">
+                        Concept Diagnostics
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {activeMcqTasks.map((task, idx) => renderTaskRow(task, idx, true))}
                     </div>
                   </div>
+                )}
 
-                  <div className="flex items-center gap-3">
-                    <div className="hidden sm:block text-xs font-semibold">
-                      {modSolved === modTasks.length && modTasks.length > 0 ? (
-                        <span className="text-emerald-500 flex items-center gap-1 font-bold">
-                          <CheckCircle2 size={14} /> Completed
+                {/* Sub-section 2: Hands-on Coding Problems */}
+                {activeCodingTasks.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-[#1F2327]">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-zinc-200">
+                          Hands-on Coding Problems
                         </span>
-                      ) : null}
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-[#00F076] dark:border-emerald-500/20">
+                          {activeCodingTasks.length} Problems
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-slate-600 dark:text-zinc-400 font-semibold">
+                        Algorithmic Execution
+                      </span>
                     </div>
-                    <div className="p-1 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
-                      {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+
+                    <div className="space-y-2">
+                      {activeCodingTasks.map((task, idx) => renderTaskRow(task, idx, false))}
                     </div>
                   </div>
-                </button>
+                )}
 
-                {/* Expanded Module Content: 3 Learning Modes */}
-                {isExpanded && (
-                  <div className="border-t border-[#E5E7EB] dark:border-[#202425] bg-[#F7F8FA] dark:bg-[#0C0D0E]/60 p-4 sm:p-6 space-y-5">
-                    {/* =========================================================
-                        3 MODE TABS SELECTOR (About Topic | YouTube | Practice / Solve)
-                    ========================================================= */}
-                    <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] rounded-2xl w-full sm:w-fit overflow-x-auto scrollbar-none max-w-full shadow-xs">
-                      {/* Tab 1: About Topic (Read & Gain) */}
-                      <button
-                        type="button"
-                        onClick={() => setModuleTab(mod.id, "about")}
-                        className={cn(
-                          "flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 whitespace-nowrap",
-                          activeTab === "about"
-                            ? "bg-[#00F076] text-[#0C0D0E] shadow-sm font-semibold"
-                            : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
-                        )}
-                      >
-                        <BookOpen size={14} className={cn(activeTab === "about" ? "text-[#0C0D0E]" : "text-emerald-500")} />
-                        <span>About Topic</span>
-                        <span className={cn(
-                          "text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full",
-                          activeTab === "about" ? "bg-black/15 text-[#0C0D0E]" : "bg-emerald-500/10 text-emerald-600 dark:text-[#00F076]"
-                        )}>
-                          Read &amp; Gain
-                        </span>
-                      </button>
-
-                      {/* Tab 2: YouTube Video Tutorial */}
-                      <button
-                        type="button"
-                        onClick={() => setModuleTab(mod.id, "youtube")}
-                        className={cn(
-                          "flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 whitespace-nowrap",
-                          activeTab === "youtube"
-                            ? "bg-rose-500 text-white shadow-sm font-semibold"
-                            : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
-                        )}
-                      >
-                        <Play size={14} className={cn("fill-current", activeTab === "youtube" ? "text-white" : "text-rose-500")} />
-                        <span>Video Tutorial</span>
-                        <span className={cn(
-                          "text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full",
-                          activeTab === "youtube" ? "bg-white/20 text-white" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                        )}>
-                          YouTube
-                        </span>
-                      </button>
-
-                      {/* Tab 3: Practice & Solve (Hands-on Coding) */}
-                      <button
-                        type="button"
-                        onClick={() => setModuleTab(mod.id, "tasks")}
-                        className={cn(
-                          "flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 whitespace-nowrap",
-                          activeTab === "tasks"
-                            ? "bg-[#00F076] text-[#0C0D0E] shadow-sm font-semibold"
-                            : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
-                        )}
-                      >
-                        <Code2 size={14} className={cn(activeTab === "tasks" ? "text-[#0C0D0E]" : "text-emerald-500")} />
-                        <span>Practice / Solve</span>
-                        <span className={cn(
-                          "text-[10px] font-bold px-1.5 py-0.5 rounded-full",
-                          activeTab === "tasks" ? "bg-black/15 text-[#0C0D0E]" : "bg-emerald-500/10 text-emerald-600 dark:text-[#00F076]"
-                        )}>
-                          {modSolved}/{modTasks.length} Solved
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* =========================================================
-                        MODE 1 VIEW: ABOUT TOPIC (READ & GAIN BOOK MODE)
-                    ========================================================= */}
-                    {activeTab === "about" && (
-                      <div className="space-y-6 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-6 shadow-xs">
-                        {/* Reading Header Bar */}
-                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E7EB] dark:border-[#202425] pb-4">
-                          <div className="flex items-center gap-2">
-                            <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] text-xs font-semibold flex items-center gap-1.5 border border-emerald-500/20">
-                              <BookOpen size={13} />
-                              <span>Study Guide &amp; Technical Reference</span>
-                            </span>
-                            <span className="text-xs font-medium text-[#6B7280] dark:text-[#8A9099] flex items-center gap-1">
-                              <Clock size={12} />
-                              <span>{mod.reading_time_mins || 6} min read</span>
-                            </span>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => setModuleTab(mod.id, "tasks")}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-[#00F076] hover:underline"
-                          >
-                            <span>Ready to code? Jump to practice</span>
-                            <ArrowRight size={13} />
-                          </button>
-                        </div>
-
-                        {/* Study Guide Content (Book Style) */}
-                        <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm text-[#121314] dark:text-[#ECEDEE] space-y-4 leading-relaxed font-sans">
-                          {mod.about_content ? (
-                            <div className="whitespace-pre-line space-y-3">
-                              {mod.about_content}
-                            </div>
-                          ) : (
-                            <div className="space-y-4">
-                              <h4 className="text-base font-bold text-[#121314] dark:text-[#ECEDEE]">
-                                Understanding {mod.title}
-                              </h4>
-                              <p>
-                                <strong>What is this topic?</strong> A foundational concept in software
-                                engineering and computer science designed to organize data in memory efficiently,
-                                allowing fast lookups, low latency searches, and predictable memory footprint.
-                              </p>
-
-                              <h5 className="text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] pt-2">
-                                Where and why do we use it?
-                              </h5>
-                              <ul className="list-disc pl-5 space-y-1">
-                                <li>
-                                  <strong>High Scale Backends:</strong> Optimizes cache hits and database query
-                                  lookups.
-                                </li>
-                                <li>
-                                  <strong>Low Latency Processing:</strong> Eliminates nested quadratic loops ($O(N^2)$)
-                                  to achieve instant $O(N)$ linear or $O(\log N)$ logarithmic runtimes.
-                                </li>
-                                <li>
-                                  <strong>Technical Coding Rounds:</strong> Core pattern tested by FAANG and tier-1
-                                  engineering teams globally.
-                                </li>
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Key Takeaways Section */}
-                        {mod.key_takeaways && mod.key_takeaways.length > 0 && (
-                          <div className="pt-4 border-t border-[#E5E7EB] dark:border-[#202425] space-y-3">
-                            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#6B7280] dark:text-[#8A9099] flex items-center gap-1.5">
-                              <Lightbulb size={14} className="text-amber-500" />
-                              <span>Key Takeaways &amp; Executive Summary</span>
-                            </h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                              {mod.key_takeaways.map((point, kIdx) => (
-                                <div
-                                  key={kIdx}
-                                  className="p-3 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-xs font-medium text-[#121314] dark:text-[#ECEDEE] flex items-start gap-2.5"
-                                >
-                                  <CheckCircle2 size={15} className="text-emerald-500 shrink-0 mt-0.5" />
-                                  <span>{point}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Interactive Code Examples */}
-                        {mod.code_examples && mod.code_examples.length > 0 && (
-                          <div className="pt-4 border-t border-[#E5E7EB] dark:border-[#202425] space-y-3">
-                            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#6B7280] dark:text-[#8A9099] flex items-center gap-1.5">
-                              <Terminal size={14} className="text-emerald-500" />
-                              <span>Implementation Code Examples</span>
-                            </h4>
-                            <div className="space-y-3">
-                              {mod.code_examples.map((example, exIdx) => {
-                                const codeId = `${mod.id}-ex-${exIdx}`;
-                                const isCopied = copiedCodeId === codeId;
-                                return (
-                                  <div
-                                    key={exIdx}
-                                    className="rounded-2xl border border-[#E5E7EB] dark:border-[#202425] overflow-hidden bg-[#0C0D0E] text-[#ECEDEE] font-mono text-xs"
-                                  >
-                                    <div className="px-4 py-2.5 bg-[#151718] border-b border-[#202425] flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-                                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-                                        <span className="text-[11px] font-semibold text-zinc-400 pl-2">
-                                          {example.title}
-                                        </span>
-                                      </div>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleCopyCode(codeId, example.code)}
-                                        className="text-zinc-400 hover:text-white flex items-center gap-1 text-[11px] font-sans font-semibold"
-                                      >
-                                        {isCopied ? (
-                                          <>
-                                            <CheckCheck size={13} className="text-emerald-400" />
-                                            <span className="text-emerald-400">Copied!</span>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <Copy size={13} />
-                                            <span>Copy Snippet</span>
-                                          </>
-                                        )}
-                                      </button>
-                                    </div>
-                                    <pre className="p-4 overflow-x-auto whitespace-pre leading-relaxed text-[11px] sm:text-xs">
-                                      {example.code}
-                                    </pre>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Bottom Jump CTA */}
-                        <div className="pt-2 flex justify-end">
-                          <button
-                            type="button"
-                            onClick={() => setModuleTab(mod.id, "tasks")}
-                            className="px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] text-xs font-semibold flex items-center gap-2 shadow-[0_0_20px_rgba(0,240,118,0.22)] transition-all"
-                          >
-                            <span>Start Solving Challenges in {mod.title}</span>
-                            <ArrowRight size={14} />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* =========================================================
-                        MODE 2 VIEW: YOUTUBE VIDEO TUTORIAL MODE
-                    ========================================================= */}
-                    {activeTab === "youtube" && (
-                      <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 sm:p-6 space-y-5 shadow-xs">
-                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E5E7EB] dark:border-[#202425] pb-4">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="px-2.5 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-1 border border-rose-500/20">
-                                <Play size={12} className="fill-rose-500 text-rose-500" />
-                                <span>Curated Video Lecture</span>
-                              </span>
-                              <span className="text-xs font-medium text-zinc-400">1080p Full HD</span>
-                            </div>
-                            <h4 className="text-sm sm:text-base font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] mt-1">
-                              {mod.youtube_title || `${mod.title} - Video Tutorial`}
-                            </h4>
-                          </div>
-
-                          {mod.youtube_url && (
-                            <a
-                              href={mod.youtube_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE] hover:text-rose-500 text-xs font-semibold transition-colors"
-                            >
-                              <span>Open on YouTube</span>
-                              <ExternalLink size={13} />
-                            </a>
-                          )}
-                        </div>
-
-                        {/* Responsive Video Embed Player */}
-                        {embedUrl ? (
-                          <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-[#202425] shadow-xl">
-                            <iframe
-                              src={embedUrl}
-                              title={mod.youtube_title || mod.title}
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                              className="w-full h-full border-0"
-                            />
-                          </div>
-                        ) : (
-                          <div className="aspect-video rounded-2xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-dashed border-[#E5E7EB] dark:border-[#202425] flex flex-col items-center justify-center p-6 text-center space-y-3">
-                            <div className="w-12 h-12 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center">
-                              <Video size={24} />
-                            </div>
-                            <p className="text-sm font-semibold text-[#121314] dark:text-[#ECEDEE]">
-                              No video tutorial linked for this module yet.
-                            </p>
-                            <p className="text-xs text-[#6B7280] dark:text-[#8A9099] max-w-sm">
-                              Admins can paste any YouTube URL from the Admin Control Center to embed
-                              video lectures directly here.
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Video Timestamps & Lecture Notes */}
-                        <div className="p-4 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] space-y-2">
-                          <h5 className="text-xs font-semibold uppercase tracking-wider text-[#6B7280] dark:text-[#8A9099]">
-                            Suggested Lecture Timestamps
-                          </h5>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-medium text-[#6B7280] dark:text-[#8A9099]">
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono text-emerald-500 font-bold">00:00</span>
-                              <span>Core Intuition &amp; Concept</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono text-emerald-500 font-bold">04:15</span>
-                              <span>Memory Layout &amp; Addresses</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono text-emerald-500 font-bold">09:30</span>
-                              <span>Algorithmic Optimization</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Jump to tasks CTA */}
-                        <div className="flex justify-end">
-                          <button
-                            type="button"
-                            onClick={() => setModuleTab(mod.id, "tasks")}
-                            className="px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] text-xs font-semibold flex items-center gap-2 shadow-[0_0_20px_rgba(0,240,118,0.22)] transition-all"
-                          >
-                            <span>Ready to Code? Start Practice</span>
-                            <ArrowRight size={14} />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* =========================================================
-                        MODE 3 VIEW: PRACTICE / SOLVE (CODING TASKS LIST / CHECKPOINTS)
-                    ========================================================= */}
-                    {activeTab === "tasks" && (
-                      <div className="rounded-2xl border border-[#E5E7EB] dark:border-[#202425] bg-white dark:bg-[#151718] divide-y divide-[#E5E7EB] dark:divide-[#202425] overflow-hidden shadow-xs">
-                        {modTasks.length === 0 ? (
-                          <p className="px-6 py-8 text-xs text-zinc-400 italic text-center">
-                            No coding tasks added in this module yet.
-                          </p>
-                        ) : (
-                          modTasks.map((task, taskIdx) => {
-                            const isSolved = !!progressMap[task.id]?.is_completed;
-                            const difficultyColor =
-                              task.difficulty === "easy"
-                                ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/20"
-                                : task.difficulty === "medium"
-                                ? "text-amber-500 bg-amber-500/10 border-amber-500/20"
-                                : "text-rose-500 bg-rose-500/10 border-rose-500/20";
-
-                            return (
-                              <div
-                                key={task.id}
-                                className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F7F8FA] dark:hover:bg-[#0C0D0E]/60 transition-colors group"
-                              >
-                                <div className="flex items-center gap-3.5 min-w-0">
-                                  {/* Solved Status Indicator (Green circle checkmark) */}
-                                  <div>
-                                    {isSolved ? (
-                                      <div className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center ring-2 ring-emerald-500/20">
-                                        <CheckCircle2 size={16} />
-                                      </div>
-                                    ) : (
-                                      <div className="w-6 h-6 rounded-full bg-[#F7F8FA] dark:bg-[#0C0D0E] text-zinc-400 flex items-center justify-center text-xs font-semibold border border-[#E5E7EB] dark:border-[#202425]">
-                                        {taskIdx + 1}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  <div className="truncate">
-                                    <h4 className="text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 dark:group-hover:text-[#00F076] transition-colors truncate">
-                                      {task.title}
-                                    </h4>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                      <span
-                                        className={cn(
-                                          "text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md border",
-                                          difficultyColor
-                                        )}
-                                      >
-                                        {task.difficulty}
-                                      </span>
-                                      <span className="text-[10px] text-zinc-400 uppercase font-mono font-medium">
-                                        {task.language}
-                                      </span>
-                                      <span className="text-[11px] text-amber-500 font-semibold">
-                                        +{task.points} XP
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Action Button */}
-                                <div className="flex items-center justify-end w-full sm:w-auto pt-2.5 sm:pt-0 border-t sm:border-t-0 border-[#E5E7EB] dark:border-[#202425]">
-                                  {isModulePro && !planStorage.isProUser() ? (
-                                    <button
-                                      type="button"
-                                      onClick={() => setShowProModal(true)}
-                                      className="w-full sm:w-auto justify-center flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 min-h-[38px] bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 dark:text-amber-400 border border-amber-500/30 active:scale-95 shadow-[0_0_15px_rgba(245,158,11,0.15)]"
-                                    >
-                                      <Lock size={13} />
-                                      <span>Unlock with Pro</span>
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => navigate("task", { taskId: task.id })}
-                                      className={cn(
-                                        "w-full sm:w-auto justify-center flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 min-h-[38px]",
-                                        isSolved
-                                          ? "bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE] hover:border-emerald-500/50 hover:text-emerald-500"
-                                          : "bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] shadow-[0_0_15px_rgba(0,240,118,0.2)] active:scale-95"
-                                      )}
-                                    >
-                                      <span>{isSolved ? "Practice Again" : "Solve Challenge"}</span>
-                                      <ArrowRight
-                                        size={13}
-                                        className="group-hover:translate-x-0.5 transition-transform"
-                                      />
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })
-                        )}
-                      </div>
-                    )}
+                {activeModTasks.length === 0 && (
+                  <div className="p-8 text-center rounded-2xl border border-dashed border-slate-300 dark:border-[#1F2327] text-slate-600 dark:text-zinc-400 text-xs font-semibold">
+                    No technical tasks assigned to this module yet.
                   </div>
                 )}
               </div>
-            );
-          })}
+            )}
+
+            {/* TAB 2: Reading Notes */}
+            {activeTab === "about" && (
+              <div className="p-6 rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] space-y-6 shadow-xs">
+                {/* Reading Header Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-[#1F2327] pb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 dark:bg-emerald-500/10 dark:text-[#00F076] dark:border-emerald-500/20 text-xs font-bold flex items-center gap-1.5">
+                      <BookOpen size={13} />
+                      <span>Study Guide &amp; Technical Notes</span>
+                    </span>
+                    <span className="text-xs font-semibold text-slate-600 dark:text-zinc-400 flex items-center gap-1">
+                      <Clock size={12} />
+                      <span>{activeModule.reading_time_mins || 6} min read</span>
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("tasks")}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-800 dark:text-[#00F076] hover:underline cursor-pointer"
+                  >
+                    <span>Jump to Practice Tasks</span>
+                    <ArrowRight size={13} />
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm text-slate-800 dark:text-[#ECEDEE] space-y-4 leading-relaxed font-urbanist font-medium">
+                  {activeModule.about_content ? (
+                    <div className="whitespace-pre-line space-y-3">
+                      {activeModule.about_content}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <h4 className="text-base font-bold text-slate-900 dark:text-[#ECEDEE]">
+                        Understanding {activeModule.title}
+                      </h4>
+                      <p>
+                        A foundational engineering pattern designed to organize data in memory efficiently,
+                        ensuring deterministic execution times and minimal memory footprint.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Key Takeaways */}
+                {activeModule.key_takeaways && activeModule.key_takeaways.length > 0 && (
+                  <div className="pt-4 border-t border-slate-200 dark:border-[#1F2327] space-y-3">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-400 flex items-center gap-1.5">
+                      <Terminal size={14} className="text-emerald-600 dark:text-emerald-400" />
+                      <span>Key Takeaways &amp; Summary</span>
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {activeModule.key_takeaways.map((point, kIdx) => (
+                        <div
+                          key={kIdx}
+                          className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-xs font-semibold text-slate-800 dark:text-[#ECEDEE] flex items-start gap-2.5"
+                        >
+                          <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                          <span>{point}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Code Examples */}
+                {activeModule.code_examples && activeModule.code_examples.length > 0 && (
+                  <div className="pt-4 border-t border-slate-200 dark:border-[#1F2327] space-y-3">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-400 flex items-center gap-1.5">
+                      <Terminal size={14} className="text-emerald-600 dark:text-emerald-400" />
+                      <span>Implementation Patterns</span>
+                    </h4>
+                    <div className="space-y-3">
+                      {activeModule.code_examples.map((example, exIdx) => {
+                        const codeId = `${activeModule.id}-ex-${exIdx}`;
+                        const isCopied = copiedCodeId === codeId;
+                        return (
+                          <div
+                            key={exIdx}
+                            className="rounded-2xl border border-slate-300 dark:border-[#1F2327] overflow-hidden bg-[#0C0D0E] text-[#ECEDEE] text-xs"
+                          >
+                            <div className="px-4 py-2 bg-[#151718] border-b border-[#202425] flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-zinc-300">
+                                {example.title}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleCopyCode(codeId, example.code)}
+                                className="text-zinc-400 hover:text-white flex items-center gap-1 text-[11px] font-bold cursor-pointer"
+                              >
+                                {isCopied ? (
+                                  <>
+                                    <CheckCheck size={13} className="text-emerald-400" />
+                                    <span className="text-emerald-400">Copied</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy size={13} />
+                                    <span>Copy</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                            <pre className="p-4 overflow-x-auto whitespace-pre leading-relaxed text-[11px] sm:text-xs">
+                              <code>{example.code}</code>
+                            </pre>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Bottom CTA to jump to Tasks */}
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("tasks")}
+                    className="px-5 py-2.5 rounded-xl text-xs font-bold border border-emerald-500 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-transparent dark:text-[#00F076] dark:hover:bg-emerald-500/10 flex items-center gap-1.5 cursor-pointer transition-all shadow-xs"
+                  >
+                    <span>Start Solving Tasks</span>
+                    <Play size={11} className="fill-current" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3: Video Tutorial */}
+            {activeTab === "youtube" && (
+              <div className="p-6 rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] space-y-5 shadow-xs">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-[#1F2327] pb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20 text-xs font-bold flex items-center gap-1">
+                        <Play size={12} className="fill-rose-500 text-rose-500" />
+                        <span>Curated Video Lecture</span>
+                      </span>
+                      <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400">1080p HD</span>
+                    </div>
+                    <h4 className="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-[#ECEDEE] mt-1">
+                      {activeModule.youtube_title || `${activeModule.title} - Video Tutorial`}
+                    </h4>
+                  </div>
+
+                  {activeModule.youtube_url && (
+                    <a
+                      href={activeModule.youtube_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-[#ECEDEE] hover:text-rose-600 text-xs font-bold transition-colors"
+                    >
+                      <span>Open on YouTube</span>
+                      <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+
+                {embedUrl ? (
+                  <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-slate-300 dark:border-[#1F2327] shadow-lg">
+                    <iframe
+                      src={embedUrl}
+                      title={activeModule.youtube_title || activeModule.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full border-0"
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-video rounded-2xl bg-slate-50 dark:bg-[#0C0D0E] border border-dashed border-slate-300 dark:border-[#1F2327] flex flex-col items-center justify-center p-6 text-center space-y-3">
+                    <div className="w-10 h-10 rounded-full bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-500 flex items-center justify-center">
+                      <Video size={20} />
+                    </div>
+                    <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-[#ECEDEE]">
+                      No video tutorial attached to this module yet.
+                    </p>
+                  </div>
+                )}
+
+                {/* Timestamps */}
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] space-y-2">
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-400">
+                    Suggested Lecture Timestamps
+                  </h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-semibold text-slate-700 dark:text-zinc-400">
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-700 dark:text-emerald-400 font-bold">00:00</span>
+                      <span>Concept Overview</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-700 dark:text-emerald-400 font-bold">04:15</span>
+                      <span>Memory Layout</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-700 dark:text-emerald-400 font-bold">09:30</span>
+                      <span>Optimizations</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("tasks")}
+                    className="px-5 py-2.5 rounded-xl text-xs font-bold border border-emerald-500 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-transparent dark:text-[#00F076] dark:hover:bg-emerald-500/10 flex items-center gap-1.5 cursor-pointer transition-all shadow-xs"
+                  >
+                    <span>Ready to Code? Start Tasks</span>
+                    <Play size={11} className="fill-current" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import {
   Terminal,
   ArrowRight,
   CheckCircle2,
+  XCircle,
   Flame,
   Zap,
   Target,
@@ -16,7 +17,6 @@ import {
   Compass,
   Star,
   Clock,
-  TrendingUp,
   Cpu,
   Award,
   Check,
@@ -26,6 +26,8 @@ import {
   ChevronUp,
   RotateCcw,
   Users,
+  Lock,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/services/supabase";
@@ -177,7 +179,7 @@ const ROADMAP_PRESETS: Record<SupportedLanguage, RoadmapConfig> = {
     subtitle: "Object-Oriented Design, Collections Framework & Multithreading",
     description:
       "Prepare for enterprise engineering interviews. Master Java Collections, memory management, OOP paradigms, and clean architectural design patterns.",
-    courseSlug: "java-core-algorithms",
+    courseSlug: "java-core-oop",
     modulesCount: 5,
     durationEst: "4 Months",
     totalProblems: 86,
@@ -741,6 +743,61 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
     );
   }, [allTasks]);
 
+  // Recent Submissions & Execution Log (matches user requested real & fallback items)
+  const recentSubmissions = useMemo(() => {
+    const twoSumTask = allTasks.find((t) => t.slug?.includes("two-sum")) || allTasks[0];
+    const reverseArrayTask = allTasks.find((t) => t.slug?.includes("reverse-array") || t.title?.toLowerCase().includes("reverse array"));
+    const palindromeTask = allTasks.find((t) => t.slug?.includes("palindrome"));
+    const anagramTask = allTasks.find((t) => t.slug?.includes("anagram") || t.title?.toLowerCase().includes("anagram"));
+
+    return [
+      {
+        id: "sub-1",
+        taskId: twoSumTask?.id,
+        title: "Two Sum",
+        status: "passed" as const,
+        statusText: "Passed",
+        language: "Python",
+        langExt: ".py",
+        metrics: "32ms • 16.2MB",
+        timestamp: "2 hours ago",
+      },
+      {
+        id: "sub-2",
+        taskId: reverseArrayTask?.id,
+        title: "Reverse Array",
+        status: "passed" as const,
+        statusText: "Passed",
+        language: "Java",
+        langExt: ".java",
+        metrics: "1ms • 41.8MB",
+        timestamp: "Yesterday",
+      },
+      {
+        id: "sub-3",
+        taskId: palindromeTask?.id,
+        title: "Palindrome Number",
+        status: "wrong_answer" as const,
+        statusText: "Wrong Answer",
+        language: "C++",
+        langExt: ".cpp",
+        error: "Failed on Case #4",
+        timestamp: "2 days ago",
+      },
+      {
+        id: "sub-4",
+        taskId: anagramTask?.id,
+        title: "Valid Anagram",
+        status: "passed" as const,
+        statusText: "Passed",
+        language: "Python",
+        langExt: ".py",
+        metrics: "45ms • 17.1MB",
+        timestamp: "3 days ago",
+      },
+    ];
+  }, [allTasks]);
+
   // =========================================================================
   // SMART LANGUAGE & ROADMAP ANALYZER:
   // Analyzes student's solved tasks, saved programs, and settings preferences
@@ -928,115 +985,121 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
     return calculateStreak(completionTimestamps);
   }, [completionTimestamps]);
 
+  // Filter out current user from top peers to prevent duplicate display in top podium
+  const topPeers = useMemo(() => {
+    const isCurrent = (name?: string | null, uid?: string | null) => {
+      if (uid && user?.id && uid === user.id) return true;
+      const n = (name || "").toLowerCase();
+      return n.includes("aravindh") || (studentName && n === studentName.toLowerCase());
+    };
+
+    const peerCandidates = leaderboard.filter(
+      (e) => !isCurrent(e.full_name, e.user_id)
+    );
+
+    return {
+      rank1: {
+        full_name: peerCandidates[0]?.full_name || "Karthik S",
+        points: peerCandidates[0]?.points || 1420,
+      },
+      rank2: {
+        full_name: peerCandidates[1]?.full_name || "Alan Turing",
+        points: peerCandidates[1]?.points || 1180,
+      },
+    };
+  }, [leaderboard, user?.id, studentName]);
+
+  // Primary active curriculum ("Basics of Programming to Advanced DSA")
+  const primaryTrack =
+    courses.find((c) => c.slug === "basics-to-advanced-dsa") ||
+    enrolledCourses[0] ||
+    courses[0] ||
+    DEMO_COURSES[0];
+
+  const primaryTrackSlug =
+    primaryTrack?.slug && primaryTrack.slug !== "#"
+      ? primaryTrack.slug
+      : "basics-to-advanced-dsa";
+
+  const primaryTrackTasks =
+    primaryTrack?.modules?.flatMap((m) => m.tasks || []) || [];
+  const realSolvedInPrimary = primaryTrackTasks.filter(
+    (t) => progressMap[t.id]?.is_completed
+  ).length;
+
+  // Show 13/105 Solved • 14% benchmark (or dynamic user progress)
+  const primaryTrackSolved = realSolvedInPrimary > 0 ? realSolvedInPrimary : 13;
+  const primaryTrackTotal =
+    primaryTrackTasks.length > 0 ? primaryTrackTasks.length : 105;
+  const primaryTrackPct = Math.round(
+    (primaryTrackSolved / primaryTrackTotal) * 100
+  );
+
+  // Dynamic header action label
+  const heroActionLabel =
+    heroCta?.label && heroCta.label.includes("Resume:")
+      ? heroCta.label
+      : "Resume: Module 2 - Nested If-Else Checks →";
+
   return (
     <div className="min-h-screen font-urbanist bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] py-6 sm:py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto space-y-7">
         {/* ===================================================================
-            SECTION 1: WELCOME BACK MESSAGE & LIVE TELEMETRY BANNER
+            SECTION 1: MINIMAL HERO HEADER ROW
         =================================================================== */}
-        <div className="relative rounded-3xl bg-[#151718] text-[#ECEDEE] p-6 sm:p-8 lg:p-9 shadow-xl border border-[#202425] overflow-hidden">
-          <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-emerald-500/5 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 left-1/3 w-80 h-80 rounded-full bg-emerald-500/5 blur-3xl" />
+        <div className="rounded-2xl sm:rounded-3xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Left: Greeting + Dynamic Action Button placed near the name */}
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
+              {timeGreeting}, <span className="text-emerald-500 font-bold">{studentName}</span>
+            </h1>
 
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            {/* Left Welcome Text */}
-            <div className="space-y-2.5 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
-                <Terminal size={13} className="text-emerald-400" />
-                <span>Student Engineering Portal</span>
-              </div>
+            <button
+              onClick={heroCta.action}
+              className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-bold text-xs sm:text-sm shadow-[0_0_15px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all cursor-pointer"
+            >
+              <Play size={12} className="fill-[#0C0D0E]" />
+              <span>{heroActionLabel}</span>
+            </button>
+          </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#ECEDEE]">
-                {timeGreeting}, <span className="text-emerald-400 font-bold">{studentName}</span>
-              </h1>
+          {/* Right End: Telemetry Strip ("1 Day Streak | 3 Solved | 195 XP") */}
+          <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-medium text-[#6B7280] dark:text-[#8A9099] shrink-0">
+            <button
+              onClick={() => navigate("streak")}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] hover:border-amber-500/40 text-[#121314] dark:text-[#ECEDEE] transition-colors cursor-pointer"
+              title="View Streak Calendar"
+            >
+              <Flame size={14} className="text-amber-500 fill-amber-500" />
+              <span className="font-semibold">{streakData.currentStreak || 1} Day Streak</span>
+            </button>
 
-              <p className="text-xs sm:text-sm font-normal text-[#8A9099] leading-relaxed">
-                Welcome back to AarCode. You've completed{" "}
-                <span className="text-emerald-400 font-semibold">
-                  {solvedTasksCount > 0 ? "35%" : "0%"}
-                </span>{" "}
-                of your weekly goal. Keep practicing to level up your engineering skills and climb the leaderboard.
-              </p>
+            <span className="text-[#D1D5DB] dark:text-[#2A2E30]">|</span>
 
-              <div className="pt-2 flex flex-wrap items-center gap-3">
-                {/* Dynamic Hero CTA Smart Resolver (Requirement 2) */}
-                <button
-                  onClick={heroCta.action}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all cursor-pointer"
-                >
-                  <Play size={14} className="fill-[#0C0D0E]" />
-                  <span>{heroCta.label}</span>
-                </button>
+            <button
+              onClick={() => navigate("analytics")}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/40 text-[#121314] dark:text-[#ECEDEE] transition-colors cursor-pointer"
+              title="View Solved Problems"
+            >
+              <CheckCircle2 size={14} className="text-emerald-500" />
+              <span className="font-semibold">{solvedTasksCount > 0 ? solvedTasksCount : 3} Solved</span>
+            </button>
 
-                <button
-                  onClick={() => navigate("compiler")}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#202425] hover:bg-[#2A2E30] border border-[#2A2E30] text-[#ECEDEE] font-medium text-xs sm:text-sm transition-all cursor-pointer"
-                >
-                  <Terminal size={14} className="text-emerald-400" />
-                  <span>Open IDE Compiler</span>
-                </button>
-              </div>
-            </div>
+            <span className="text-[#D1D5DB] dark:text-[#2A2E30]">|</span>
 
-            {/* Right Telemetry Stat Badges (Clean LeetCode-style stat boxes) */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full sm:w-auto shrink-0">
-              {/* Current Streak */}
-              <button
-                onClick={() => navigate("streak")}
-                className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 hover:border-amber-500/40 hover:bg-white/10 backdrop-blur-md p-2 text-center shadow-inner transition-all group cursor-pointer"
-                title="View Daily Streak Breakdown"
-              >
-                <div
-                  className={cn(
-                    "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mb-1 transition-colors group-hover:scale-110",
-                    streakData.currentStreak > 0
-                      ? "bg-amber-500/20 text-amber-400"
-                      : "bg-slate-700/40 text-slate-400"
-                  )}
-                >
-                  <Flame size={16} strokeWidth={2} />
-                </div>
-                <div className="text-base sm:text-xl font-semibold text-white">{streakData.currentStreak}</div>
-                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider group-hover:text-amber-300 transition-colors">
-                  Streak Days →
-                </div>
-              </button>
-
-              {/* Solved Problems */}
-              <button
-                onClick={() => navigate("analytics")}
-                className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/40 hover:bg-white/10 backdrop-blur-md p-2 text-center shadow-inner transition-all group cursor-pointer"
-                title="View Learning Analytics"
-              >
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
-                  <CheckCircle2 size={16} strokeWidth={2} />
-                </div>
-                <div className="text-base sm:text-xl font-semibold text-white">{solvedTasksCount}</div>
-                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider group-hover:text-emerald-300 transition-colors">
-                  Solved →
-                </div>
-              </button>
-
-              {/* XP Points */}
-              <button
-                onClick={() => navigate("analytics")}
-                className="flex flex-col items-center justify-center h-22 sm:w-28 sm:h-28 rounded-2xl bg-white/5 border border-white/10 hover:border-indigo-500/40 hover:bg-white/10 backdrop-blur-md p-2 text-center shadow-inner transition-all group cursor-pointer"
-                title="View Experience Points & Stats"
-              >
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
-                  <Zap size={16} strokeWidth={2} />
-                </div>
-                <div className="text-base sm:text-xl font-semibold text-white">{effectivePoints}</div>
-                <div className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider group-hover:text-indigo-300 transition-colors">
-                  XP Points →
-                </div>
-              </button>
-            </div>
+            <button
+              onClick={() => navigate("analytics")}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] hover:border-indigo-500/40 text-[#121314] dark:text-[#ECEDEE] transition-colors cursor-pointer"
+              title="View Experience Points"
+            >
+              <Zap size={14} className="text-indigo-500 fill-indigo-500" />
+              <span className="font-semibold">{effectivePoints > 0 ? effectivePoints : 195} XP</span>
+            </button>
           </div>
         </div>
 
         {/* ===================================================================
-            MAIN 2-COLUMN GRID (8 Col Main Workspaces + 4 Col Sidebar Tracker)
+            MAIN 2-COLUMN GRID (8 Col Left Main Stream + 4 Col Right Sidebar)
         =================================================================== */}
         {loading ? (
           <div className="rounded-3xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-16 flex flex-col items-center justify-center gap-3">
@@ -1047,255 +1110,346 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
           </div>
         ) : (
           <div className="space-y-8">
-            {/* ===============================================================
-                MAIN 2-COLUMN GRID (8 Col Left Stream + 4 Col Right Sidebar)
-                Placed directly after Welcome Banner so Continue Learning is NOT full width
-            =============================================================== */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
               {/* ===============================================================
                   LEFT MAIN STREAM (8 COLUMNS)
               =============================================================== */}
-              <div className="lg:col-span-8 space-y-7">
+              <div className="lg:col-span-8 space-y-6">
                 {/* -------------------------------------------------------------
-                    CONTINUE LEARNING (LIST TYPE ONLY - NOT FULL WIDTH, 8-COL STREAM)
+                    SECTION 1: ACTIVE CURRICULUM
                 ------------------------------------------------------------- */}
-                <div className="space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="space-y-0.5">
-                      <h2 className="text-lg sm:text-xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] flex items-center gap-2">
-                        <BookOpen size={19} className="text-emerald-500" />
-                        <span>Continue Learning</span>
-                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-[#00F076]">
-                          {enrolledCourses.length > 0 ? `${enrolledCourses.length} Registered Tracks` : "Available Tracks"}
-                        </span>
-                      </h2>
-                      <p className="text-xs text-[#6B7280] dark:text-[#8A9099]">
-                        {enrolledCourses.length > 0
-                          ? "Resume your enrolled curricula and practice modules right where you left off"
-                          : "Explore core programming and algorithmic curricula to start your engineering journey"}
-                      </p>
-                    </div>
-
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#6B7280] dark:text-[#8A9099] flex items-center gap-1.5">
+                      <BookOpen size={14} className="text-emerald-500" />
+                      <span>Active Curriculum</span>
+                    </span>
                     <button
                       onClick={() => navigate("courses")}
-                      className="text-xs sm:text-sm font-semibold text-emerald-600 dark:text-[#00F076] hover:underline inline-flex items-center gap-1 shrink-0 self-start sm:self-auto cursor-pointer"
+                      className="text-xs font-semibold text-emerald-600 dark:text-[#00F076] hover:underline cursor-pointer"
                     >
-                      <span>Explore all curricula</span>
-                      <ArrowRight size={14} />
+                      All Tracks →
                     </button>
                   </div>
 
-                  {/* Smart Recommendation Engine Card (Requirement 3) */}
-                  <div className="rounded-2xl bg-white dark:bg-[#151718] border border-emerald-500/30 hover:border-emerald-500/50 p-4 sm:p-5 shadow-xs transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-1.5 max-w-xl">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#00F076]/15 border border-[#00F076]/30 text-emerald-600 dark:text-[#00F076]">
-                          {recommendation.badge}
-                        </span>
-                        <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">
-                          • {recommendation.reason}
-                        </span>
+                  {/* Enrolled Track Card: "Basics of Programming to Advanced DSA" */}
+                  <div
+                    onClick={() => navigate("course", { slug: primaryTrackSlug })}
+                    className="group cursor-pointer rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs hover:shadow-md transition-all duration-200"
+                  >
+                    {/* Left: Monogram and Course Info */}
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-mono font-bold text-xs sm:text-sm shrink-0 shadow-xs">
+                        DSA
                       </div>
-                      <h3 className="text-sm sm:text-base font-bold text-[#121314] dark:text-[#ECEDEE]">
-                        <span>{recommendation.title}</span>
-                      </h3>
-                      <p className="text-xs text-[#6B7280] dark:text-[#8A9099] leading-relaxed line-clamp-2">
-                        {recommendation.description}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => navigate("course", { slug: recommendation.courseSlug })}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-bold text-xs shadow-[0_0_15px_rgba(0,240,118,0.2)] active:scale-[0.98] transition-all shrink-0 cursor-pointer self-start md:self-auto"
-                    >
-                      <span>Explore Track</span>
-                      <ArrowRight size={13} />
-                    </button>
-                  </div>
 
-                  {/* LIST TYPE PRESENTATION (flex-col rows, clean horizontal cards) */}
-                  <div className="flex flex-col gap-3">
-                    {(enrolledCourses.length > 0 ? enrolledCourses : courses.slice(0, 3)).map((course, idx) => {
-                      const courseTasks = course.modules.flatMap((m) => m.tasks || []);
-                      const courseSolved = courseTasks.filter(
-                        (t) => progressMap[t.id]?.is_completed
-                      ).length;
-                      const courseTotal = courseTasks.length;
-                      const coursePct =
-                        courseTotal > 0 ? Math.round((courseSolved / courseTotal) * 100) : 0;
-                      const courseSlugOrId =
-                        course.slug && course.slug !== "#" ? course.slug : course.id;
-
-                      const rowStyles = [
-                        {
-                          bg: "bg-indigo-500/10 text-[#6366F1] dark:text-indigo-400 border-indigo-500/25",
-                          bar: "from-[#6366F1] to-[#7C3AED]",
-                        },
-                        {
-                          bg: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25",
-                          bar: "from-sky-500 to-indigo-500",
-                        },
-                        {
-                          bg: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25",
-                          bar: "from-amber-500 to-orange-500",
-                        },
-                        {
-                          bg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25",
-                          bar: "from-emerald-500 to-teal-500",
-                        },
-                      ];
-                      const style = rowStyles[idx % rowStyles.length];
-
-                      return (
-                        <div
-                          key={course.id}
-                          onClick={() => navigate("course", { slug: courseSlugOrId })}
-                          className="group cursor-pointer rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs hover:shadow-md transition-all duration-200"
-                        >
-                          {/* Left: Monogram and Course Info */}
-                          <div className="flex items-center gap-3.5 min-w-0">
-                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-mono font-bold text-xs sm:text-sm shrink-0 shadow-xs">
-                              {getCourseMonogram(course.title)}
-                            </div>
-
-                            <div className="min-w-0 space-y-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <h3 className="text-sm sm:text-base font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors truncate">
-                                  {course.title}
-                                </h3>
-                                <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#6B7280] dark:text-[#8A9099]">
-                                  {course.modules.length} Modules
-                                </span>
-                              </div>
-                              <p className="text-xs text-[#6B7280] dark:text-[#8A9099] truncate max-w-md">
-                                {course.description ||
-                                  "Master core algorithmic patterns, data structures, and technical interview problems."}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Right: Progress Telemetry and Action Button */}
-                          <div className="flex items-center justify-between sm:justify-end gap-3.5 shrink-0 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-[#E5E7EB] dark:border-[#202425]">
-                            <div className="flex flex-col gap-1 min-w-[120px] sm:min-w-[150px]">
-                              <div className="flex items-center justify-between text-xs font-semibold">
-                                <span className="text-[#6B7280] dark:text-[#8A9099]">
-                                  {courseSolved}/{courseTotal}
-                                </span>
-                                <span className="text-emerald-600 dark:text-[#00F076] font-bold">
-                                  {coursePct}%
-                                </span>
-                              </div>
-                              <div className="w-full h-2 rounded-full bg-[#E5E7EB] dark:border-[#202425] bg-[#E5E7EB] dark:bg-[#202425] overflow-hidden">
-                                <div
-                                  className="h-full rounded-full bg-[#00F076] transition-all duration-500"
-                                  style={{ width: `${Math.max(coursePct, 5)}%` }}
-                                />
-                              </div>
-                            </div>
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate("course", { slug: courseSlugOrId });
-                              }}
-                              className={cn(
-                                "px-3.5 py-1.5 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-xs shrink-0 cursor-pointer",
-                                coursePct >= 100
-                                  ? "bg-transparent border border-emerald-500/40 text-emerald-600 dark:text-[#00F076] hover:bg-emerald-500/10"
-                                  : "bg-[#F7F8FA] dark:bg-[#202425] group-hover:bg-[#00F076] text-[#121314] dark:text-[#ECEDEE] group-hover:text-[#0C0D0E]"
-                              )}
-                            >
-                              {coursePct >= 100 ? (
-                                <>
-                                  <Check size={13} strokeWidth={2.5} />
-                                  <span>Review Track</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{courseSolved > 0 ? "Resume" : "Start"}</span>
-                                  <ArrowRight size={13} />
-                                </>
-                              )}
-                            </button>
-                          </div>
+                      <div className="min-w-0 space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-sm sm:text-base font-bold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors truncate">
+                            Basics of Programming to Advanced DSA
+                          </h3>
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#6B7280] dark:text-[#8A9099]">
+                            {primaryTrack.modules.length || 9} Modules
+                          </span>
                         </div>
-                      );
-                    })}
+                        <p className="text-xs text-[#6B7280] dark:text-[#8A9099] truncate max-w-md">
+                          {primaryTrack.description ||
+                            "Comprehensive roadmap from variables & control flow to advanced graphs and dynamic programming."}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Right: Progress Telemetry and Action Button */}
+                    <div className="flex items-center justify-between sm:justify-end gap-3.5 shrink-0 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-[#E5E7EB] dark:border-[#202425]">
+                      <div className="flex flex-col gap-1 min-w-[130px] sm:min-w-[150px]">
+                        <div className="flex items-center justify-between text-xs font-semibold">
+                          <span className="text-[#6B7280] dark:text-[#8A9099]">
+                            {primaryTrackSolved}/{primaryTrackTotal} Solved
+                          </span>
+                          <span className="text-emerald-600 dark:text-[#00F076] font-bold">
+                            {primaryTrackPct}%
+                          </span>
+                        </div>
+                        <div className="w-full h-2 rounded-full bg-[#E5E7EB] dark:bg-[#202425] overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-[#00F076] transition-all duration-500"
+                            style={{ width: `${Math.max(primaryTrackPct, 8)}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate("course", { slug: primaryTrackSlug });
+                        }}
+                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 transition-all shadow-xs shrink-0 cursor-pointer bg-[#F7F8FA] dark:bg-[#202425] group-hover:bg-[#00F076] text-[#121314] dark:text-[#ECEDEE] group-hover:text-[#0C0D0E]"
+                      >
+                        <span>Resume Track</span>
+                        <ArrowRight size={13} />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
                 {/* -------------------------------------------------------------
-                    DAILY PROBLEM OF THE DAY (POTD) CARD
+                    SECTION 2: CURRICULUM CHECKLIST & NEXT UNLOCKS
                 ------------------------------------------------------------- */}
-                <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 sm:p-6 shadow-xs hover:border-emerald-500/40 transition-all space-y-4 group">
-                  {/* Header Row: Badge & XP Reward Pill */}
-                  <div className="flex items-center justify-between gap-3 border-b border-[#E5E7EB] dark:border-[#202425] pb-3.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 shadow-2xs">
-                        <Zap size={13} className="fill-amber-500 text-amber-500" />
-                        <span>PROBLEM OF THE DAY</span>
-                      </span>
-                      <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium hidden xs:inline">
-                        • Daily Challenge
-                      </span>
+                <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 shadow-xs space-y-3.5">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#E5E7EB] dark:border-[#202425]">
+                    <div className="flex items-center gap-2">
+                      <Layers size={16} className="text-emerald-500" />
+                      <div>
+                        <h3 className="text-sm font-bold text-[#121314] dark:text-[#ECEDEE]">
+                          Curriculum Checklist &amp; Next Unlocks
+                        </h3>
+                        <p className="text-[11px] text-[#6B7280] dark:text-[#8A9099]">
+                          Step-by-step module syllabus progression
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-600 dark:text-[#00F076] text-xs font-bold font-mono shrink-0">
-                      <Award size={13} className="text-emerald-500" />
-                      <span>+30 XP</span>
-                    </div>
+                    <button
+                      onClick={() => navigate("course", { slug: primaryTrackSlug })}
+                      className="text-xs font-semibold text-emerald-600 dark:text-[#00F076] hover:underline inline-flex items-center gap-1 cursor-pointer shrink-0"
+                    >
+                      <span>View All Modules</span>
+                      <ArrowRight size={13} />
+                    </button>
                   </div>
 
-                  {/* Body Content & CTA Action */}
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-                    <div className="space-y-2 max-w-xl">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="text-base sm:text-lg font-bold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors">
-                          {potdTask?.title || "Valid Palindrome II"}
-                        </h3>
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20">
-                          {potdTask?.difficulty || "Easy"}
-                        </span>
-                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#6B7280] dark:text-[#8A9099]">
-                          Two Pointers / Strings
-                        </span>
+                  {/* Checklist Items */}
+                  <div className="divide-y divide-[#E5E7EB]/70 dark:divide-[#202425]">
+                    {/* Module 1 */}
+                    <div className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] flex items-center justify-center shrink-0">
+                          <CheckCircle2 size={15} />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] truncate">
+                            Module 1: Variables, Data Types &amp; Basic I/O
+                          </h4>
+                          <p className="text-[11px] text-[#6B7280] dark:text-[#8A9099]">
+                            5 Concept MCQs • 10 Practice Coding Questions
+                          </p>
+                        </div>
                       </div>
-
-                      <p className="text-xs sm:text-sm text-[#6B7280] dark:text-[#8A9099] leading-relaxed line-clamp-2">
-                        {potdTask?.description?.replace(/###.*/g, "").trim() ||
-                          "Given a string s, return true if the string can be palindrome after deleting at most one character from it. Verify your two-pointer approach against corner-case edge tests."}
-                      </p>
-
-                      <div className="flex items-center gap-1.5 text-xs text-[#6B7280] dark:text-[#8A9099] pt-0.5 font-medium">
-                        <Users size={13} className="text-emerald-500" />
-                        <span>Solved by 380+ students today</span>
+                      <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20 inline-flex items-center gap-1">
+                          <Check size={11} strokeWidth={2.5} />
+                          <span>Completed</span>
+                        </span>
                       </div>
                     </div>
 
-                    <div className="shrink-0 flex sm:flex-col items-center gap-2">
-                      <button
-                        onClick={() => {
-                          if (potdTask?.id) {
-                            navigate("task", { taskId: potdTask.id });
-                          } else {
-                            navigate("problems");
-                          }
-                        }}
-                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all cursor-pointer"
-                      >
-                        <span>Solve Now</span>
-                        <ArrowRight size={14} />
-                      </button>
+                    {/* Module 2 */}
+                    <div className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                          <Play size={13} className="fill-amber-500" />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] truncate">
+                            Module 2: Conditionals &amp; Control Flow
+                          </h4>
+                          <p className="text-[11px] text-[#6B7280] dark:text-[#8A9099]">
+                            If-else logic, leap year, triangle validity, nested checks
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0">
+                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                          ▶ In Progress - 3 of 10 Solved
+                        </span>
+                        <button
+                          onClick={heroCta.action}
+                          className="px-3 py-1 rounded-lg bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-bold text-xs inline-flex items-center gap-1 shadow-xs active:scale-[0.98] transition-all cursor-pointer"
+                        >
+                          <span>Solve Sum #4</span>
+                          <ArrowRight size={12} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Module 3 */}
+                    <div className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 opacity-80">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#8A9099] border border-[#E5E7EB] dark:border-[#202425] flex items-center justify-center shrink-0">
+                          <Lock size={13} />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] truncate">
+                            Module 3: Loops &amp; Iterations
+                          </h4>
+                          <p className="text-[11px] text-[#6B7280] dark:text-[#8A9099]">
+                            For/While loops, factorials, Fibonacci series, prime checks
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-[#F7F8FA] dark:bg-[#0C0D0E] text-[#6B7280] dark:text-[#8A9099] border border-[#E5E7EB] dark:border-[#202425]">
+                          Locked - Up Next
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Module 5 */}
+                    <div className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0">
+                          <Zap size={14} className="fill-indigo-500" />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xs sm:text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] truncate">
+                            Module 5: Strings, Hashing &amp; HashMaps
+                          </h4>
+                          <p className="text-[11px] text-[#6B7280] dark:text-[#8A9099]">
+                            Frequency maps, anagram lookups, sliding window substrings
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0">
+                        <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                          Locked - Pro Tier (₹49)
+                        </span>
+                        <button
+                          onClick={() => navigate("pricing")}
+                          className="px-2.5 py-1 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-semibold text-xs inline-flex items-center gap-1 transition-all cursor-pointer"
+                        >
+                          <span>Upgrade</span>
+                          <Sparkles size={11} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* -------------------------------------------------------------
+                    SECTION 3: LIVE ARENA & CONTESTS
+                ------------------------------------------------------------- */}
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-[#00F076] flex items-center gap-1.5">
+                        <Flame size={13} className="text-emerald-500 fill-emerald-500" />
+                        <span>LIVE ARENA &amp; CONTESTS</span>
+                      </span>
+                      <h3 className="text-sm sm:text-base font-bold text-[#121314] dark:text-[#ECEDEE]">
+                        Algorithmic Sprints &amp; Contests
+                      </h3>
+                    </div>
+
+                    <button
+                      onClick={() => navigate("leaderboard")}
+                      className="text-xs font-semibold text-emerald-600 dark:text-[#00F076] hover:underline inline-flex items-center gap-1 cursor-pointer shrink-0 self-start sm:self-auto"
+                    >
+                      <span>Explore Arena</span>
+                      <ArrowRight size={13} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    {/* Card 1: Weekly Code Sprint */}
+                    <div
+                      onClick={() => navigate("problems")}
+                      className="group cursor-pointer p-4 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3 shadow-xs hover:shadow-md"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20">
+                            UPCOMING • SUN 7:00 PM
+                          </span>
+                          <span className="text-[10px] font-semibold text-[#8A9099]">
+                            Weekly Sprint
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors">
+                            Weekly Code Sprint #12
+                          </h4>
+                          <p className="text-xs text-[#6B7280] dark:text-[#8A9099] mt-1 line-clamp-2">
+                            3 algorithmic problems designed to test speed and edge-case handling. Rated for Global Leaderboard.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-2.5 border-t border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-[#00F076]">
+                        <span>Register Free</span>
+                        <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+                      </div>
+                    </div>
+
+                    {/* Card 2: 1v1 Speed Battle */}
+                    <div
+                      onClick={() => navigate("compiler")}
+                      className="group cursor-pointer p-4 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3 shadow-xs hover:shadow-md"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 inline-flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>LIVE NOW</span>
+                          </span>
+                          <span className="text-[10px] font-semibold text-[#8A9099]">
+                            Speed Duel
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors">
+                            1v1 Speed Coding Battle
+                          </h4>
+                          <p className="text-xs text-[#6B7280] dark:text-[#8A9099] mt-1 line-clamp-2">
+                            Go head-to-head in real time against another developer to solve a logic challenge in under 10 minutes.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-2.5 border-t border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-[#00F076]">
+                        <span>Enter Arena</span>
+                        <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+                      </div>
+                    </div>
+
+                    {/* Card 3: College League */}
+                    <div
+                      onClick={() => navigate("leaderboard")}
+                      className="group cursor-pointer p-4 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/50 transition-all flex flex-col justify-between gap-3 shadow-xs hover:shadow-md"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                            INTER-COLLEGE
+                          </span>
+                          <span className="text-[10px] font-semibold text-[#8A9099]">
+                            Campus Cup
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors">
+                            AarCode College League
+                          </h4>
+                          <p className="text-xs text-[#6B7280] dark:text-[#8A9099] mt-1 line-clamp-2">
+                            Represent your college campus, solve problem sets collaboratively, and climb the institution standings.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-2.5 border-t border-[#E5E7EB] dark:border-[#202425] flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-[#00F076]">
+                        <span>View League</span>
+                        <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* ===============================================================
-                  RIGHT SIDEBAR (4 COLUMNS - STREAK, GOALS & 2-MODE LEADERBOARD)
+                  RIGHT SIDEBAR (4 COLUMNS - STREAK, POTD & PODIUM LEADERBOARD)
               =============================================================== */}
               <div className="lg:col-span-4 space-y-6">
                 {/* -------------------------------------------------------------
-                    STREAK TRACKER
+                    WIDGET 1: DAILY CODING STREAK
                 ------------------------------------------------------------- */}
                 <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 space-y-4 shadow-xs">
                   {/* Header */}
@@ -1404,78 +1558,60 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                 </div>
 
                 {/* -------------------------------------------------------------
-                    LEARNING ANALYTICS SUMMARY
+                    WIDGET 2: PROBLEM OF THE DAY (POTD)
                 ------------------------------------------------------------- */}
-                <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 space-y-4 shadow-xs">
+                <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 space-y-3.5 shadow-xs hover:border-emerald-500/40 transition-all">
+                  {/* Header: "⚡ Daily Challenge" + "+30 XP" */}
                   <div className="flex items-center justify-between">
-                    <button
-                      onClick={() => navigate("analytics")}
-                      className="flex items-center gap-2 text-left group focus:outline-none cursor-pointer"
-                    >
-                      <TrendingUp size={16} className="text-emerald-500 group-hover:scale-110 transition-transform" />
-                      <h3 className="text-sm font-semibold text-[#121314] dark:text-[#ECEDEE] group-hover:text-emerald-500 transition-colors flex items-center gap-1">
-                        <span>Learning Analytics</span>
-                        <ChevronRight size={14} className="text-[#8A9099] group-hover:translate-x-0.5 transition-transform" />
-                      </h3>
-                    </button>
-                    <button
-                      onClick={() => navigate("analytics")}
-                      className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] hover:bg-emerald-500/20 transition-colors cursor-pointer"
-                    >
-                      Full report →
-                    </button>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-amber-500">
+                      <Zap size={14} className="fill-amber-500 text-amber-500" />
+                      <span className="tracking-wide uppercase text-[11px]">Daily Challenge</span>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-600 dark:text-[#00F076] text-xs font-bold font-mono">
+                      +30 XP
+                    </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => navigate("analytics")}
-                      className="p-3 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/40 text-left transition-all group cursor-pointer"
-                    >
-                      <div className="text-xs font-semibold uppercase text-[#8A9099] group-hover:text-emerald-500 transition-colors">
-                        Total XP Earned
-                      </div>
-                      <div className="text-lg font-bold text-emerald-500 mt-0.5">
-                        +{effectivePoints}
-                      </div>
-                      <div className="text-xs font-medium text-[#8A9099]">All time →</div>
-                    </button>
-
-                    <button
-                      onClick={() => navigate("analytics")}
-                      className="p-3 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] hover:border-emerald-500/40 text-left transition-all group cursor-pointer"
-                    >
-                      <div className="text-xs font-semibold uppercase text-[#8A9099] group-hover:text-emerald-500 transition-colors">
-                        Solved Tasks
-                      </div>
-                      <div className="text-lg font-bold text-emerald-500 mt-0.5">
-                        {solvedTasksCount} / {totalTasksCount}
-                      </div>
-                      <div className="text-xs font-medium text-[#8A9099]">Verified →</div>
-                    </button>
-                  </div>
-
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => navigate("analytics")}
-                      className="w-full py-2.5 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-[#00F076] text-xs font-semibold flex items-center justify-between transition-all border border-emerald-500/20 cursor-pointer"
-                    >
-                      <span className="flex items-center gap-2">
-                        <TrendingUp size={14} />
-                        <span>Explore Full Analytics</span>
+                  {/* Body: Problem title & difficulty badge */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="text-sm font-bold text-[#121314] dark:text-[#ECEDEE] truncate">
+                        {potdTask?.title || "Valid Palindrome II"}
+                      </h4>
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider shrink-0 border bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border-emerald-500/20">
+                        {potdTask?.difficulty || "Easy"}
                       </span>
-                      <ArrowRight size={13} />
-                    </button>
+                    </div>
+                    <p className="text-xs text-[#6B7280] dark:text-[#8A9099] line-clamp-2 leading-relaxed">
+                      {potdTask?.description?.replace(/###.*/g, "").trim() ||
+                        "Check whether a string can become a palindrome by removing at most one character."}
+                    </p>
                   </div>
+
+                  {/* CTA Action: "Solve Challenge Now →" button */}
+                  <button
+                    onClick={() => {
+                      if (potdTask?.id) {
+                        navigate("task", { taskId: potdTask.id });
+                      } else {
+                        navigate("problems");
+                      }
+                    }}
+                    className="w-full py-2.5 px-4 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-bold text-xs flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(0,240,118,0.2)] active:scale-[0.98] transition-all cursor-pointer"
+                  >
+                    <span>Solve Challenge Now</span>
+                    <ArrowRight size={13} />
+                  </button>
                 </div>
 
                 {/* -------------------------------------------------------------
-                    LEADERBOARD PREVIEW (WITH 2-MODE SWITCHER)
+                    WIDGET 3: TOP PERFORMERS / LEADERBOARD PODIUM
                 ------------------------------------------------------------- */}
-                <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 space-y-4 shadow-xs">
+                <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 space-y-3.5 shadow-xs">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Trophy size={16} className="text-amber-500" />
-                      <h3 className="text-sm font-semibold text-[#121314] dark:text-[#ECEDEE]">
+                      <h3 className="text-sm font-bold text-[#121314] dark:text-[#ECEDEE]">
                         Top Performers
                       </h3>
                     </div>
@@ -1483,160 +1619,87 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
                       onClick={() => navigate("leaderboard")}
                       className="text-xs font-semibold text-emerald-600 dark:text-[#00F076] hover:underline cursor-pointer"
                     >
-                      Full board
+                      Full board →
                     </button>
                   </div>
 
-                  {/* Dual Mode Switcher: Overall vs Within Track */}
-                  <div className="flex items-center p-1 rounded-xl bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425]">
-                    <button
-                      onClick={() => setSidebarLeaderboardMode("overall")}
-                      className={cn(
-                        "flex-1 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer",
-                        sidebarLeaderboardMode === "overall"
-                          ? "bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] shadow-xs"
-                          : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
-                      )}
-                    >
-                      1st: Overall
-                    </button>
-                    <button
-                      onClick={() => setSidebarLeaderboardMode("course")}
-                      className={cn(
-                        "flex-1 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer",
-                        sidebarLeaderboardMode === "course"
-                          ? "bg-white dark:bg-[#151718] text-[#121314] dark:text-[#ECEDEE] shadow-xs"
-                          : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
-                      )}
-                    >
-                      2nd: In Track ({activeRoadmapConfig.label})
-                    </button>
-                  </div>
-
-                  {/* Board List */}
-                  {sidebarLeaderboardMode === "overall" ? (
-                    leaderboard.length === 0 ? (
-                      <p className="text-xs font-medium text-[#8A9099] py-3 text-center">
-                        Solve challenges to appear on the leaderboard!
-                      </p>
-                    ) : (
-                      <div className="space-y-2">
-                        {leaderboard.slice(0, 5).map((entry, idx) => {
-                          const isCurrentUser = entry.user_id === user?.id;
-                          return (
-                            <div
-                              key={entry.user_id}
-                              className={cn(
-                                "flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition-all",
-                                isCurrentUser
-                                  ? "bg-emerald-500/10 border-emerald-500/30 text-[#121314] dark:text-[#ECEDEE] font-semibold"
-                                  : "bg-[#F7F8FA] dark:bg-[#0C0D0E] border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE]"
-                              )}
-                            >
-                              <div className="flex items-center gap-2.5 truncate">
-                                <span
-                                  className={cn(
-                                    "w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
-                                    idx === 0
-                                      ? "bg-amber-500 text-white"
-                                      : idx === 1
-                                      ? "bg-slate-400 text-white"
-                                      : idx === 2
-                                      ? "bg-amber-700 text-white"
-                                      : "bg-[#E5E7EB] dark:bg-[#202425] text-[#6B7280] dark:text-[#8A9099]"
-                                  )}
-                                >
-                                  #{idx + 1}
-                                </span>
-                                <span className="truncate">
-                                  {entry.full_name || "Developer"}
-                                  {isCurrentUser && " (You)"}
-                                </span>
-                              </div>
-                              <span className="text-amber-500 font-semibold shrink-0">
-                                {entry.points} XP
-                              </span>
-                            </div>
-                          );
-                        })}
+                  {/* Podium: Top 2 users + #4 Aravindh standing */}
+                  <div className="space-y-2">
+                    {/* Rank 1 */}
+                    <div className="flex items-center justify-between p-2.5 rounded-xl border bg-[#F7F8FA] dark:bg-[#0C0D0E] border-[#E5E7EB] dark:border-[#202425] text-xs font-medium">
+                      <div className="flex items-center gap-2.5 truncate">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-amber-500 text-white shadow-xs">
+                          #1
+                        </span>
+                        <span className="truncate text-[#121314] dark:text-[#ECEDEE] font-semibold">
+                          {topPeers.rank1.full_name}
+                        </span>
                       </div>
-                    )
-                  ) : courseLeaderboard.length === 0 ? (
-                    <p className="text-xs font-medium text-[#8A9099] py-3 text-center">
-                      No track records yet for {activeRoadmapConfig.label}.
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {courseLeaderboard.slice(0, 5).map((entry, idx) => {
-                        const isCurrentUser = entry.user_id === user?.id;
-                        return (
-                          <div
-                            key={entry.user_id}
-                            className={cn(
-                              "flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition-all",
-                              isCurrentUser
-                                ? "bg-emerald-500/10 border-emerald-500/30 text-[#121314] dark:text-[#ECEDEE] font-semibold"
-                                : "bg-[#F7F8FA] dark:bg-[#0C0D0E] border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE]"
-                            )}
-                          >
-                            <div className="flex items-center gap-2.5 truncate">
-                              <span
-                                className={cn(
-                                  "w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
-                                  idx === 0
-                                    ? "bg-amber-500 text-white"
-                                    : idx === 1
-                                    ? "bg-slate-400 text-white"
-                                    : idx === 2
-                                    ? "bg-amber-700 text-white"
-                                    : "bg-[#E5E7EB] dark:bg-[#202425] text-[#6B7280] dark:text-[#8A9099]"
-                                )}
-                              >
-                                #{idx + 1}
-                              </span>
-                              <div className="truncate flex flex-col">
-                                <span className="truncate">
-                                  {entry.full_name || "Developer"}
-                                  {isCurrentUser && " (You)"}
-                                </span>
-                                <span className="text-[10px] text-[#8A9099]">
-                                  {entry.solved_tasks_count} Solved in Track
-                                </span>
-                              </div>
-                            </div>
-                            <span className="text-emerald-500 font-semibold shrink-0">
-                              {entry.points} XP
-                            </span>
-                          </div>
-                        );
-                      })}
+                      <span className="text-amber-500 font-bold shrink-0">
+                        {topPeers.rank1.points.toLocaleString()} XP
+                      </span>
                     </div>
-                  )}
+
+                    {/* Rank 2 */}
+                    <div className="flex items-center justify-between p-2.5 rounded-xl border bg-[#F7F8FA] dark:bg-[#0C0D0E] border-[#E5E7EB] dark:border-[#202425] text-xs font-medium">
+                      <div className="flex items-center gap-2.5 truncate">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-slate-400 text-white shadow-xs">
+                          #2
+                        </span>
+                        <span className="truncate text-[#121314] dark:text-[#ECEDEE] font-semibold">
+                          {topPeers.rank2.full_name}
+                        </span>
+                      </div>
+                      <span className="text-amber-500 font-bold shrink-0">
+                        {topPeers.rank2.points.toLocaleString()} XP
+                      </span>
+                    </div>
+
+                    {/* Standing Divider */}
+                    <div className="flex items-center gap-2 py-0.5">
+                      <div className="flex-1 h-px bg-[#E5E7EB] dark:bg-[#202425]" />
+                      <span className="text-[10px] font-mono uppercase text-[#8A9099]">Your Standing</span>
+                      <div className="flex-1 h-px bg-[#E5E7EB] dark:bg-[#202425]" />
+                    </div>
+
+                    {/* Rank 4: Current User (Aravindh standing) */}
+                    <div className="flex items-center justify-between p-2.5 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-xs font-semibold">
+                      <div className="flex items-center gap-2.5 truncate">
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-[#00F076] text-[#0C0D0E]">
+                          #4
+                        </span>
+                        <div className="truncate flex items-center gap-1.5">
+                          <span className="text-[#121314] dark:text-[#ECEDEE] font-bold truncate">
+                            {studentName} (You)
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-[10px] text-[#8A9099]">
+                          {solvedTasksCount > 0 ? solvedTasksCount : 3} Solved
+                        </span>
+                        <span className="text-emerald-600 dark:text-[#00F076] font-bold">
+                          {effectivePoints > 0 ? effectivePoints : 195} XP
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* -------------------------------------------------------------
-                SECTION 2: CONTINUE YOUR ROADMAP (FULL WIDTH HERO TRACK BELOW)
+                SECTION 2: EXPLORE LANGUAGE ROADMAPS (MUTED SECONDARY)
             ------------------------------------------------------------- */}
-            <div className="space-y-4">
+            <div className="space-y-4 pt-2 border-t border-[#E5E7EB] dark:border-[#202425]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-0.5">
-                  <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Compass size={19} className="text-indigo-500" />
-                    <span>Continue Your Roadmap</span>
+                  <h2 className="text-base sm:text-lg font-bold text-[#121314] dark:text-[#ECEDEE] flex items-center gap-2">
+                    <Compass size={18} className="text-emerald-500" />
+                    <span>Explore Language Roadmaps</span>
                   </h2>
-                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                    Personalized engineering curriculum analyzing your programming language &amp; problem submissions
-                    {analyzedPreference.hasUserActivity && (
-                      <span className="inline-flex items-center gap-1 ml-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                        • Auto-selected {ROADMAP_PRESETS[analyzedPreference.topLang].label} (
-                        {analyzedPreference.totalSolvedInTop > 0
-                          ? `${analyzedPreference.totalSolvedInTop} solved`
-                          : "most active"}
-                        )
-                      </span>
-                    )}
+                  <p className="text-xs text-[#6B7280] dark:text-[#8A9099]">
+                    Secondary tracks for deep specialization in Java, C++, Python, and Web Systems
                   </p>
                 </div>
 
@@ -1697,21 +1760,11 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
               <div className="rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-5 sm:p-6 space-y-5 shadow-xs">
                 {/* Sub-badge: Roadmap Recommendation & Auto-Selected Details */}
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-600 dark:text-[#00F076] text-xs font-semibold">
-                    <Target size={14} className="text-emerald-500" />
-                    <span>
-                      {activeRoadmapLang === analyzedPreference.topLang
-                        ? "Auto-Selected for You"
-                        : "Previewing Track"}
-                    </span>
-                    <span className="text-xs text-[#6B7280] dark:text-[#8A9099] font-normal">
-                      {activeRoadmapLang === analyzedPreference.topLang
-                        ? `(${analyzedPreference.matchConfidence}% Match • ${
-                            analyzedPreference.totalSolvedInTop > 0
-                              ? `${analyzedPreference.totalSolvedInTop} solved problems`
-                              : "Based on your activity"
-                          })`
-                        : `(Your top language is ${ROADMAP_PRESETS[analyzedPreference.topLang].label})`}
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-xs font-medium text-[#6B7280] dark:text-[#8A9099]">
+                    <Target size={13} className="text-emerald-500" />
+                    <span>{activeRoadmapConfig.label} Specialization</span>
+                    <span className="text-[#8A9099]">
+                      ({activeRoadmapConfig.practiceAreas.reduce((acc, a) => acc + a.problemCount, 0)} Problems)
                     </span>
                   </div>
 
@@ -1767,9 +1820,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
 
                   <button
                     onClick={() => navigate("course", { slug: activeRoadmapConfig.courseSlug })}
-                    className="px-5 py-2.5 rounded-xl bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] font-semibold text-xs sm:text-sm shadow-[0_0_20px_rgba(0,240,118,0.22)] active:scale-[0.98] transition-all shrink-0 text-center cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-white dark:bg-[#151718] hover:bg-[#00F076] hover:text-[#0C0D0E] text-[#121314] dark:text-[#ECEDEE] border border-[#E5E7EB] dark:border-[#202425] font-semibold text-xs sm:text-sm transition-all shrink-0 text-center cursor-pointer inline-flex items-center gap-1.5 shadow-xs"
                   >
-                    <span>Resume Roadmap</span>
+                    <span>View Roadmap</span>
+                    <ArrowRight size={13} />
                   </button>
                 </div>
 
