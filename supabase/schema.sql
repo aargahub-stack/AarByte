@@ -24,6 +24,9 @@ CREATE TABLE IF NOT EXISTS public.courses (
     description TEXT,
     icon TEXT, -- e.g., 'code', 'layout', 'terminal'
     is_published BOOLEAN DEFAULT false,
+    category TEXT,
+    difficulty TEXT DEFAULT 'Beginner',
+    enrollment_status TEXT DEFAULT 'open' CHECK (enrollment_status IN ('open', 'closed', 'coming_soon')),
     created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -35,6 +38,7 @@ CREATE TABLE IF NOT EXISTS public.modules (
     course_id UUID REFERENCES public.courses(id) ON DELETE CASCADE NOT NULL,
     title TEXT NOT NULL,
     order_index INTEGER NOT NULL DEFAULT 1,
+    is_pro_only BOOLEAN DEFAULT false,
     about_content TEXT, -- Markdown study guide ("What is it, where to use, examples")
     youtube_url TEXT, -- Video tutorial link
     youtube_title TEXT, -- Video title
@@ -54,9 +58,12 @@ CREATE TABLE IF NOT EXISTS public.tasks (
     task_type TEXT DEFAULT 'algorithm' CHECK (task_type IN ('algorithm', 'web_dom')),
     language TEXT NOT NULL, -- 'python', 'java', 'cpp', 'html', etc.
     difficulty TEXT DEFAULT 'easy' CHECK (difficulty IN ('easy', 'medium', 'hard')),
+    is_pro_only BOOLEAN DEFAULT false,
     starter_code TEXT, -- Default boilerplate code in Monaco editor
     solution_code TEXT, -- Reference solution (admin view only)
     hints JSONB DEFAULT '[]'::jsonb, -- Array of string hints
+    options JSONB DEFAULT '[]'::jsonb, -- Array of strings for MCQs
+    correct_answer TEXT, -- Answer for MCQs
     points INTEGER DEFAULT 10,
     order_index INTEGER NOT NULL DEFAULT 1,
     created_at TIMESTAMPTZ DEFAULT NOW(),

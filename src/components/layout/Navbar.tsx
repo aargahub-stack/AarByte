@@ -172,26 +172,6 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
 
             {user ? (
               <div className="flex items-center gap-3">
-                {/* Streak Badge */}
-                <button
-                  onClick={() => handleNav({ route: "streak" })}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-xs font-bold transition-all cursor-pointer"
-                  title="View Daily Coding Streak & History"
-                >
-                  <Flame size={13} className="text-amber-500 fill-amber-500/20" />
-                  <span>Streak</span>
-                </button>
-
-                {/* Points Badge */}
-                <button
-                  onClick={() => handleNav({ route: "analytics" })}
-                  className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 text-indigo-600 dark:text-indigo-400 text-xs font-bold transition-all cursor-pointer"
-                  title="View Learning Analytics"
-                >
-                  <Zap size={13} className="text-amber-500 fill-amber-500/20" />
-                  <span>{points} XP</span>
-                </button>
-
                 {/* Profile Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                   <button

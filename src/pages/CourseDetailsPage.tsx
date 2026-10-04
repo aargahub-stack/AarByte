@@ -33,6 +33,8 @@ import { useToast } from "@/hooks/useToast";
 import { enrollmentStorage } from "@/services/storage/enrollmentStorage";
 import { progressStorage } from "@/services/storage/progressStorage";
 import { DEMO_COURSES } from "@/data/demoCourses";
+import { planStorage } from "@/services/storage/planStorage";
+import { ProUpgradeModal } from "@/components/modals/ProUpgradeModal";
 import { cn } from "@/utils/cn";
 
 interface CourseDetailsPageProps {
@@ -53,6 +55,7 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showProModal, setShowProModal] = useState(false);
 
   useEffect(() => {
     async function loadCourse() {
@@ -313,6 +316,14 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
             const activeTab = moduleTabs[mod.id] || "tasks";
             const modTasks = mod.tasks || [];
             const modSolved = modTasks.filter((t) => progressMap[t.id]?.is_completed).length;
+            const isModulePro =
+              mod.is_pro_only ??
+              (mod.order_index >= 5 ||
+                mod.key_takeaways?.some(
+                  (k) =>
+                    k.toLowerCase().includes("pro tier") ||
+                    k.toLowerCase().includes("pro: true")
+                ));
 
             const embedUrl = getYouTubeEmbedUrl(mod.youtube_url);
 
@@ -332,9 +343,20 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
                       {modIdx + 1}
                     </div>
                     <div>
-                      <h3 className="text-base font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
-                        {mod.title}
-                      </h3>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-base font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
+                          {mod.title}
+                        </h3>
+                        {isModulePro ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                            <Lock size={10} /> Pro (₹49)
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-[#00F076] text-[10px] font-bold uppercase tracking-wider">
+                            Free Starter
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">
                         {modSolved}/{modTasks.length} Completed
                       </p>
@@ -736,22 +758,33 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
 
                                 {/* Action Button */}
                                 <div className="flex items-center justify-end w-full sm:w-auto pt-2.5 sm:pt-0 border-t sm:border-t-0 border-[#E5E7EB] dark:border-[#202425]">
-                                  <button
-                                    type="button"
-                                    onClick={() => navigate("task", { taskId: task.id })}
-                                    className={cn(
-                                      "w-full sm:w-auto justify-center flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 min-h-[38px]",
-                                      isSolved
-                                        ? "bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE] hover:border-emerald-500/50 hover:text-emerald-500"
-                                        : "bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] shadow-[0_0_15px_rgba(0,240,118,0.2)] active:scale-95"
-                                    )}
-                                  >
-                                    <span>{isSolved ? "Practice Again" : "Solve Challenge"}</span>
-                                    <ArrowRight
-                                      size={13}
-                                      className="group-hover:translate-x-0.5 transition-transform"
-                                    />
-                                  </button>
+                                  {isModulePro && !planStorage.isProUser() ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowProModal(true)}
+                                      className="w-full sm:w-auto justify-center flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 min-h-[38px] bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 dark:text-amber-400 border border-amber-500/30 active:scale-95 shadow-[0_0_15px_rgba(245,158,11,0.15)]"
+                                    >
+                                      <Lock size={13} />
+                                      <span>Unlock with Pro</span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => navigate("task", { taskId: task.id })}
+                                      className={cn(
+                                        "w-full sm:w-auto justify-center flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 min-h-[38px]",
+                                        isSolved
+                                          ? "bg-[#F7F8FA] dark:bg-[#0C0D0E] border border-[#E5E7EB] dark:border-[#202425] text-[#121314] dark:text-[#ECEDEE] hover:border-emerald-500/50 hover:text-emerald-500"
+                                          : "bg-[#00F076] hover:bg-[#00D96A] text-[#0C0D0E] shadow-[0_0_15px_rgba(0,240,118,0.2)] active:scale-95"
+                                      )}
+                                    >
+                                      <span>{isSolved ? "Practice Again" : "Solve Challenge"}</span>
+                                      <ArrowRight
+                                        size={13}
+                                        className="group-hover:translate-x-0.5 transition-transform"
+                                      />
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                             );
@@ -766,6 +799,11 @@ export function CourseDetailsPage({ slug, navigate }: CourseDetailsPageProps) {
           })}
         </div>
       </div>
+
+      <ProUpgradeModal
+        isOpen={showProModal}
+        onClose={() => setShowProModal(false)}
+      />
     </div>
   );
 }

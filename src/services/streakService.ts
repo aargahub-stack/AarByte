@@ -217,18 +217,18 @@ export function calculateStreak(rawTimestamps: (string | null | undefined)[]): S
 }
 
 /**
- * Generates the 7 days of the current week (Sunday through Saturday)
+ * Generates the 7 days of the current week (Monday through Sunday: M T W T F S S)
  */
 function generateCurrentWeek(refDate: Date, activeDatesSet: Set<string>): WeekDayItem[] {
-  const dayOfWeekLabels = ["S", "M", "T", "W", "T", "F", "S"];
+  const dayOfWeekLabels = ["M", "T", "W", "T", "F", "S", "S"];
   const fullDayNames = [
-    "Sunday",
     "Monday",
     "Tuesday",
     "Wednesday",
     "Thursday",
     "Friday",
     "Saturday",
+    "Sunday",
   ];
   const monthNames = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -237,10 +237,11 @@ function generateCurrentWeek(refDate: Date, activeDatesSet: Set<string>): WeekDa
 
   const todayStr = formatLocalDate(refDate);
 
-  // Find Sunday of the current week
+  // Find Monday of the current week (ISO week: Monday to Sunday)
   const startOfWeek = new Date(refDate);
-  const currentDayIndex = refDate.getDay(); // 0 = Sunday, 1 = Monday...
-  startOfWeek.setDate(refDate.getDate() - currentDayIndex);
+  const currentDay = refDate.getDay(); // 0 = Sunday, 1 = Monday...
+  const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+  startOfWeek.setDate(refDate.getDate() + diffToMonday);
   startOfWeek.setHours(0, 0, 0, 0);
 
   const todayZero = new Date(refDate);

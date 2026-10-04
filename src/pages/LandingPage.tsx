@@ -410,19 +410,23 @@ function EvaluationMetricsSection({ navigate }: { navigate: (to: Route | string)
 ============================================================================ */
 interface PricingPlan {
   name: string;
-  price: string;
+  monthlyPrice: string;
+  yearlyPrice: string;
   period: string;
   tagline: string;
   popular?: boolean;
+  ctaText: string;
   features: string[];
 }
 
 const PRICING_PLANS: PricingPlan[] = [
   {
     name: "Starter",
-    price: "₹0",
-    period: "/ month",
+    monthlyPrice: "₹0",
+    yearlyPrice: "₹0",
+    period: "/month",
     tagline: "Everything you need to start practicing and running code.",
+    ctaText: "Get Started",
     features: [
       "Public Practice Tasks",
       "In-Browser Compiler",
@@ -433,10 +437,12 @@ const PRICING_PLANS: PricingPlan[] = [
   },
   {
     name: "Pro Coder",
-    price: "₹49",
-    period: "/ month",
+    monthlyPrice: "₹49",
+    yearlyPrice: "₹39",
+    period: "/month",
     tagline: "Unlock hidden test cases, curated roadmaps, and deep debugging.",
     popular: true,
+    ctaText: "Upgrade",
     features: [
       "All Starter features",
       "Full Web Dev Roadmaps",
@@ -448,9 +454,11 @@ const PRICING_PLANS: PricingPlan[] = [
   },
   {
     name: "Campus / Team",
-    price: "₹1,199",
-    period: "/ month",
+    monthlyPrice: "₹1,199",
+    yearlyPrice: "₹959",
+    period: "/month",
     tagline: "Built for coding clubs, bootcamps, and university cohorts.",
+    ctaText: "Upgrade",
     features: [
       "Unlimited Student Accounts",
       "Custom Problem Creator",
@@ -462,97 +470,176 @@ const PRICING_PLANS: PricingPlan[] = [
 ];
 
 function PricingSection({ navigate }: { navigate: (to: Route | string) => void }) {
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
+
   return (
-    <section id="pricing" className="scroll-mt-24 space-y-12">
+    <section id="pricing" className="scroll-mt-24 space-y-10 sm:space-y-12">
       {/* Centered Header & Subtitle */}
-      <div className="text-center max-w-2xl mx-auto space-y-3.5">
-        <div className="inline-flex items-center px-3 py-1 rounded-md bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] text-xs font-mono text-[#6B7280] dark:text-[#8A9099]">
-          <span>Transparent Pricing</span>
-        </div>
+      <div className="text-center max-w-2xl mx-auto space-y-3">
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE]">
-          Simple, Transparent Learning
+          Simple, transparent pricing
         </h2>
         <p className="text-base sm:text-lg text-[#6B7280] dark:text-[#8A9099] font-normal">
-          Start free forever and upgrade as you scale your algorithmic &amp; full-stack mastery.
+          No contracts. No surprise fees.
         </p>
+
+        {/* Monthly / Yearly Pill Toggle */}
+        <div className="pt-2 flex justify-center">
+          <div className="inline-flex items-center p-1 rounded-full bg-[#E5E7EB]/80 dark:bg-[#1A1D1E] border border-[#E5E7EB] dark:border-[#262A2D]">
+            <button
+              type="button"
+              onClick={() => setBillingCycle("monthly")}
+              className={cn(
+                "px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer",
+                billingCycle === "monthly"
+                  ? "bg-[#10B981] text-white shadow-sm"
+                  : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
+              )}
+            >
+              Monthly
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingCycle("yearly")}
+              className={cn(
+                "px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center gap-1.5",
+                billingCycle === "yearly"
+                  ? "bg-[#10B981] text-white shadow-sm"
+                  : "text-[#6B7280] dark:text-[#8A9099] hover:text-[#121314] dark:hover:text-[#ECEDEE]"
+              )}
+            >
+              <span>Yearly</span>
+              <span className={cn(
+                "text-[10px] font-semibold lowercase px-1.5 py-0.5 rounded-full",
+                billingCycle === "yearly"
+                  ? "bg-white/20 text-white"
+                  : "bg-[#10B981]/15 text-[#10B981]"
+              )}>
+                save 20%
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* 3 Tier Cards with prices strictly in Indian Rupees (₹) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-7 items-stretch">
-        {PRICING_PLANS.map((plan) => (
-          <div
-            key={plan.name}
-            className={cn(
-              "relative rounded-2xl p-7 sm:p-8 flex flex-col justify-between transition-all duration-200",
-              plan.popular
-                ? "bg-white dark:bg-[#151718] border-2 border-[#10B981] shadow-[0_0_25px_rgba(16,185,129,0.12)] dark:shadow-[0_0_40px_rgba(16,185,129,0.12)] lg:-translate-y-2 ring-1 ring-[#10B981]/20"
-                : "bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs hover:border-[#D1D5DB] dark:hover:border-[#2C3133]"
-            )}
-          >
-            {/* Highlighted 'MOST POPULAR' Pill for Pro Coder */}
-            {plan.popular && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#10B981] text-[#0C0D0E] rounded-full text-xs font-bold py-1 px-3.5 uppercase tracking-wider shadow-sm">
-                MOST POPULAR
-              </div>
-            )}
+      {/* 3-Box Connected Architecture matching UI Reference */}
+      <div className="max-w-5xl mx-auto px-2 sm:px-4">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-6 lg:gap-0">
+          {PRICING_PLANS.map((plan, index) => {
+            const isCenter = plan.popular;
+            const isLeft = index === 0;
+            const isRight = index === 2;
+            const displayPrice = billingCycle === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
 
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-xl font-bold text-[#121314] dark:text-[#ECEDEE] mb-1.5">
-                  {plan.name}
-                </h3>
-                <p className="text-xs sm:text-sm font-normal text-[#6B7280] dark:text-[#8A9099] min-h-[36px]">
-                  {plan.tagline}
-                </p>
-              </div>
-
-              {/* Price Display */}
-              <div className="flex items-baseline gap-1.5 pt-1 pb-4 border-b border-[#E5E7EB] dark:border-[#202425]">
-                <span className="text-4xl sm:text-5xl font-bold tracking-tight text-[#121314] dark:text-[#ECEDEE] font-mono">
-                  {plan.price}
-                </span>
-                <span className="text-xs sm:text-sm font-medium text-[#6B7280] dark:text-[#8A9099]">
-                  {plan.period}
-                </span>
-              </div>
-
-              {/* Features List */}
-              <ul className="space-y-3 pt-1">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3 text-xs sm:text-sm font-medium text-[#374151] dark:text-[#D1D5DB]">
-                    <div
-                      className={cn(
-                        "mt-0.5 w-4 h-4 rounded-full flex items-center justify-center shrink-0",
-                        plan.popular
-                          ? "bg-[#10B981]/15 text-[#10B981]"
-                          : "bg-[#E5E7EB] dark:bg-[#202425] text-[#121314] dark:text-[#ECEDEE]"
-                      )}
-                    >
-                      <Check size={11} strokeWidth={2.8} />
-                    </div>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* CTA Button */}
-            <div className="pt-8">
-              <button
-                onClick={() => navigate("signup")}
+            return (
+              <div
+                key={plan.name}
                 className={cn(
-                  "w-full py-3 px-5 rounded-xl text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer",
-                  plan.popular
-                    ? "bg-[#10B981] hover:bg-[#059669] text-[#0C0D0E] font-bold shadow-[0_0_20px_rgba(16,185,129,0.25)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5 active:translate-y-0"
-                    : "bg-[#F7F8FA] dark:bg-[#1E2022] hover:bg-[#E5E7EB] dark:hover:bg-[#262A2D] text-[#121314] dark:text-[#ECEDEE] font-semibold border border-[#E5E7EB] dark:border-[#202425] hover:-translate-y-0.5 active:translate-y-0"
+                  "relative flex flex-col justify-between transition-all duration-200",
+                  isCenter
+                    ? "w-full lg:w-[38%] bg-gradient-to-b from-[#10B981] via-[#059669] to-[#047857] text-white rounded-3xl p-8 sm:p-9 lg:p-10 shadow-[0_25px_60px_-12px_rgba(16,185,129,0.45)] dark:shadow-[0_30px_70px_-12px_rgba(16,185,129,0.55)] z-20 lg:-my-6 lg:scale-[1.03]"
+                    : cn(
+                        "w-full lg:w-[31%] bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] p-7 sm:p-8 flex flex-col justify-between shadow-sm z-10",
+                        isLeft && "rounded-3xl lg:rounded-r-none lg:border-r-0",
+                        isRight && "rounded-3xl lg:rounded-l-none lg:border-l-0"
+                      )
                 )}
               >
-                <span>Get Started</span>
-                <ArrowRight size={15} />
-              </button>
-            </div>
-          </div>
-        ))}
+                <div>
+                  {/* Top Row: Price + (/month) and optional MOST POPULAR pill */}
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-baseline gap-1.5">
+                      <span
+                        className={cn(
+                          "text-4xl sm:text-5xl font-extrabold tracking-tight font-mono",
+                          isCenter ? "text-white" : "text-[#121314] dark:text-[#ECEDEE]"
+                        )}
+                      >
+                        {displayPrice}
+                      </span>
+                      <span
+                        className={cn(
+                          "text-xs sm:text-sm font-medium",
+                          isCenter ? "text-white/80" : "text-[#6B7280] dark:text-[#8A9099]"
+                        )}
+                      >
+                        {plan.period}
+                      </span>
+                    </div>
+
+                    {isCenter && (
+                      <span className="bg-white/20 backdrop-blur-xs text-white text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                        MOST POPULAR
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Plan Name */}
+                  <h3
+                    className={cn(
+                      "text-xl sm:text-2xl font-bold mb-1.5",
+                      isCenter ? "text-white" : "text-[#121314] dark:text-[#ECEDEE]"
+                    )}
+                  >
+                    {plan.name}
+                  </h3>
+
+                  {/* Plan Tagline */}
+                  <p
+                    className={cn(
+                      "text-xs sm:text-sm min-h-[38px] leading-relaxed mb-6",
+                      isCenter ? "text-white/85 font-normal" : "text-[#6B7280] dark:text-[#8A9099] font-normal"
+                    )}
+                  >
+                    {plan.tagline}
+                  </p>
+
+                  {/* Feature Checklist with filled circular badges */}
+                  <ul className="space-y-3 pt-2">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-center gap-3">
+                        <div
+                          className={cn(
+                            "w-5 h-5 rounded-full flex items-center justify-center shrink-0",
+                            isCenter
+                              ? "bg-white/25 text-white"
+                              : "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400"
+                          )}
+                        >
+                          <Check size={12} strokeWidth={3} />
+                        </div>
+                        <span
+                          className={cn(
+                            "text-xs sm:text-sm font-medium",
+                            isCenter ? "text-white/95" : "text-[#374151] dark:text-[#D1D5DB]"
+                          )}
+                        >
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Bottom Pill CTA Button */}
+                <div className="pt-8">
+                  <button
+                    type="button"
+                    onClick={() => navigate("signup")}
+                    className={cn(
+                      "w-full py-3.5 px-6 rounded-full text-xs sm:text-sm transition-all duration-200 cursor-pointer text-center",
+                      isCenter
+                        ? "bg-white hover:bg-emerald-50 text-emerald-700 dark:text-emerald-800 font-bold shadow-lg hover:scale-[1.02] active:scale-[0.99]"
+                        : "bg-[#F0F2F5] dark:bg-[#1E2022] hover:bg-[#E5E7EB] dark:hover:bg-[#282C30] text-[#121314] dark:text-[#ECEDEE] font-semibold hover:scale-[1.01] active:scale-[0.99]"
+                    )}
+                  >
+                    {plan.ctaText}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

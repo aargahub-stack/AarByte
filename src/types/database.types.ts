@@ -26,6 +26,9 @@ export type Course = {
   description: string | null;
   icon: string | null;
   is_published: boolean;
+  category?: string | null;
+  difficulty?: "Beginner" | "Intermediate" | "Advanced" | "easy" | "medium" | "hard" | null;
+  enrollment_status?: "open" | "closed" | "coming_soon" | null;
   created_by?: string | null;
   created_at?: string;
   updated_at?: string;
@@ -42,6 +45,7 @@ export type Module = {
   course_id: string;
   title: string;
   order_index: number;
+  is_pro_only?: boolean;
   about_content?: string | null;
   youtube_url?: string | null;
   youtube_title?: string | null;
@@ -60,9 +64,12 @@ export type Task = {
   task_type: TaskType;
   language: string;
   difficulty: Difficulty;
+  is_pro_only?: boolean;
   starter_code: string | null;
   solution_code: string | null;
   hints: string[];
+  options?: string[];
+  correct_answer?: string;
   points: number;
   order_index: number;
   created_at?: string;
