@@ -26,6 +26,7 @@ import { LegalPage } from "@/pages/LegalPage";
 import { ResetPasswordPage } from "@/pages/ResetPasswordPage";
 import { StreakPage } from "@/pages/StreakPage";
 import { AnalyticsPage } from "@/pages/AnalyticsPage";
+import { ProfilePage } from "@/pages/ProfilePage";
 import type { Route } from "@/types";
 
 function MainApp() {
@@ -150,6 +151,12 @@ function MainApp() {
 
           {route === "streak" && <StreakPage navigate={handleNavigate} />}
           {route === "analytics" && <AnalyticsPage navigate={handleNavigate} />}
+          {route === "profile" && (
+            <ProfilePage
+              username={params.username}
+              navigate={handleNavigate}
+            />
+          )}
         </main>
 
         {/* Footer */}

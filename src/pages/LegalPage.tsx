@@ -108,7 +108,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = "privacy", na
               </h2>
               <ul className="list-disc pl-5 space-y-2 text-sm text-[#6B7280] dark:text-[#8A9099]">
                 <li>To authenticate your identity and maintain secure sessions via Supabase and Google OAuth.</li>
-                <li>To compile, test, and validate your code solutions in a secure sandbox execution environment.</li>
+                <li>To compile, test, and validate your code solutions in a secure isolated compiler execution environment.</li>
                 <li>To calculate your progress, XP, badges, and display your position on the AarCode Leaderboard.</li>
                 <li>To maintain system reliability, prevent abuse (e.g. infinite loops or spam), and deliver platform updates.</li>
                 <li><strong>We never sell, rent, or trade your personal information to third parties or advertising brokers.</strong></li>
@@ -189,15 +189,15 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = "privacy", na
             {/* Section 1 */}
             <div className="p-6 rounded-2xl bg-white dark:bg-[#151718] border border-[#E5E7EB] dark:border-[#202425] shadow-xs space-y-3">
               <h2 className="text-lg font-bold text-[#121314] dark:text-[#ECEDEE]">
-                1. Acceptable Use of the Code Compiler &amp; Sandbox
+                1. Acceptable Use of the Code Compiler &amp; Runtime Engine
               </h2>
               <p className="text-sm text-[#6B7280] dark:text-[#8A9099]">
                 AarCode provides a high-performance multi-language execution engine for education, algorithm practice, and problem solving. You expressly agree <strong>not</strong> to:
               </p>
               <ul className="list-disc pl-5 space-y-2 text-sm text-[#6B7280] dark:text-[#8A9099]">
-                <li>Execute denial-of-service (DoS) attempts, network attacks, or port scans from our sandbox containers.</li>
+                <li>Execute denial-of-service (DoS) attempts, network attacks, or port scans from our runtime containers.</li>
                 <li>Run cryptocurrency miners, automated botnets, or malicious reverse shells.</li>
-                <li>Attempt to breach or probe platform infrastructure, sandbox isolation, or other users&rsquo; private data.</li>
+                <li>Attempt to breach or probe platform infrastructure, execution isolation, or other users&rsquo; private data.</li>
               </ul>
             </div>
 

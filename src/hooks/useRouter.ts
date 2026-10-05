@@ -54,6 +54,7 @@ function parseLocationHash(): RouteState {
     "analytics",
     "login",
     "signup",
+    "profile",
   ];
 
   let matchedRoute: Route = "landing";
@@ -70,6 +71,11 @@ function parseLocationHash(): RouteState {
     matchedRoute = "task";
     if (parts.length > 1) {
       params.taskId = parts[1];
+    }
+  } else if (root === "profile") {
+    matchedRoute = "profile";
+    if (parts.length > 1) {
+      params.username = parts[1];
     }
   } else if (validRoutes.includes(root as Route)) {
     matchedRoute = root as Route;
@@ -105,6 +111,8 @@ export function useRouter() {
       path = `course/${navParams.slug}`;
     } else if (to === "task" && navParams?.taskId) {
       path = `task/${navParams.taskId}`;
+    } else if (to === "profile" && navParams?.username) {
+      path = `profile/${navParams.username}`;
     } else if (typeof to === "string" && navParams) {
       Object.entries(navParams).forEach(([k, v]) => {
         path = path.replace(`:${k}`, v);

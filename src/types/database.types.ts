@@ -1,5 +1,5 @@
 export type UserRole = "admin" | "student";
-export type TaskType = "algorithm" | "web_dom";
+export type TaskType = "algorithm" | "web_dom" | "mcq";
 export type Difficulty = "easy" | "medium" | "hard";
 export type SubmissionStatus =
   | "passed"
@@ -15,6 +15,10 @@ export type Profile = {
   avatar_url: string | null;
   role: UserRole;
   points: number;
+  username?: string;
+  bio?: string;
+  github?: string;
+  linkedin?: string;
   created_at?: string;
   updated_at?: string;
 };

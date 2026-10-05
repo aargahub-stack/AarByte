@@ -32,12 +32,17 @@ import {
   Menu,
   X,
   Lock,
+  Edit3,
+  Radio,
+  FileText,
+  Sparkles,
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { adminService } from "@/services/adminService";
 import { executeCode } from "@/services/execution/wandboxExecutor";
 import { supabase } from "@/services/supabase";
 import type { Course, Module, Task, TestCase, Profile } from "@/types";
+import { planStorage } from "@/services/storage/planStorage";
 import { useToast } from "@/hooks/useToast";
 import { cn } from "@/utils/cn";
 
@@ -87,9 +92,10 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   const [courseDescription, setCourseDescription] = useState("");
   const [courseIsPublished, setCourseIsPublished] = useState(true);
 
-  // Module Form
+  // Module Form & Tier Toggle
   const [moduleTitle, setModuleTitle] = useState("");
   const [moduleOrder, setModuleOrder] = useState(1);
+  const [moduleIsProOnly, setModuleIsProOnly] = useState(false);
 
   // Module Study Guide & Video Modal
   const [editingModule, setEditingModule] = useState<Module | null>(null);
@@ -98,6 +104,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   const [editYoutubeTitle, setEditYoutubeTitle] = useState("");
   const [editReadingTime, setEditReadingTime] = useState(5);
   const [editKeyTakeaways, setEditKeyTakeaways] = useState("");
+  const [editIsProOnly, setEditIsProOnly] = useState(false);
   const [savingModuleContent, setSavingModuleContent] = useState(false);
 
   // Tasks State & Creator
@@ -108,19 +115,29 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   const [taskLanguageFilter, setTaskLanguageFilter] = useState("all");
   const [taskDifficultyFilter, setTaskDifficultyFilter] = useState("all");
 
-  // Task Creator Form
+  // Task Creator / Editor Form
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [taskType, setTaskType] = useState<"algorithm" | "mcq">("algorithm");
   const [taskCourseId, setTaskCourseId] = useState("");
   const [taskModuleId, setTaskModuleId] = useState("");
   const [availableModules, setAvailableModules] = useState<Module[]>([]);
   const [taskTitle, setTaskTitle] = useState("");
   const [taskSlug, setTaskSlug] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
+  const [descTab, setDescTab] = useState<"write" | "preview">("write");
   const [taskLanguage, setTaskLanguage] = useState("python");
   const [taskDifficulty, setTaskDifficulty] = useState<"easy" | "medium" | "hard">("easy");
   const [taskPoints, setTaskPoints] = useState(15);
   const [taskStarterCode, setTaskStarterCode] = useState("");
   const [taskSolutionCode, setTaskSolutionCode] = useState("");
   const [taskOrderIndex, setTaskOrderIndex] = useState(1);
+  const [mcqOptions, setMcqOptions] = useState<string[]>([
+    "Option A",
+    "Option B",
+    "Option C",
+    "Option D",
+  ]);
+  const [mcqCorrectAnswer, setMcqCorrectAnswer] = useState<string>("Option A");
   const [taskTestCases, setTaskTestCases] = useState<NewTestCaseItem[]>([
     { input: "1 2\n", expected_output: "3", is_hidden: false, explanation: "Public sample case" },
     { input: "10 20\n", expected_output: "30", is_hidden: true, explanation: "Hidden evaluation benchmark" },
@@ -134,10 +151,12 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   const [selectedSubmission, setSelectedSubmission] = useState<any | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
 
-  // Users State
+  // Users State & Access Control
   const [users, setUsers] = useState<Profile[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [userSearch, setUserSearch] = useState("");
+  const [userPlanFilter, setUserPlanFilter] = useState<"all" | "starter" | "pro" | "admin">("all");
+  const [planTick, setPlanTick] = useState(0);
 
   // System & Health state
   const [isPingingWandbox, setIsPingingWandbox] = useState(false);
@@ -317,13 +336,15 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       course_id: selectedCourse.id,
       title: moduleTitle.trim(),
       order_index: moduleOrder,
+      is_pro_only: moduleIsProOnly,
     });
 
     if (error) {
       showToast("error", error);
     } else if (data) {
-      showToast("success", "Module added!");
+      showToast("success", `Module added as ${moduleIsProOnly ? "Pro Tier (₹49)" : "Free Starter"}!`);
       setModuleTitle("");
+      setModuleIsProOnly(false);
       selectCourse(selectedCourse);
     }
   };
@@ -361,6 +382,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
     setEditYoutubeUrl(mod.youtube_url || "");
     setEditYoutubeTitle(mod.youtube_title || "");
     setEditReadingTime(mod.reading_time_mins || 5);
+    setEditIsProOnly(Boolean(mod.is_pro_only));
     setEditKeyTakeaways(
       Array.isArray(mod.key_takeaways) ? mod.key_takeaways.join("\n") : ""
     );
@@ -381,13 +403,14 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
         youtube_url: editYoutubeUrl,
         youtube_title: editYoutubeTitle,
         reading_time_mins: Number(editReadingTime) || 5,
+        is_pro_only: editIsProOnly,
         key_takeaways: takeawaysList,
       });
 
       if (error) {
         showToast("error", error);
       } else {
-        showToast("success", `Study guide & video updated for "${editingModule.title}"!`);
+        showToast("success", `Module updated (${editIsProOnly ? "Pro Tier ₹49" : "Free Starter"})!`);
         setEditingModule(null);
         selectCourse(selectedCourse);
       }
@@ -396,7 +419,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
     }
   };
 
-  // Actions: Task Creator
+  // Actions: Task Creator & Editor
   const handleAddTestCase = () => {
     setTaskTestCases((prev) => [
       ...prev,
@@ -414,6 +437,68 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
     setTaskTestCases((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleStartEditTask = async (task: any) => {
+    setEditingTaskId(task.id);
+    setTaskTitle(task.title || "");
+    setTaskSlug(task.slug || "");
+    setTaskDescription(task.description || "");
+    setTaskType((task.task_type as any) === "mcq" ? "mcq" : "algorithm");
+    setTaskLanguage(task.language || "python");
+    setTaskDifficulty(task.difficulty || "easy");
+    setTaskPoints(task.points || 15);
+    setTaskStarterCode(task.starter_code || "");
+    setTaskSolutionCode(task.solution_code || "");
+    setTaskOrderIndex(task.order_index || 1);
+    if (task.options && Array.isArray(task.options) && task.options.length > 0) {
+      setMcqOptions(task.options);
+    }
+    if (task.correct_answer) {
+      setMcqCorrectAnswer(task.correct_answer);
+    }
+
+    if (task.module_id) {
+      setTaskModuleId(task.module_id);
+      const mod = modules.find((m) => m.id === task.module_id);
+      if (mod) {
+        setTaskCourseId(mod.course_id);
+      }
+    }
+
+    try {
+      const { data } = await adminService.getTaskWithAllTestCases(task.id);
+      if (data && data.test_cases && data.test_cases.length > 0) {
+        setTaskTestCases(
+          data.test_cases.map((tc) => ({
+            input: tc.input || "",
+            expected_output: tc.expected_output || "",
+            is_hidden: Boolean(tc.is_hidden),
+            explanation: tc.explanation || "",
+          }))
+        );
+      }
+    } catch {
+      // Keep existing default
+    }
+
+    setTasksTab("create");
+    showToast("info", `Editing challenge: ${task.title}`);
+  };
+
+  const handleCancelEditTask = () => {
+    setEditingTaskId(null);
+    setTaskTitle("");
+    setTaskSlug("");
+    setTaskDescription("");
+    setTaskStarterCode("");
+    setTaskSolutionCode("");
+    setTaskType("algorithm");
+    setTaskOrderIndex(1);
+    setTaskTestCases([
+      { input: "1 2\n", expected_output: "3", is_hidden: false, explanation: "Public sample case" },
+      { input: "10 20\n", expected_output: "30", is_hidden: true, explanation: "Hidden evaluation benchmark" },
+    ]);
+  };
+
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!taskModuleId) {
@@ -425,33 +510,58 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       return;
     }
 
+    if (editingTaskId) {
+      const { error } = await adminService.updateTask(editingTaskId, {
+        module_id: taskModuleId,
+        title: taskTitle.trim(),
+        slug: taskSlug.trim().toLowerCase(),
+        description: taskDescription.trim(),
+        task_type: taskType,
+        language: taskLanguage,
+        difficulty: taskDifficulty,
+        starter_code: taskType === "algorithm" ? taskStarterCode : null,
+        solution_code: taskType === "algorithm" ? taskSolutionCode : null,
+        options: taskType === "mcq" ? mcqOptions : [],
+        correct_answer: taskType === "mcq" ? mcqCorrectAnswer : undefined,
+        points: taskPoints,
+        order_index: taskOrderIndex,
+      });
+
+      if (error) {
+        showToast("error", error);
+      } else {
+        showToast("success", `Challenge "${taskTitle}" updated successfully!`);
+        handleCancelEditTask();
+        loadTasks();
+        setTasksTab("catalog");
+      }
+      return;
+    }
+
     const { error } = await adminService.createTask(
       {
         module_id: taskModuleId,
         title: taskTitle.trim(),
         slug: taskSlug.trim().toLowerCase(),
         description: taskDescription.trim(),
-        task_type: "algorithm",
+        task_type: taskType,
         language: taskLanguage,
         difficulty: taskDifficulty,
-        starter_code: taskStarterCode,
-        solution_code: taskSolutionCode,
+        starter_code: taskType === "algorithm" ? taskStarterCode : null,
+        solution_code: taskType === "algorithm" ? taskSolutionCode : null,
+        options: taskType === "mcq" ? mcqOptions : [],
+        correct_answer: taskType === "mcq" ? mcqCorrectAnswer : undefined,
         points: taskPoints,
         order_index: taskOrderIndex,
       },
-      taskTestCases
+      taskType === "algorithm" ? taskTestCases : []
     );
 
     if (error) {
       showToast("error", error);
     } else {
       showToast("success", `Task "${taskTitle}" successfully created!`);
-      setTaskTitle("");
-      setTaskSlug("");
-      setTaskDescription("");
-      setTaskStarterCode("");
-      setTaskSolutionCode("");
-      setTaskOrderIndex(1);
+      handleCancelEditTask();
       loadTasks();
       loadOverviewMetrics();
       setTasksTab("catalog");
@@ -471,7 +581,20 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
     }
   };
 
-  // Actions: User Management
+  // Actions: User Management & Subscriptions
+  const handleToggleUserSubscription = (targetUser: Profile) => {
+    const currentPlan = planStorage.getPlan(targetUser.id);
+    const nextPlan = currentPlan === "pro" ? "starter" : "pro";
+    planStorage.setPlan(nextPlan, targetUser.id);
+    setPlanTick((prev) => prev + 1);
+    showToast(
+      "success",
+      `${targetUser.full_name || targetUser.email} switched to ${
+        nextPlan === "pro" ? "AarCode Pro Tier (₹49)" : "Free Starter Tier"
+      }`
+    );
+  };
+
   const handleToggleUserRole = async (targetUser: Profile) => {
     const nextRole = targetUser.role === "admin" ? "student" : "admin";
     if (confirm(`Change ${targetUser.full_name || targetUser.email}'s role to ${nextRole.toUpperCase()}?`)) {
@@ -632,12 +755,22 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   });
 
   const filteredUsers = users.filter((u) => {
+    // Force dependency on planTick so changes re-evaluate
+    if (planTick < 0) return false;
     const name = u.full_name || "";
     const email = u.email || "";
-    return (
+    const matchesSearch =
       name.toLowerCase().includes(userSearch.toLowerCase()) ||
-      email.toLowerCase().includes(userSearch.toLowerCase())
-    );
+      email.toLowerCase().includes(userSearch.toLowerCase());
+
+    const plan = planStorage.getPlan(u.id);
+    const matchesPlan =
+      userPlanFilter === "all" ||
+      (userPlanFilter === "starter" && plan === "starter" && u.role !== "admin") ||
+      (userPlanFilter === "pro" && plan === "pro") ||
+      (userPlanFilter === "admin" && u.role === "admin");
+
+    return matchesSearch && matchesPlan;
   });
 
   const passRate =
@@ -1367,14 +1500,28 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       ))}
 
                       {/* Add Module Inline Form */}
-                      <form onSubmit={handleCreateModule} className="pt-2 flex gap-3">
+                      <form onSubmit={handleCreateModule} className="pt-2 flex flex-wrap sm:flex-nowrap gap-2.5 items-center">
                         <input
                           type="text"
                           value={moduleTitle}
                           onChange={(e) => setModuleTitle(e.target.value)}
                           placeholder="Add new module title (e.g. 'Binary Search & Tree Traversal')..."
-                          className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                          className="flex-1 min-w-[200px] px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setModuleIsProOnly(!moduleIsProOnly)}
+                          className={cn(
+                            "px-3 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer shrink-0 flex items-center gap-1.5",
+                            moduleIsProOnly
+                              ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30"
+                              : "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border-emerald-500/30"
+                          )}
+                          title="Toggle Access Tier: Free Starter vs Pro Tier (₹49)"
+                        >
+                          <Lock size={12} />
+                          <span>{moduleIsProOnly ? "Pro Tier (₹49)" : "Free Starter"}</span>
+                        </button>
                         <input
                           type="number"
                           value={moduleOrder}
@@ -1384,7 +1531,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                         />
                         <button
                           type="submit"
-                          className="px-4 py-2 text-xs font-bold rounded-xl bg-[#6366F1] hover:bg-[#4F46E5] text-white transition-colors"
+                          className="px-4 py-2 text-xs font-bold rounded-xl bg-[#6366F1] hover:bg-[#4F46E5] text-white transition-colors shrink-0"
                         >
                           Add Module
                         </button>
@@ -1548,8 +1695,16 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                             </td>
                             <td className="py-3 px-4 text-right">
                               <button
+                                type="button"
+                                onClick={() => handleStartEditTask(t)}
+                                className="p-1.5 text-slate-400 hover:text-[#6366F1] hover:bg-indigo-500/10 rounded-lg transition-colors cursor-pointer mr-1"
+                                title="Edit challenge"
+                              >
+                                <Edit3 size={14} />
+                              </button>
+                              <button
                                 onClick={() => handleDeleteTask(t.id)}
-                                className="p-1 text-slate-400 hover:text-rose-500 transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
                                 title="Delete task"
                               >
                                 <Trash2 size={14} />
@@ -1569,13 +1724,59 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   onSubmit={handleCreateTask}
                   className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] p-6 sm:p-8 space-y-6"
                 >
-                  <div className="border-b border-slate-100 dark:border-[#202425] pb-4">
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                      Create Programming Challenge
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      Configure problem statement, boilerplates, and both public & hidden evaluation benchmarks.
-                    </p>
+                  <div className="border-b border-slate-100 dark:border-[#202425] pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        {editingTaskId ? <Edit3 size={18} className="text-[#6366F1]" /> : <Plus size={18} className="text-[#6366F1]" />}
+                        <span>{editingTaskId ? "Edit Algorithmic Challenge" : "Create Challenge"}</span>
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Configure problem statement, boilerplates, and both public &amp; hidden evaluation benchmarks.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {editingTaskId && (
+                        <button
+                          type="button"
+                          onClick={handleCancelEditTask}
+                          className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#202425] text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#202425] cursor-pointer"
+                        >
+                          Cancel Edit
+                        </button>
+                      )}
+
+                      {/* Problem Type Toggle: Coding vs Diagnostic MCQ */}
+                      <div className="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425]">
+                        <button
+                          type="button"
+                          onClick={() => setTaskType("algorithm")}
+                          className={cn(
+                            "px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
+                            taskType === "algorithm"
+                              ? "bg-white dark:bg-[#151718] text-[#6366F1] shadow-xs"
+                              : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                          )}
+                        >
+                          <Code2 size={13} />
+                          <span>Coding</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setTaskType("mcq")}
+                          className={cn(
+                            "px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
+                            taskType === "mcq"
+                              ? "bg-white dark:bg-[#151718] text-[#6366F1] shadow-xs"
+                              : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                          )}
+                        >
+                          <Radio size={13} />
+                          <span>Diagnostic MCQ</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Course & Module Selectors */}
@@ -1718,142 +1919,246 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     </div>
                   </div>
 
-                  {/* Problem Description Markdown */}
-                  <div>
-                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                      Problem Description (Markdown)
-                    </label>
-                    <textarea
-                      value={taskDescription}
-                      onChange={(e) => setTaskDescription(e.target.value)}
-                      rows={5}
-                      placeholder="Describe problem statement, input constraints, and return formats..."
-                      className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
-                      required
-                    />
-                  </div>
-
-                  {/* Starter & Reference Solution */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        Starter Code (Student Template)
-                      </label>
-                      <textarea
-                        value={taskStarterCode}
-                        onChange={(e) => setTaskStarterCode(e.target.value)}
-                        rows={6}
-                        placeholder="def solution():\n    pass\n"
-                        className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        Reference Solution (Admin Only)
-                      </label>
-                      <textarea
-                        value={taskSolutionCode}
-                        onChange={(e) => setTaskSolutionCode(e.target.value)}
-                        rows={6}
-                        placeholder="def solution():\n    return 42\n"
-                        className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Test Cases Builder */}
-                  <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-[#202425]">
+                  {/* Problem Description with Markdown Write & Preview */}
+                  <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                          Evaluation Test Cases ({taskTestCases.length})
-                        </h4>
-                        <p className="text-xs text-slate-500">
-                          Add public samples for students and hidden benchmarks to prevent hardcoding.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleAddTestCase}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-[#202425] hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition-colors"
-                      >
-                        <Plus size={14} />
-                        <span>Add Case</span>
-                      </button>
-                    </div>
-
-                    <div className="space-y-3">
-                      {taskTestCases.map((tc, idx) => (
-                        <div
-                          key={idx}
-                          className="p-4 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50/50 dark:bg-[#0C0D0E] space-y-3"
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Problem Description (Markdown)
+                      </label>
+                      <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#0C0D0E] p-0.5 rounded-lg border border-slate-200/80 dark:border-[#202425]">
+                        <button
+                          type="button"
+                          onClick={() => setDescTab("write")}
+                          className={cn(
+                            "px-2.5 py-1 text-[11px] font-bold rounded-md transition-all cursor-pointer",
+                            descTab === "write"
+                              ? "bg-white dark:bg-[#151718] text-[#6366F1] shadow-xs"
+                              : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
+                          )}
                         >
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                              Test Case #{idx + 1}
-                            </span>
-                            <div className="flex items-center gap-3">
-                              <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={tc.is_hidden}
-                                  onChange={(e) =>
-                                    handleUpdateTestCase(idx, { is_hidden: e.target.checked })
-                                  }
-                                  className="rounded border-slate-300 text-[#6366F1] focus:ring-[#6366F1]"
-                                />
-                                <span>{tc.is_hidden ? "Hidden Benchmark" : "Public Sample"}</span>
-                              </label>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveTestCase(idx)}
-                                className="text-slate-400 hover:text-rose-500 p-1"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <span className="text-[11px] font-semibold text-slate-500 block mb-1">
-                                Stdin:
-                              </span>
-                              <textarea
-                                value={tc.input}
-                                onChange={(e) => handleUpdateTestCase(idx, { input: e.target.value })}
-                                rows={2}
-                                className="w-full p-2 text-xs rounded-lg border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] text-slate-800 dark:text-slate-200 font-mono"
-                              />
-                            </div>
-                            <div>
-                              <span className="text-[11px] font-semibold text-slate-500 block mb-1">
-                                Expected Stdout:
-                              </span>
-                              <textarea
-                                value={tc.expected_output}
-                                onChange={(e) =>
-                                  handleUpdateTestCase(idx, { expected_output: e.target.value })
-                                }
-                                rows={2}
-                                className="w-full p-2 text-xs rounded-lg border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] text-slate-800 dark:text-slate-200 font-mono"
-                                required
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                          Write
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDescTab("preview")}
+                          className={cn(
+                            "px-2.5 py-1 text-[11px] font-bold rounded-md transition-all cursor-pointer",
+                            descTab === "preview"
+                              ? "bg-white dark:bg-[#151718] text-[#6366F1] shadow-xs"
+                              : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
+                          )}
+                        >
+                          Preview
+                        </button>
+                      </div>
                     </div>
+
+                    {descTab === "write" ? (
+                      <textarea
+                        value={taskDescription}
+                        onChange={(e) => setTaskDescription(e.target.value)}
+                        rows={5}
+                        placeholder="Describe problem statement, input constraints, and return formats in standard Markdown..."
+                        className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
+                        required
+                      />
+                    ) : (
+                      <div className="w-full min-h-[120px] p-4 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed font-sans">
+                        {taskDescription || <span className="text-slate-400 italic">No description entered yet.</span>}
+                      </div>
+                    )}
                   </div>
+
+                  {/* MCQ Options Block (Shown only when Diagnostic MCQ is chosen) */}
+                  {taskType === "mcq" && (
+                    <div className="p-4 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50/50 dark:bg-[#0C0D0E] space-y-4">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                          <Radio size={14} className="text-[#6366F1]" />
+                          <span>Multiple Choice Options &amp; Solution Key</span>
+                        </label>
+                        <span className="text-[11px] text-slate-500">
+                          Select the radio button beside the correct answer
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {mcqOptions.map((opt, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718]"
+                          >
+                            <input
+                              type="radio"
+                              name="correct_mcq_answer"
+                              checked={mcqCorrectAnswer === opt}
+                              onChange={() => setMcqCorrectAnswer(opt)}
+                              className="text-[#6366F1] focus:ring-[#6366F1] cursor-pointer"
+                            />
+                            <span className="text-xs font-bold text-slate-400 font-mono">
+                              {String.fromCharCode(65 + idx)}.
+                            </span>
+                            <input
+                              type="text"
+                              value={opt}
+                              onChange={(e) => {
+                                const nextOpts = [...mcqOptions];
+                                nextOpts[idx] = e.target.value;
+                                setMcqOptions(nextOpts);
+                                if (mcqCorrectAnswer === opt) {
+                                  setMcqCorrectAnswer(e.target.value);
+                                }
+                              }}
+                              className="flex-1 px-2 py-1 text-xs bg-transparent border-0 focus:outline-none text-slate-800 dark:text-slate-200 font-medium"
+                              placeholder={`Option ${String.fromCharCode(65 + idx)} text`}
+                              required
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Starter & Reference Solution (Shown only for Coding challenges) */}
+                  {taskType === "algorithm" && (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                            Starter Code (Student Template)
+                          </label>
+                          <textarea
+                            value={taskStarterCode}
+                            onChange={(e) => setTaskStarterCode(e.target.value)}
+                            rows={6}
+                            placeholder="def solution():\n    pass\n"
+                            className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                            Reference Solution (Admin Only)
+                          </label>
+                          <textarea
+                            value={taskSolutionCode}
+                            onChange={(e) => setTaskSolutionCode(e.target.value)}
+                            rows={6}
+                            placeholder="def solution():\n    return 42\n"
+                            className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Test Cases Builder: Public Sample vs Hidden Benchmarks */}
+                      <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-[#202425]">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                              Evaluation Test Cases ({taskTestCases.length})
+                            </h4>
+                            <p className="text-xs text-slate-500">
+                              Manage public sample test cases for students and hidden edge cases for deterministic evaluation.
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleAddTestCase}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-[#202425] hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                          >
+                            <Plus size={14} />
+                            <span>Add Case</span>
+                          </button>
+                        </div>
+
+                        <div className="space-y-3">
+                          {taskTestCases.map((tc, idx) => (
+                            <div
+                              key={idx}
+                              className="p-4 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50/50 dark:bg-[#0C0D0E] space-y-3"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 font-mono">
+                                    Case #{idx + 1}
+                                  </span>
+                                  <span
+                                    className={cn(
+                                      "px-2 py-0.5 rounded-md text-[10px] font-mono uppercase font-bold",
+                                      tc.is_hidden
+                                        ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
+                                        : "bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20"
+                                    )}
+                                  >
+                                    {tc.is_hidden ? "Hidden Edge Benchmark" : "Public Sample"}
+                                  </span>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                  <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={tc.is_hidden}
+                                      onChange={(e) =>
+                                        handleUpdateTestCase(idx, { is_hidden: e.target.checked })
+                                      }
+                                      className="rounded border-slate-300 text-[#6366F1] focus:ring-[#6366F1]"
+                                    />
+                                    <span>Mark as Hidden</span>
+                                  </label>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveTestCase(idx)}
+                                    className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                  <span className="text-[11px] font-semibold text-slate-500 block mb-1">
+                                    Stdin:
+                                  </span>
+                                  <textarea
+                                    value={tc.input}
+                                    onChange={(e) => handleUpdateTestCase(idx, { input: e.target.value })}
+                                    rows={2}
+                                    placeholder="Input passed to stdin..."
+                                    className="w-full p-2 text-xs rounded-lg border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] text-slate-800 dark:text-slate-200 font-mono"
+                                  />
+                                </div>
+                                <div>
+                                  <span className="text-[11px] font-semibold text-slate-500 block mb-1">
+                                    Expected Stdout:
+                                  </span>
+                                  <textarea
+                                    value={tc.expected_output}
+                                    onChange={(e) =>
+                                      handleUpdateTestCase(idx, { expected_output: e.target.value })
+                                    }
+                                    rows={2}
+                                    placeholder="Exact stdout match..."
+                                    className="w-full p-2 text-xs rounded-lg border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] text-slate-800 dark:text-slate-200 font-mono"
+                                    required
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   {/* Submit */}
                   <div className="pt-2 flex justify-end">
                     <button
                       type="submit"
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-bold text-xs shadow-md shadow-indigo-500/25 transition-all"
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-bold text-xs shadow-md shadow-indigo-500/25 transition-all cursor-pointer"
                     >
-                      Publish Challenge
+                      {editingTaskId ? "Save & Update Challenge" : "Publish Challenge"}
                     </button>
                   </div>
                 </form>
@@ -1983,12 +2288,12 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
           )}
 
           {/* =================================================================
-              VIEW 5: STUDENTS & USER MANAGEMENT
+              VIEW 5: STUDENTS & ACCESS CONTROL (AARCODE PRO TIER MANAGEMENT)
           ================================================================= */}
           {activeSection === "users" && (
             <div className="max-w-7xl mx-auto space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="relative w-72">
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+                <div className="relative w-full sm:w-72">
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
@@ -1999,61 +2304,153 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   />
                 </div>
 
-                <div className="text-xs text-slate-500 font-semibold">
-                  Total Users: <span className="font-bold text-slate-900 dark:text-white">{users.length}</span>
+                {/* Subscription Tier Filter Tabs */}
+                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] overflow-x-auto w-full sm:w-auto">
+                  <button
+                    onClick={() => setUserPlanFilter("all")}
+                    className={cn(
+                      "px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap",
+                      userPlanFilter === "all"
+                        ? "bg-[#6366F1] text-white shadow-xs"
+                        : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                    )}
+                  >
+                    All Users ({users.length})
+                  </button>
+                  <button
+                    onClick={() => setUserPlanFilter("pro")}
+                    className={cn(
+                      "px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap",
+                      userPlanFilter === "pro"
+                        ? "bg-[#6366F1] text-white shadow-xs"
+                        : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                    )}
+                  >
+                    Pro Tier (₹49)
+                  </button>
+                  <button
+                    onClick={() => setUserPlanFilter("starter")}
+                    className={cn(
+                      "px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap",
+                      userPlanFilter === "starter"
+                        ? "bg-[#6366F1] text-white shadow-xs"
+                        : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                    )}
+                  >
+                    Free Starter
+                  </button>
+                  <button
+                    onClick={() => setUserPlanFilter("admin")}
+                    className={cn(
+                      "px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap",
+                      userPlanFilter === "admin"
+                        ? "bg-[#6366F1] text-white shadow-xs"
+                        : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                    )}
+                  >
+                    Admins
+                  </button>
                 </div>
               </div>
 
+              {/* Students & Access Control Table */}
               <div className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] overflow-hidden shadow-xs">
-                <table className="w-full text-left text-xs">
-                  <thead className="border-b border-slate-100 dark:border-[#202425] text-[10px] uppercase font-bold text-slate-400 bg-slate-50 dark:bg-[#0C0D0E]">
-                    <tr>
-                      <th className="py-3 px-4">Student</th>
-                      <th className="py-3 px-4">Email</th>
-                      <th className="py-3 px-4">Score (AarBytes)</th>
-                      <th className="py-3 px-4">System Role</th>
-                      <th className="py-3 px-4 text-right">Role Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-[#202425]/60">
-                    {filteredUsers.map((u) => (
-                      <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-[#202425]/40">
-                        <td className="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-[#6366F1] font-bold text-xs flex items-center justify-center">
-                            {u.full_name ? u.full_name[0].toUpperCase() : "U"}
-                          </div>
-                          <span>{u.full_name || "Anonymous Developer"}</span>
-                        </td>
-                        <td className="py-3 px-4 text-slate-600 dark:text-slate-300 font-mono text-[11px]">
-                          {u.email}
-                        </td>
-                        <td className="py-3 px-4 font-mono font-bold text-amber-500">
-                          {u.points || 0} XP
-                        </td>
-                        <td className="py-3 px-4">
-                          <span
-                            className={cn(
-                              "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
-                              u.role === "admin"
-                                ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
-                                : "bg-slate-500/10 text-slate-600 dark:text-slate-400"
-                            )}
-                          >
-                            {u.role}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <button
-                            onClick={() => handleToggleUserRole(u)}
-                            className="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-[#202425] hover:bg-[#6366F1] hover:text-white transition-colors"
-                          >
-                            {u.role === "admin" ? "Demote to Student" : "Promote to Admin"}
-                          </button>
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="border-b border-slate-100 dark:border-[#202425] text-[10px] uppercase font-bold text-slate-400 bg-slate-50 dark:bg-[#0C0D0E]">
+                      <tr>
+                        <th className="py-3 px-4">Student</th>
+                        <th className="py-3 px-4">Email</th>
+                        <th className="py-3 px-4">Score</th>
+                        <th className="py-3 px-4">Activity Telemetry</th>
+                        <th className="py-3 px-4">AarCode Tier</th>
+                        <th className="py-3 px-4">Manage Plan</th>
+                        <th className="py-3 px-4">System Role</th>
+                        <th className="py-3 px-4 text-right">Role Access</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#202425]/60">
+                      {filteredUsers.map((u) => {
+                        const plan = planStorage.getPlan(u.id);
+                        const isProUser = plan === "pro" || u.role === "admin";
+                        const userSubs = submissions.filter((s) => s.user_id === u.id);
+                        const passedSubs = userSubs.filter((s) => s.status === "passed");
+
+                        return (
+                          <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-[#202425]/40">
+                            <td className="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500/20 to-indigo-500/20 text-[#6366F1] font-bold text-xs flex items-center justify-center border border-slate-200/60 dark:border-[#202425]">
+                                {u.full_name ? u.full_name[0].toUpperCase() : "D"}
+                              </div>
+                              <div>
+                                <span className="block font-bold">{u.full_name || "Developer"}</span>
+                                <span className="text-[10px] font-mono text-slate-400 font-normal">
+                                  @{u.email?.split("@")[0]}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 text-slate-600 dark:text-slate-300 font-mono text-[11px]">
+                              {u.email}
+                            </td>
+                            <td className="py-3 px-4 font-mono font-bold text-amber-500">
+                              {u.points || 0} XP
+                            </td>
+                            <td className="py-3 px-4 font-mono text-[11px] text-slate-500">
+                              <span className="text-emerald-500 font-bold">{passedSubs.length}</span> passed / {userSubs.length} evals
+                            </td>
+                            <td className="py-3 px-4">
+                              <span
+                                className={cn(
+                                  "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border",
+                                  isProUser
+                                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/25"
+                                    : "bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border-emerald-500/25"
+                                )}
+                              >
+                                {isProUser ? "Pro Tier (₹49)" : "Free Starter"}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <button
+                                type="button"
+                                onClick={() => handleToggleUserSubscription(u)}
+                                className={cn(
+                                  "px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer flex items-center gap-1",
+                                  isProUser
+                                    ? "bg-slate-100 dark:bg-[#202425] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#2C3133] hover:text-rose-500"
+                                    : "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30 hover:bg-purple-500/25"
+                                )}
+                              >
+                                <Lock size={11} />
+                                <span>{isProUser ? "Downgrade to Starter" : "Grant Pro Tier (₹49)"}</span>
+                              </button>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span
+                                className={cn(
+                                  "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
+                                  u.role === "admin"
+                                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
+                                    : "bg-slate-500/10 text-slate-600 dark:text-slate-400"
+                                )}
+                              >
+                                {u.role}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              <button
+                                onClick={() => handleToggleUserRole(u)}
+                                className="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-[#202425] hover:bg-[#6366F1] hover:text-white transition-colors cursor-pointer"
+                              >
+                                {u.role === "admin" ? "Demote to Student" : "Promote to Admin"}
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
@@ -2078,7 +2475,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 </div>
 
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  The Wandbox sandbox container is used to securely compile and execute Java, Python, C++, and JavaScript in a restricted sandbox for real-time challenge grading.
+                  The Wandbox compiler container is used to securely compile and execute Java, Python, C++, and JavaScript in an isolated environment for real-time challenge grading.
                 </p>
 
                 <div className="flex items-center gap-4 pt-2">
@@ -2409,6 +2806,31 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
                   />
                 </div>
+              </div>
+
+              {/* Module Access Tier Selector */}
+              <div className="p-4 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50/60 dark:bg-[#0C0D0E] flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white block">
+                    Curriculum Access Tier
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    Set whether this module is open to Free Starter students or requires AarCode Pro (₹49).
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditIsProOnly(!editIsProOnly)}
+                  className={cn(
+                    "px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5",
+                    editIsProOnly
+                      ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30 shadow-xs"
+                      : "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border-emerald-500/30"
+                  )}
+                >
+                  <Lock size={13} />
+                  <span>{editIsProOnly ? "Pro Tier (₹49)" : "Free Starter"}</span>
+                </button>
               </div>
 
               {/* Action Buttons */}

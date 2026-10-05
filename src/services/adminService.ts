@@ -26,6 +26,7 @@ export interface CreateModuleInput {
   course_id: string;
   title: string;
   order_index?: number;
+  is_pro_only?: boolean;
   about_content?: string | null;
   youtube_url?: string | null;
   youtube_title?: string | null;
@@ -36,6 +37,7 @@ export interface CreateModuleInput {
 export interface UpdateModuleInput {
   title?: string;
   order_index?: number;
+  is_pro_only?: boolean;
   about_content?: string | null;
   youtube_url?: string | null;
   youtube_title?: string | null;
@@ -48,14 +50,17 @@ export interface CreateTaskInput {
   title: string;
   slug: string;
   description: string;
-  task_type?: "algorithm" | "web_dom";
+  task_type?: "algorithm" | "web_dom" | "mcq";
   language: string;
   difficulty?: "easy" | "medium" | "hard";
   starter_code?: string | null;
   solution_code?: string | null;
   hints?: string[];
+  options?: string[];
+  correct_answer?: string;
   points?: number;
   order_index?: number;
+  is_pro_only?: boolean;
 }
 
 export interface UpdateTaskInput {
@@ -63,14 +68,17 @@ export interface UpdateTaskInput {
   title?: string;
   slug?: string;
   description?: string;
-  task_type?: "algorithm" | "web_dom";
+  task_type?: "algorithm" | "web_dom" | "mcq";
   language?: string;
   difficulty?: "easy" | "medium" | "hard";
   starter_code?: string | null;
   solution_code?: string | null;
   hints?: string[];
+  options?: string[];
+  correct_answer?: string;
   points?: number;
   order_index?: number;
+  is_pro_only?: boolean;
 }
 
 export interface CreateTestCaseInput {
@@ -214,6 +222,7 @@ export const adminService = {
           course_id: input.course_id,
           title: input.title,
           order_index: input.order_index ?? 1,
+          is_pro_only: input.is_pro_only ?? false,
           about_content: input.about_content ?? null,
           youtube_url: input.youtube_url ?? null,
           youtube_title: input.youtube_title ?? null,
@@ -331,6 +340,9 @@ export const adminService = {
           starter_code: input.starter_code ?? null,
           solution_code: input.solution_code ?? null,
           hints: input.hints ?? [],
+          options: input.options ?? [],
+          correct_answer: input.correct_answer ?? null,
+          is_pro_only: input.is_pro_only ?? false,
           points: input.points ?? 10,
           order_index: input.order_index ?? 1,
         })
