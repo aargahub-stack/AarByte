@@ -594,10 +594,10 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                       {isAdmin && (
                         <button
                           onClick={() => handleNav({ route: "admin" })}
-                          className="w-full text-left px-4 py-2.5 text-sm text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 flex items-center gap-2.5 transition-colors font-semibold"
+                          className="w-full text-left px-4 py-2.5 text-sm text-emerald-600 dark:text-[#00F076] hover:bg-emerald-50 dark:hover:bg-emerald-950/30 flex items-center gap-2.5 transition-colors font-semibold"
                         >
-                          <ShieldAlert size={16} />
-                          <span>Admin Dashboard</span>
+                          <ShieldCheck size={16} />
+                          <span>Admin Console</span>
                         </button>
                       )}
 
@@ -727,11 +727,11 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
           {isAdmin && (
             <button
               onClick={() => handleNav({ route: "admin" })}
-              className="flex items-center justify-between w-full text-left px-4 py-3 rounded-xl text-sm font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 min-h-[44px]"
+              className="flex items-center justify-between w-full text-left px-4 py-3 rounded-xl text-sm font-bold text-emerald-600 dark:text-[#00F076] hover:bg-emerald-50 dark:hover:bg-emerald-950/30 min-h-[44px]"
             >
               <span className="flex items-center gap-2.5">
-                <ShieldAlert size={16} />
-                <span>Admin Dashboard</span>
+                <ShieldCheck size={16} />
+                <span>Admin Console</span>
               </span>
               <ArrowRight size={15} className="opacity-40" />
             </button>
