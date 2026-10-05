@@ -52,8 +52,7 @@ function MainApp() {
     route === "task" ||
     route === "login" ||
     route === "signup" ||
-    route === "reset-password" ||
-    route === "admin";
+    route === "reset-password";
 
   return (
     <div className={cn("w-full h-full", theme === "dark" ? "dark" : "")}>

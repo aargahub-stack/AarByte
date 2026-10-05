@@ -15,7 +15,6 @@ import {
   BarChart3,
   Loader2,
   ChevronRight,
-  ChevronLeft,
   Search,
   Users,
   Server,
@@ -29,13 +28,13 @@ import {
   Copy,
   Settings,
   HelpCircle,
-  Menu,
   X,
   Lock,
   Edit3,
   Radio,
   FileText,
   Sparkles,
+  Zap,
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { adminService } from "@/services/adminService";
@@ -63,10 +62,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   const { user, profile, isAdmin, loading: authLoading } = useAdminAuth();
   const { showToast } = useToast();
 
-  // Navigation & layout state
+  // Navigation state
   const [activeSection, setActiveSection] = useState<AdminSection>("overview");
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Platform metrics
   const [metrics, setMetrics] = useState({
@@ -158,29 +155,70 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   const [userPlanFilter, setUserPlanFilter] = useState<"all" | "starter" | "pro" | "admin">("all");
   const [planTick, setPlanTick] = useState(0);
 
-  // System & Health state
-  const [isPingingWandbox, setIsPingingWandbox] = useState(false);
+  // System Diagnostics
   const [wandboxLatency, setWandboxLatency] = useState<number | null>(null);
+  const [isPingingWandbox, setIsPingingWandbox] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
 
-  // Initial load
+  // Initial Data Fetching
   useEffect(() => {
     if (isAdmin) {
       loadOverviewMetrics();
       loadCourses();
-      loadSubmissions();
       loadTasks();
+      loadSubmissions();
       loadUsers();
     }
   }, [isAdmin]);
 
+  // Keep available modules in sync when selected course changes in Task Creator
+  useEffect(() => {
+    if (taskCourseId) {
+      adminService.getCourseModules(taskCourseId).then(({ data }) => {
+        if (data) setAvailableModules(data);
+      });
+    } else {
+      setAvailableModules([]);
+    }
+  }, [taskCourseId]);
+
+  // Auto-slug generator for new course
+  const handleCourseTitleChange = (val: string) => {
+    setCourseTitle(val);
+    if (!courseSlug || courseSlug === courseTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")) {
+      setCourseSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
+    }
+  };
+
+  // Auto-slug generator for new task
+  const handleTaskTitleChange = (val: string) => {
+    setTaskTitle(val);
+    if (!taskSlug || taskSlug === taskTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")) {
+      setTaskSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
+    }
+  };
+
+  // 1. Data Loaders
   const loadOverviewMetrics = async () => {
     setLoadingMetrics(true);
     try {
-      const data = await adminService.getPlatformMetrics();
-      setMetrics(data);
-    } catch (e) {
-      console.error(e);
+      const [cRes, tRes, sRes, uRes, pRes] = await Promise.all([
+        supabase.from("courses").select("id", { count: "exact", head: true }),
+        supabase.from("tasks").select("id", { count: "exact", head: true }),
+        supabase.from("submissions").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("submissions").select("id", { count: "exact", head: true }).eq("status", "passed"),
+      ]);
+
+      setMetrics({
+        coursesCount: cRes.count || 0,
+        tasksCount: tRes.count || 0,
+        submissionsCount: sRes.count || 0,
+        usersCount: uRes.count || 0,
+        passedSubmissionsCount: pRes.count || 0,
+      });
+    } catch {
+      // Fallback
     } finally {
       setLoadingMetrics(false);
     }
@@ -188,145 +226,100 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
   const loadCourses = async () => {
     setLoadingCourses(true);
-    try {
-      const { data, error } = await adminService.getAllCourses();
-      if (data) {
-        setCourses(data);
-        if (data.length > 0 && !selectedCourse) {
-          selectCourse(data[0]);
-        }
+    const { data } = await adminService.getAllCourses();
+    if (data) {
+      setCourses(data);
+      if (data.length > 0 && !selectedCourse) {
+        selectCourse(data[0]);
       }
-    } catch (e: any) {
-      showToast("error", e.message || "Failed to load courses");
-    } finally {
-      setLoadingCourses(false);
     }
+    setLoadingCourses(false);
   };
 
   const selectCourse = async (course: Course) => {
     setSelectedCourse(course);
-    try {
-      const { data } = await adminService.getModulesByCourse(course.id);
-      setModules(data || []);
-      setModuleOrder((data?.length || 0) + 1);
-    } catch (e: any) {
-      console.error(e);
+    const { data } = await adminService.getCourseModules(course.id);
+    if (data) {
+      setModules(data);
     }
   };
 
   const loadTasks = async () => {
     setLoadingTasks(true);
-    try {
-      const { data } = await adminService.getAllTasks();
-      if (data) setAllTasks(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingTasks(false);
+    const { data } = await adminService.getAllTasks();
+    if (data) {
+      setAllTasks(data);
     }
+    setLoadingTasks(false);
+  };
+
+  const loadSubmissions = async () => {
+    setLoadingSubmissions(true);
+    const { data } = await adminService.getRecentSubmissions(100);
+    if (data) {
+      setSubmissions(data);
+    }
+    setLoadingSubmissions(false);
   };
 
   const loadUsers = async () => {
     setLoadingUsers(true);
-    try {
-      const { data } = await adminService.getAllUsers();
-      if (data) setUsers(data as Profile[]);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingUsers(false);
+    const { data } = await adminService.getAllUsers();
+    if (data) {
+      setUsers(data);
     }
+    setLoadingUsers(false);
   };
 
-  // Handle task course selection change
-  useEffect(() => {
-    if (taskCourseId) {
-      adminService.getModulesByCourse(taskCourseId).then(({ data }) => {
-        setAvailableModules(data || []);
-        if (data && data.length > 0) {
-          setTaskModuleId(data[0].id);
-        } else {
-          setTaskModuleId("");
-        }
-      });
-    }
-  }, [taskCourseId]);
-
-  const loadSubmissions = async () => {
-    setLoadingSubmissions(true);
-    try {
-      const { data } = await supabase
-        .from("submissions")
-        .select(`
-          id,
-          user_id,
-          task_id,
-          code,
-          status,
-          passed_cases,
-          total_cases,
-          execution_time_ms,
-          created_at,
-          profiles:user_id (full_name, email),
-          tasks:task_id (title, language)
-        `)
-        .order("created_at", { ascending: false })
-        .limit(100);
-
-      if (data) setSubmissions(data);
-    } catch (e) {
-      console.error("Submissions load error:", e);
-    } finally {
-      setLoadingSubmissions(false);
-    }
-  };
-
-  // Actions: Courses & Modules
+  // Actions: Courses
   const handleCreateCourse = async (e: React.FormEvent) => {
-    const cleanSlug =
-      courseSlug
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "") ||
-      courseTitle
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
-
-    if (!courseTitle.trim() || !cleanSlug) {
-      showToast("error", "Title and valid slug are required");
+    e.preventDefault();
+    if (!courseTitle.trim() || !courseSlug.trim()) {
+      showToast("error", "Course title and URL slug are required");
       return;
     }
 
     const { data, error } = await adminService.createCourse({
       title: courseTitle.trim(),
-      slug: cleanSlug,
+      slug: courseSlug.trim().toLowerCase(),
       description: courseDescription.trim(),
       is_published: courseIsPublished,
     });
 
     if (error) {
       showToast("error", error);
-    } else if (data) {
-      showToast("success", `Course "${data.title}" created!`);
+    } else {
+      showToast("success", `Course "${courseTitle}" created successfully!`);
       setShowCourseModal(false);
       setCourseTitle("");
       setCourseSlug("");
       setCourseDescription("");
       loadCourses();
-      selectCourse(data);
       loadOverviewMetrics();
     }
   };
 
+  const handleDeleteCourse = async (courseId: string) => {
+    if (confirm("Are you sure? This will delete the course and all associated modules and tasks.")) {
+      const { success, error } = await adminService.deleteCourse(courseId);
+      if (success) {
+        showToast("info", "Course deleted");
+        if (selectedCourse?.id === courseId) {
+          setSelectedCourse(null);
+          setModules([]);
+        }
+        loadCourses();
+        loadOverviewMetrics();
+      } else {
+        showToast("error", error || "Failed to delete course");
+      }
+    }
+  };
+
+  // Actions: Modules
   const handleCreateModule = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCourse) {
-      showToast("error", "Please select a course first");
-      return;
-    }
+    if (!selectedCourse) return;
     if (!moduleTitle.trim()) {
       showToast("error", "Module title is required");
       return;
@@ -341,110 +334,128 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
     if (error) {
       showToast("error", error);
-    } else if (data) {
-      showToast("success", `Module added as ${moduleIsProOnly ? "Pro Tier (₹49)" : "Free Starter"}!`);
+    } else {
+      showToast("success", `Module "${moduleTitle}" added to ${selectedCourse.title}!`);
       setModuleTitle("");
+      setModuleOrder((prev) => prev + 1);
       setModuleIsProOnly(false);
       selectCourse(selectedCourse);
-    }
-  };
-
-  const handleDeleteCourse = async (courseId: string) => {
-    if (confirm("Are you sure? This will delete all modules and tasks under this course.")) {
-      const { success, error } = await adminService.deleteCourse(courseId);
-      if (success) {
-        showToast("info", "Course deleted");
-        setSelectedCourse(null);
-        setModules([]);
-        loadCourses();
-        loadOverviewMetrics();
-      } else {
-        showToast("error", error || "Failed to delete course");
-      }
+      loadOverviewMetrics();
     }
   };
 
   const handleDeleteModule = async (moduleId: string) => {
-    if (confirm("Delete this module and its tasks?")) {
+    if (confirm("Delete this module? Associated tasks will be detached.")) {
       const { success, error } = await adminService.deleteModule(moduleId);
-      if (success && selectedCourse) {
+      if (success) {
         showToast("info", "Module deleted");
-        selectCourse(selectedCourse);
+        if (selectedCourse) selectCourse(selectedCourse);
+        loadOverviewMetrics();
       } else {
         showToast("error", error || "Failed to delete module");
       }
     }
   };
 
-  const handleOpenEditModule = (mod: Module) => {
-    setEditingModule(mod);
-    setEditAboutContent(mod.about_content || "");
-    setEditYoutubeUrl(mod.youtube_url || "");
-    setEditYoutubeTitle(mod.youtube_title || "");
-    setEditReadingTime(mod.reading_time_mins || 5);
-    setEditIsProOnly(Boolean(mod.is_pro_only));
-    setEditKeyTakeaways(
-      Array.isArray(mod.key_takeaways) ? mod.key_takeaways.join("\n") : ""
-    );
+  const handleOpenEditModule = (m: Module) => {
+    setEditingModule(m);
+    setEditAboutContent(m.about_content || "");
+    setEditYoutubeUrl(m.youtube_url || "");
+    setEditYoutubeTitle(m.youtube_title || "");
+    setEditReadingTime(m.reading_time_minutes || 5);
+    setEditKeyTakeaways(Array.isArray(m.key_takeaways) ? m.key_takeaways.join("\n") : "");
+    setEditIsProOnly(Boolean(m.is_pro_only));
   };
 
   const handleSaveModuleContent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingModule || !selectedCourse) return;
+
     setSavingModuleContent(true);
-    try {
-      const takeawaysList = editKeyTakeaways
-        .split("\n")
-        .map((s) => s.trim())
-        .filter(Boolean);
+    const takeawaysArray = editKeyTakeaways
+      .split("\n")
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
 
-      const { error } = await adminService.updateModule(editingModule.id, {
-        about_content: editAboutContent,
-        youtube_url: editYoutubeUrl,
-        youtube_title: editYoutubeTitle,
-        reading_time_mins: Number(editReadingTime) || 5,
-        is_pro_only: editIsProOnly,
-        key_takeaways: takeawaysList,
-      });
+    const { error } = await adminService.updateModule(editingModule.id, {
+      about_content: editAboutContent.trim(),
+      youtube_url: editYoutubeUrl.trim(),
+      youtube_title: editYoutubeTitle.trim(),
+      reading_time_minutes: Number(editReadingTime) || 5,
+      key_takeaways: takeawaysArray,
+      is_pro_only: editIsProOnly,
+    });
 
-      if (error) {
-        showToast("error", error);
-      } else {
-        showToast("success", `Module updated (${editIsProOnly ? "Pro Tier ₹49" : "Free Starter"})!`);
-        setEditingModule(null);
-        selectCourse(selectedCourse);
-      }
-    } finally {
-      setSavingModuleContent(false);
+    setSavingModuleContent(false);
+    if (error) {
+      showToast("error", error);
+    } else {
+      showToast("success", `Study guide & video updated for "${editingModule.title}"`);
+      setEditingModule(null);
+      selectCourse(selectedCourse);
     }
   };
 
-  // Actions: Task Creator & Editor
+  // Actions: Test Cases in Creator Form
   const handleAddTestCase = () => {
-    setTaskTestCases((prev) => [
-      ...prev,
+    setTaskTestCases([
+      ...taskTestCases,
       { input: "", expected_output: "", is_hidden: false, explanation: "" },
     ]);
   };
 
-  const handleUpdateTestCase = (index: number, patch: Partial<NewTestCaseItem>) => {
-    setTaskTestCases((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, ...patch } : item))
-    );
-  };
-
   const handleRemoveTestCase = (index: number) => {
-    setTaskTestCases((prev) => prev.filter((_, i) => i !== index));
+    setTaskTestCases(taskTestCases.filter((_, i) => i !== index));
   };
 
+  const handleTestCaseChange = (index: number, field: keyof NewTestCaseItem, val: any) => {
+    const updated = [...taskTestCases];
+    updated[index] = { ...updated[index], [field]: val };
+    setTaskTestCases(updated);
+  };
+
+  // MCQ Options handler
+  const handleAddMcqOption = () => {
+    if (mcqOptions.length >= 6) {
+      showToast("warning", "Maximum 6 options allowed");
+      return;
+    }
+    const nextChar = String.fromCharCode(65 + mcqOptions.length);
+    setMcqOptions([...mcqOptions, `Option ${nextChar}`]);
+  };
+
+  const handleRemoveMcqOption = (index: number) => {
+    if (mcqOptions.length <= 2) {
+      showToast("warning", "At least 2 options required");
+      return;
+    }
+    const removedOption = mcqOptions[index];
+    const updated = mcqOptions.filter((_, i) => i !== index);
+    setMcqOptions(updated);
+    if (mcqCorrectAnswer === removedOption) {
+      setMcqCorrectAnswer(updated[0] || "");
+    }
+  };
+
+  const handleMcqOptionChange = (index: number, value: string) => {
+    const prevVal = mcqOptions[index];
+    const updated = [...mcqOptions];
+    updated[index] = value;
+    setMcqOptions(updated);
+    if (mcqCorrectAnswer === prevVal) {
+      setMcqCorrectAnswer(value);
+    }
+  };
+
+  // Actions: Challenge Edit Mode
   const handleStartEditTask = async (task: any) => {
     setEditingTaskId(task.id);
+    setTaskType(task.task_type === "mcq" ? "mcq" : "algorithm");
     setTaskTitle(task.title || "");
     setTaskSlug(task.slug || "");
     setTaskDescription(task.description || "");
-    setTaskType((task.task_type as any) === "mcq" ? "mcq" : "algorithm");
     setTaskLanguage(task.language || "python");
-    setTaskDifficulty(task.difficulty || "easy");
+    setTaskDifficulty((task.difficulty as any) || "easy");
     setTaskPoints(task.points || 15);
     setTaskStarterCode(task.starter_code || "");
     setTaskSolutionCode(task.solution_code || "");
@@ -603,20 +614,19 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
         showToast("success", `Role updated to ${nextRole}`);
         loadUsers();
       } else {
-        showToast("error", error || "Failed to update user role");
+        showToast("error", error || "Failed to update role");
       }
     }
   };
 
-  // Actions: System Diagnostics
-  const handleTestWandbox = async () => {
+  // Judge Ping Latency Check
+  const handlePingWandbox = async () => {
     setIsPingingWandbox(true);
-    setWandboxLatency(null);
     const start = performance.now();
     try {
       const res = await executeCode({
+        code: `print("AarCode judge engine healthy")`,
         language: "python",
-        sourceCode: "print('AarCode System Online')",
         stdin: "",
       });
       const end = performance.now();
@@ -628,7 +638,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
         showToast("warning", `Judge responded with errors: ${res.stderr || "Unknown"}`);
       }
     } catch (e: any) {
-      showToast("error", `Wandbox ping failed: ${e.message}`);
+      showToast("error", `Judge ping failed: ${e.message}`);
     } finally {
       setIsPingingWandbox(false);
     }
@@ -639,7 +649,6 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
     if (confirm("Populate database with default courses, modules, and tasks?")) {
       setIsSeeding(true);
       try {
-        // Seed python course
         const { data: c1 } = await adminService.createCourse({
           title: "Python Data Structures & Algorithms",
           slug: "python-dsa",
@@ -698,8 +707,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   // Auth Guard
   if (authLoading) {
     return (
-      <div className="h-full w-full flex items-center justify-center bg-[#F8FAFC] dark:bg-[#0C0D0E] text-slate-500 font-urbanist">
-        <Loader2 size={32} className="animate-spin text-[#6366F1] mb-2" />
+      <div className="min-h-[70vh] w-full flex items-center justify-center bg-[#F8FAFC] dark:bg-[#0C0D0E] text-slate-500 font-urbanist">
+        <Loader2 size={32} className="animate-spin text-emerald-500 mb-2" />
         <span className="ml-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
           Verifying administrator permissions...
         </span>
@@ -709,8 +718,8 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
 
   if (!isAdmin) {
     return (
-      <div className="h-full w-full flex flex-col items-center justify-center p-6 bg-[#F8FAFC] dark:bg-[#0C0D0E] text-center space-y-4 font-urbanist">
-        <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 text-[#6366F1] flex items-center justify-center shadow-lg shadow-indigo-500/10">
+      <div className="min-h-[70vh] w-full flex flex-col items-center justify-center p-6 bg-[#F8FAFC] dark:bg-[#0C0D0E] text-center space-y-4 font-urbanist">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/10 border border-amber-500/20">
           <ShieldAlert size={36} />
         </div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
@@ -721,9 +730,9 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
         </p>
         <button
           onClick={() => navigate("problems")}
-          className="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] text-white hover:opacity-95 shadow-md shadow-indigo-500/20 transition-all"
+          className="px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
         >
-          Return to Student Hub
+          Return to Problem Arena
         </button>
       </div>
     );
@@ -755,7 +764,6 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
   });
 
   const filteredUsers = users.filter((u) => {
-    // Force dependency on planTick so changes re-evaluate
     if (planTick < 0) return false;
     const name = u.full_name || "";
     const email = u.email || "";
@@ -779,307 +787,46 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       : 0;
 
   return (
-    <div className="h-full w-full flex bg-[#F8FAFC] dark:bg-[#0C0D0E] text-slate-900 dark:text-white font-urbanist overflow-hidden">
-      {/* Mobile Drawer Backdrop */}
-      {mobileSidebarOpen && (
-        <div
-          onClick={() => setMobileSidebarOpen(false)}
-          className="fixed inset-0 bg-black/60 z-30 md:hidden backdrop-blur-xs animate-in fade-in"
-        />
-      )}
-
-      {/* =====================================================================
-          1. SLEEK ADMIN SIDEBAR (Responsive drawer on mobile)
-      ===================================================================== */}
-      <aside
-        className={cn(
-          "h-full border-r border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] flex flex-col shrink-0 transition-all duration-300 z-40 select-none",
-          "fixed inset-y-0 left-0 md:relative",
-          mobileSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0",
-          isSidebarCollapsed ? "w-20" : "w-64"
-        )}
-      >
-        {/* Brand & Collapse Header */}
-        <div className="h-16 px-4 flex items-center justify-between border-b border-slate-200/80 dark:border-[#202425] shrink-0">
-          {!isSidebarCollapsed && (
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-200/70 dark:border-indigo-500/20 p-1 flex items-center justify-center">
-                <img src="/AarCode.png" alt="AarCode" className="w-full h-full object-contain" />
-              </div>
-              <div>
-                <span className="font-bold text-sm tracking-tight text-slate-900 dark:text-white block leading-none">
-                  AarCode
-                </span>
-                <span className="text-[10px] font-bold text-[#6366F1] uppercase tracking-wider">
-                  Admin Console
-                </span>
-              </div>
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0C0D0E] text-slate-900 dark:text-white font-urbanist transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* =====================================================================
+            1. COMMAND CENTER HERO BANNER (AarCode Standard)
+        ===================================================================== */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-[#1F2327]">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider uppercase bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20">
+              <ShieldCheck size={14} />
+              <span>AarCode Admin Console • Logic First.</span>
             </div>
-          )}
-
-          {isSidebarCollapsed && (
-            <div className="w-8 h-8 mx-auto rounded-xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-200/70 dark:border-indigo-500/20 p-1 flex items-center justify-center">
-              <img src="/AarCode.png" alt="AarCode" className="w-full h-full object-contain" />
-            </div>
-          )}
-
-          <button
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#202425] transition-colors"
-            title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {isSidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-          </button>
-        </div>
-
-        {/* Navigation Sections */}
-        <div className="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto custom-scrollbar">
-          <div className={cn("px-3 pb-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider", isSidebarCollapsed && "text-center")}>
-            {isSidebarCollapsed ? "•••" : "Site Operations"}
-          </div>
-
-          {/* Nav Item: Overview */}
-          <button
-            onClick={() => {
-              setActiveSection("overview");
-              setMobileSidebarOpen(false);
-            }}
-            className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
-              activeSection === "overview"
-                ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
-            )}
-            title="Overview"
-          >
-            <BarChart3 size={17} className="shrink-0" />
-            {!isSidebarCollapsed && <span>Overview</span>}
-          </button>
-
-          {/* Nav Item: Courses */}
-          <button
-            onClick={() => {
-              setActiveSection("courses");
-              setMobileSidebarOpen(false);
-            }}
-            className={cn(
-              "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
-              activeSection === "courses"
-                ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
-            )}
-            title="Courses & Tracks"
-          >
-            <div className="flex items-center gap-3">
-              <BookOpen size={17} className="shrink-0" />
-              {!isSidebarCollapsed && <span>Tracks & Modules</span>}
-            </div>
-            {!isSidebarCollapsed && metrics.coursesCount > 0 && (
-              <span className={cn(
-                "px-2 py-0.5 rounded-md text-[10px] font-mono",
-                activeSection === "courses" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-[#202425] text-slate-500"
-              )}>
-                {metrics.coursesCount}
-              </span>
-            )}
-          </button>
-
-          {/* Nav Item: Tasks */}
-          <button
-            onClick={() => {
-              setActiveSection("tasks");
-              setMobileSidebarOpen(false);
-            }}
-            className={cn(
-              "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
-              activeSection === "tasks"
-                ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
-            )}
-            title="Problems & Tasks"
-          >
-            <div className="flex items-center gap-3">
-              <Code2 size={17} className="shrink-0" />
-              {!isSidebarCollapsed && <span>Problem Bank</span>}
-            </div>
-            {!isSidebarCollapsed && metrics.tasksCount > 0 && (
-              <span className={cn(
-                "px-2 py-0.5 rounded-md text-[10px] font-mono",
-                activeSection === "tasks" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-[#202425] text-slate-500"
-              )}>
-                {metrics.tasksCount}
-              </span>
-            )}
-          </button>
-
-          {/* Nav Item: Submissions */}
-          <button
-            onClick={() => {
-              setActiveSection("submissions");
-              setMobileSidebarOpen(false);
-              loadSubmissions();
-            }}
-            className={cn(
-              "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
-              activeSection === "submissions"
-                ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
-            )}
-            title="Live Submissions"
-          >
-            <div className="flex items-center gap-3">
-              <Terminal size={17} className="shrink-0" />
-              {!isSidebarCollapsed && <span>Live Submissions</span>}
-            </div>
-            {!isSidebarCollapsed && (
-              <span className={cn(
-                "px-2 py-0.5 rounded-md text-[10px] font-mono",
-                activeSection === "submissions" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-[#202425] text-slate-500"
-              )}>
-                {submissions.length}
-              </span>
-            )}
-          </button>
-
-          {/* Nav Item: Users */}
-          <button
-            onClick={() => {
-              setActiveSection("users");
-              setMobileSidebarOpen(false);
-            }}
-            className={cn(
-              "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
-              activeSection === "users"
-                ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
-            )}
-            title="Students & Roles"
-          >
-            <div className="flex items-center gap-3">
-              <Users size={17} className="shrink-0" />
-              {!isSidebarCollapsed && <span>Students & Roles</span>}
-            </div>
-            {!isSidebarCollapsed && metrics.usersCount > 0 && (
-              <span className={cn(
-                "px-2 py-0.5 rounded-md text-[10px] font-mono",
-                activeSection === "users" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-[#202425] text-slate-500"
-              )}>
-                {metrics.usersCount}
-              </span>
-            )}
-          </button>
-
-          {/* Nav Item: System */}
-          <button
-            onClick={() => {
-              setActiveSection("system");
-              setMobileSidebarOpen(false);
-            }}
-            className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all",
-              activeSection === "system"
-                ? "bg-[#6366F1] text-white shadow-md shadow-indigo-500/25"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white"
-            )}
-            title="System & Tools"
-          >
-            <Server size={17} className="shrink-0" />
-            {!isSidebarCollapsed && <span>System & Health</span>}
-          </button>
-
-          {/* Student Hub Quick-Jump Section */}
-          <div className="pt-4 mt-4 border-t border-slate-200/80 dark:border-[#202425]">
-            <div className={cn("px-3 pb-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider", isSidebarCollapsed && "text-center")}>
-              {isSidebarCollapsed ? "•••" : "Live Site Jump"}
-            </div>
-            <button
-              onClick={() => {
-                navigate("problems");
-                setMobileSidebarOpen(false);
-              }}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white transition-colors"
-              title="Practice Arena"
-            >
-              <ExternalLink size={15} className="shrink-0 text-[#6366F1]" />
-              {!isSidebarCollapsed && <span>Practice Arena</span>}
-            </button>
-            <button
-              onClick={() => {
-                navigate("compiler");
-                setMobileSidebarOpen(false);
-              }}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white transition-colors"
-              title="Online Compiler"
-            >
-              <ExternalLink size={15} className="shrink-0 text-emerald-500" />
-              {!isSidebarCollapsed && <span>Web Compiler</span>}
-            </button>
-            <button
-              onClick={() => navigate("landing")}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425] hover:text-slate-900 dark:hover:text-white transition-colors"
-              title="Landing Page"
-            >
-              <ExternalLink size={15} className="shrink-0 text-amber-500" />
-              {!isSidebarCollapsed && <span>Main Home</span>}
-            </button>
-          </div>
-        </div>
-
-        {/* Admin User Chip Footer */}
-        <div className="p-3 border-t border-slate-200/80 dark:border-[#202425] shrink-0 bg-slate-50 dark:bg-[#0C0D0E]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#6366F1] to-[#7C3AED] text-white font-bold text-xs flex items-center justify-center shrink-0">
-              {profile?.full_name ? profile.full_name[0].toUpperCase() : "A"}
-            </div>
-            {!isSidebarCollapsed && (
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                  {profile?.full_name || "Aravindh (Superadmin)"}
-                </p>
-                <div className="flex items-center gap-1 text-[10px] text-indigo-500 font-semibold">
-                  <ShieldCheck size={11} />
-                  <span>Platform Admin</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </aside>
-
-      {/* =====================================================================
-          2. MAIN ADMIN WORKSPACE
-      ===================================================================== */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        {/* Top Control Bar */}
-        <header className="h-16 px-4 sm:px-6 border-b border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] flex items-center justify-between shrink-0 z-20">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <button
-              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-              className="md:hidden p-2 rounded-xl border border-slate-200 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-600 dark:text-slate-300 hover:text-[#6366F1] transition-colors"
-              aria-label="Toggle admin navigation menu"
-            >
-              {mobileSidebarOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
-            <h1 className="text-sm sm:text-lg font-bold text-slate-900 dark:text-white capitalize truncate max-w-[180px] xs:max-w-none">
-              {activeSection === "overview" && "Dashboard Overview"}
-              {activeSection === "courses" && "Course & Module Management"}
-              {activeSection === "tasks" && "Problem Bank & Task Creator"}
-              {activeSection === "submissions" && "Real-Time Submissions Log"}
-              {activeSection === "users" && "Student Directory & Permissions"}
-              {activeSection === "system" && "System Health & Database Tools"}
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white mt-2.5">
+              Curriculum &amp; System Management
             </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-[#8A9099] mt-1 max-w-2xl">
+              An AarGa Hub Software Production. Dynamic CMS for curriculum tracks, problem challenges, test cases, and student access control.
+            </p>
           </div>
 
-          {/* Top Quick Actions */}
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Wandbox Judge Online</span>
-            </div>
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            {/* Ping Wandbox Latency Pill */}
+            <button
+              onClick={handlePingWandbox}
+              disabled={isPingingWandbox}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-[#00F076] text-xs font-bold font-mono hover:bg-emerald-500/20 transition-all cursor-pointer shadow-xs"
+              title="Ping Wandbox Judge Execution Runtime"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Judge Engine</span>
+              {wandboxLatency !== null && (
+                <span className="px-1.5 py-0.5 rounded bg-black/10 dark:bg-black/30 text-[10px] text-emerald-600 dark:text-emerald-400">
+                  {wandboxLatency}ms
+                </span>
+              )}
+            </button>
 
+            {/* Quick Actions */}
             <button
               onClick={() => setShowCourseModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-[#202425] hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-[#131517] hover:bg-slate-200 dark:hover:bg-[#1F2327] text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-[#1F2327] text-xs font-bold transition-all cursor-pointer shadow-xs"
             >
               <Plus size={14} />
               <span>New Track</span>
@@ -1090,527 +837,653 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                 setActiveSection("tasks");
                 setTasksTab("create");
               }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white text-xs font-bold shadow-md shadow-indigo-500/25 transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer active:scale-95"
             >
               <Plus size={14} />
               <span>New Problem</span>
             </button>
           </div>
-        </header>
+        </div>
 
-        {/* Dynamic View Scrollable Body */}
-        <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
-          {/* =================================================================
-              VIEW 1: OVERVIEW DASHBOARD
-          ================================================================= */}
-          {activeSection === "overview" && (
-            <div className="space-y-6 max-w-7xl mx-auto">
-              {/* 4 Metric KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-5 rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] shadow-xs space-y-3">
-                  <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-semibold">Active Students</span>
-                    <div className="p-2 rounded-xl bg-indigo-500/10 text-[#6366F1]">
-                      <Users size={18} />
-                    </div>
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                      {metrics.usersCount || users.length}
-                    </span>
-                    <span className="text-xs text-emerald-500 font-semibold">Profiles Synced</span>
-                  </div>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] shadow-xs space-y-3">
-                  <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-semibold">Learning Tracks</span>
-                    <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
-                      <BookOpen size={18} />
-                    </div>
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                      {metrics.coursesCount || courses.length}
-                    </span>
-                    <span className="text-xs text-slate-400 font-mono">Curriculums</span>
-                  </div>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] shadow-xs space-y-3">
-                  <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-semibold">Problem Bank</span>
-                    <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
-                      <Code2 size={18} />
-                    </div>
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                      {metrics.tasksCount || allTasks.length}
-                    </span>
-                    <span className="text-xs text-amber-500 font-semibold">Algorithms</span>
-                  </div>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] shadow-xs space-y-3">
-                  <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-semibold">Submissions & Pass Rate</span>
-                    <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500">
-                      <CheckCircle2 size={18} />
-                    </div>
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-2xl font-bold text-slate-900 dark:text-white">
-                      {metrics.submissionsCount || submissions.length}
-                    </span>
-                    <span className="text-xs font-semibold font-mono text-emerald-500">
-                      {passRate}% Pass Rate
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Operation Control Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div
-                  onClick={() => setShowCourseModal(true)}
-                  className="p-5 rounded-2xl bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-indigo-500/20 hover:border-indigo-500/40 cursor-pointer transition-all hover:scale-[1.01] group space-y-2"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-[#6366F1] text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
-                    <Plus size={20} />
-                  </div>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-[#6366F1] transition-colors">
-                    Add Learning Track
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Create a new curriculum track, define modules, and structure difficulty progressions.
-                  </p>
-                </div>
-
-                <div
-                  onClick={() => {
-                    setActiveSection("tasks");
-                    setTasksTab("create");
-                  }}
-                  className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/5 to-teal-500/5 border border-emerald-500/20 hover:border-emerald-500/40 cursor-pointer transition-all hover:scale-[1.01] group space-y-2"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
-                    <Code2 size={20} />
-                  </div>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-emerald-500 transition-colors">
-                    Create Problem Challenge
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Write problem descriptions, define starter templates, and set public and hidden test cases.
-                  </p>
-                </div>
-
-                <div
-                  onClick={handleQuickSeed}
-                  className="p-5 rounded-2xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 border border-amber-500/20 hover:border-amber-500/40 cursor-pointer transition-all hover:scale-[1.01] group space-y-2"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-500/20">
-                    {isSeeding ? <Loader2 size={20} className="animate-spin" /> : <Database size={20} />}
-                  </div>
-                  <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors">
-                    Seed Starter Curriculum
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Instantly populate database with essential DSA modules, starter challenges, and test cases.
-                  </p>
-                </div>
-              </div>
-
-              {/* Recent Activity: Submissions snapshot */}
-              <div className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                      Recent Evaluations
-                    </h3>
-                    <p className="text-xs text-slate-500">Latest code evaluated by judge service</p>
-                  </div>
-                  <button
-                    onClick={() => setActiveSection("submissions")}
-                    className="text-xs font-bold text-[#6366F1] hover:underline"
-                  >
-                    View All Logs →
-                  </button>
-                </div>
-
-                {submissions.length === 0 ? (
-                  <p className="text-xs text-slate-400 py-8 text-center">No submissions recorded yet.</p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                      <thead className="border-b border-slate-100 dark:border-[#202425] text-[10px] uppercase font-bold text-slate-400">
-                        <tr>
-                          <th className="py-2.5 px-3">Student</th>
-                          <th className="py-2.5 px-3">Task</th>
-                          <th className="py-2.5 px-3">Status</th>
-                          <th className="py-2.5 px-3">Passed</th>
-                          <th className="py-2.5 px-3">Time</th>
-                          <th className="py-2.5 px-3 text-right">Inspect</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-[#202425]/60 font-mono">
-                        {submissions.slice(0, 5).map((sub) => (
-                          <tr key={sub.id} className="hover:bg-slate-50/50 dark:hover:bg-[#202425]/40">
-                            <td className="py-2.5 px-3 font-sans font-medium text-slate-800 dark:text-slate-200">
-                              {sub.profiles?.full_name || sub.profiles?.email || sub.user_id.slice(0, 8)}
-                            </td>
-                            <td className="py-2.5 px-3 font-sans font-bold text-slate-900 dark:text-white">
-                              {sub.tasks?.title || "Coding Challenge"}
-                            </td>
-                            <td className="py-2.5 px-3">
-                              <span
-                                className={cn(
-                                  "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border",
-                                  sub.status === "passed"
-                                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                                    : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-                                )}
-                              >
-                                {sub.status}
-                              </span>
-                            </td>
-                            <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400">
-                              {sub.passed_cases} / {sub.total_cases}
-                            </td>
-                            <td className="py-2.5 px-3 text-slate-500">
-                              {sub.execution_time_ms ? `${sub.execution_time_ms} ms` : "-"}
-                            </td>
-                            <td className="py-2.5 px-3 text-right font-sans">
-                              <button
-                                onClick={() => setSelectedSubmission(sub)}
-                                className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#202425] hover:bg-[#6366F1] hover:text-white text-[11px] font-bold transition-colors"
-                              >
-                                View Code
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+        {/* =====================================================================
+            2. TELEMETRY KPI METRICS ROW
+        ===================================================================== */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] shadow-xs space-y-3">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-xs font-semibold">Active Students</span>
+              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-[#00F076]">
+                <Users size={18} />
               </div>
             </div>
-          )}
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-bold text-slate-900 dark:text-white">
+                {metrics.usersCount || users.length}
+              </span>
+              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold font-mono">
+                Telemetry Synced
+              </span>
+            </div>
+          </div>
 
-          {/* =================================================================
-              VIEW 2: COURSES & MODULES MANAGEMENT
-          ================================================================= */}
-          {activeSection === "courses" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-              {/* Left Column: Track Catalog */}
-              <div className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                    Tracks Catalog ({courses.length})
-                  </h3>
-                  <button
-                    onClick={() => setShowCourseModal(true)}
-                    className="p-1.5 rounded-lg bg-[#6366F1] text-white hover:opacity-95"
-                    title="Add Course"
-                  >
-                    <Plus size={14} />
-                  </button>
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] shadow-xs space-y-3">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-xs font-semibold">Learning Tracks</span>
+              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-[#00F076]">
+                <BookOpen size={18} />
+              </div>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-bold text-slate-900 dark:text-white">
+                {metrics.coursesCount || courses.length}
+              </span>
+              <span className="text-xs text-slate-400 font-mono">Curriculums</span>
+            </div>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] shadow-xs space-y-3">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-xs font-semibold">Problem Bank</span>
+              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500">
+                <Code2 size={18} />
+              </div>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-bold text-slate-900 dark:text-white">
+                {metrics.tasksCount || allTasks.length}
+              </span>
+              <span className="text-xs text-amber-500 font-semibold font-mono">Challenges</span>
+            </div>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] shadow-xs space-y-3">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-xs font-semibold">Submissions &amp; Pass Rate</span>
+              <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500">
+                <CheckCircle2 size={18} />
+              </div>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-bold text-slate-900 dark:text-white">
+                {metrics.submissionsCount || submissions.length}
+              </span>
+              <span className="text-xs font-semibold font-mono text-emerald-600 dark:text-[#00F076]">
+                {passRate}% Pass Rate
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* =====================================================================
+            3. HORIZONTAL WORKSPACE NAVIGATION TABS (LeetCode / CodeChef Style)
+        ===================================================================== */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar border-b border-slate-200 dark:border-[#1F2327]">
+          <button
+            onClick={() => setActiveSection("overview")}
+            className={cn(
+              "flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer",
+              activeSection === "overview"
+                ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#131517]"
+            )}
+          >
+            <BarChart3 size={16} />
+            <span>Overview</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSection("courses")}
+            className={cn(
+              "flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer",
+              activeSection === "courses"
+                ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#131517]"
+            )}
+          >
+            <BookOpen size={16} />
+            <span>Tracks &amp; Modules</span>
+            {metrics.coursesCount > 0 && (
+              <span className={cn(
+                "px-2 py-0.5 rounded-full text-[10px] font-mono",
+                activeSection === "courses" ? "bg-black/20 text-black" : "bg-slate-100 dark:bg-[#1F2327] text-slate-500"
+              )}>
+                {metrics.coursesCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveSection("tasks")}
+            className={cn(
+              "flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer",
+              activeSection === "tasks"
+                ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#131517]"
+            )}
+          >
+            <Code2 size={16} />
+            <span>Problem Bank</span>
+            {metrics.tasksCount > 0 && (
+              <span className={cn(
+                "px-2 py-0.5 rounded-full text-[10px] font-mono",
+                activeSection === "tasks" ? "bg-black/20 text-black" : "bg-slate-100 dark:bg-[#1F2327] text-slate-500"
+              )}>
+                {metrics.tasksCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveSection("submissions");
+              loadSubmissions();
+            }}
+            className={cn(
+              "flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer",
+              activeSection === "submissions"
+                ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#131517]"
+            )}
+          >
+            <Terminal size={16} />
+            <span>Live Submissions</span>
+            {submissions.length > 0 && (
+              <span className={cn(
+                "px-2 py-0.5 rounded-full text-[10px] font-mono",
+                activeSection === "submissions" ? "bg-black/20 text-black" : "bg-slate-100 dark:bg-[#1F2327] text-slate-500"
+              )}>
+                {submissions.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveSection("users")}
+            className={cn(
+              "flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer",
+              activeSection === "users"
+                ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#131517]"
+            )}
+          >
+            <Users size={16} />
+            <span>Student Access &amp; Pro</span>
+            {users.length > 0 && (
+              <span className={cn(
+                "px-2 py-0.5 rounded-full text-[10px] font-mono",
+                activeSection === "users" ? "bg-black/20 text-black" : "bg-slate-100 dark:bg-[#1F2327] text-slate-500"
+              )}>
+                {users.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveSection("system")}
+            className={cn(
+              "flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer",
+              activeSection === "system"
+                ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#131517]"
+            )}
+          >
+            <Server size={16} />
+            <span>Judge &amp; Engine</span>
+          </button>
+        </div>
+
+        {/* =====================================================================
+            VIEW 1: OVERVIEW DASHBOARD
+        ===================================================================== */}
+        {activeSection === "overview" && (
+          <div className="space-y-6">
+            {/* Quick Operation Control Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div
+                onClick={() => setShowCourseModal(true)}
+                className="p-5 rounded-2xl bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] hover:border-emerald-500/40 cursor-pointer transition-all hover:scale-[1.01] group space-y-2 shadow-xs"
+              >
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] flex items-center justify-center border border-emerald-500/20">
+                  <Plus size={20} />
                 </div>
-
-                {/* Search */}
-                <div className="relative">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    value={courseSearch}
-                    onChange={(e) => setCourseSearch(e.target.value)}
-                    placeholder="Search tracks..."
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
-                  />
-                </div>
-
-                {/* Courses List */}
-                <div className="space-y-2">
-                  {filteredCourses.map((c) => (
-                    <div
-                      key={c.id}
-                      onClick={() => selectCourse(c)}
-                      className={cn(
-                        "p-3.5 rounded-xl border text-xs cursor-pointer transition-all flex items-center justify-between",
-                        selectedCourse?.id === c.id
-                          ? "border-[#6366F1] bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 font-semibold shadow-xs"
-                          : "border-slate-200/80 dark:border-[#202425] hover:bg-slate-50 dark:hover:bg-[#202425]/40 text-slate-700 dark:text-slate-300"
-                      )}
-                    >
-                      <div>
-                        <p className="font-bold text-slate-900 dark:text-white">{c.title}</p>
-                        <p className="text-[10px] text-slate-400 font-mono">/{c.slug}</p>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        {/* Course Enrollment Status Toggle ('open' | 'closed') */}
-                        <button
-                          type="button"
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            const currentStatus = (c as any).enrollment_status || "open";
-                            const nextStatus = currentStatus === "open" ? "closed" : "open";
-                            try {
-                              await supabase.from("courses").update({ enrollment_status: nextStatus }).eq("id", c.id);
-                              setCourses((prev) =>
-                                prev.map((item) =>
-                                  item.id === c.id ? ({ ...item, enrollment_status: nextStatus } as any) : item
-                                )
-                              );
-                              showToast("success", `Track enrollment set to ${nextStatus.toUpperCase()}`);
-                            } catch (err) {
-                              showToast("error", "Failed to update enrollment status");
-                            }
-                          }}
-                          className={cn(
-                            "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase transition-all flex items-center gap-1 cursor-pointer",
-                            ((c as any).enrollment_status || "open") === "open"
-                              ? "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border border-emerald-500/30 hover:bg-emerald-500/25"
-                              : "bg-rose-500/15 text-rose-500 border border-rose-500/30 hover:bg-rose-500/25"
-                          )}
-                          title="Click to toggle Enrollment: Open / Closed"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                          <span>{((c as any).enrollment_status || "open") === "open" ? "Open" : "Closed"}</span>
-                        </button>
-
-                        <span
-                          className={cn(
-                            "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
-                            c.is_published
-                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                              : "bg-slate-500/10 text-slate-400"
-                          )}
-                        >
-                          {c.is_published ? "Live" : "Draft"}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteCourse(c.id);
-                          }}
-                          className="text-slate-400 hover:text-rose-500 p-1"
-                          title="Delete track"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-emerald-500 transition-colors">
+                  Add Learning Track
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-[#8A9099]">
+                  Create a new curriculum track, define modules, and structure difficulty progressions.
+                </p>
               </div>
 
-              {/* Right Column: Modules for Selected Course */}
-              <div className="lg:col-span-2 rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] p-6 space-y-6">
-                {selectedCourse ? (
-                  <>
-                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-4">
-                      <div>
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                          {selectedCourse.title}
-                        </h3>
-                        <p className="text-xs text-slate-500">
-                          Configure chapters and module breakdown for this track
-                        </p>
-                      </div>
-                      <span className="text-xs px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-500 font-bold">
-                        {modules.length} Modules
-                      </span>
+              <div
+                onClick={() => {
+                  setActiveSection("tasks");
+                  setTasksTab("create");
+                }}
+                className="p-5 rounded-2xl bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] hover:border-emerald-500/40 cursor-pointer transition-all hover:scale-[1.01] group space-y-2 shadow-xs"
+              >
+                <div className="w-10 h-10 rounded-xl bg-emerald-500 text-black flex items-center justify-center shadow-md shadow-emerald-500/20">
+                  <Code2 size={20} />
+                </div>
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-emerald-500 transition-colors">
+                  Create Problem Challenge
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-[#8A9099]">
+                  Write problem descriptions, define starter templates, and set public and hidden test cases.
+                </p>
+              </div>
+
+              <div
+                onClick={handleQuickSeed}
+                className="p-5 rounded-2xl bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] hover:border-amber-500/40 cursor-pointer transition-all hover:scale-[1.01] group space-y-2 shadow-xs"
+              >
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center border border-amber-500/20">
+                  {isSeeding ? <Loader2 size={20} className="animate-spin" /> : <Database size={20} />}
+                </div>
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors">
+                  Seed Starter Curriculum
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-[#8A9099]">
+                  Instantly populate database with essential DSA modules, starter challenges, and test cases.
+                </p>
+              </div>
+            </div>
+
+            {/* Recent Activity: Submissions snapshot */}
+            <div className="rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] p-5 space-y-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                    Recent Evaluations
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-[#8A9099]">Latest code evaluated by judge execution engine</p>
+                </div>
+                <button
+                  onClick={() => setActiveSection("submissions")}
+                  className="text-xs font-bold text-emerald-600 dark:text-[#00F076] hover:underline"
+                >
+                  View All Logs →
+                </button>
+              </div>
+
+              {submissions.length === 0 ? (
+                <p className="text-xs text-slate-400 py-8 text-center">No submissions recorded yet.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="border-b border-slate-200 dark:border-[#1F2327] text-[10px] uppercase font-bold text-slate-400 bg-slate-50/50 dark:bg-[#0C0D0E]/50">
+                      <tr>
+                        <th className="py-2.5 px-3">Student</th>
+                        <th className="py-2.5 px-3">Task</th>
+                        <th className="py-2.5 px-3">Status</th>
+                        <th className="py-2.5 px-3">Passed</th>
+                        <th className="py-2.5 px-3">Time</th>
+                        <th className="py-2.5 px-3 text-right">Inspect</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#1F2327]/60 font-mono">
+                      {submissions.slice(0, 5).map((sub) => (
+                        <tr key={sub.id} className="hover:bg-slate-50 dark:hover:bg-[#181B1D]">
+                          <td className="py-2.5 px-3 font-sans font-medium text-slate-800 dark:text-slate-200">
+                            {sub.profiles?.full_name || sub.profiles?.email || sub.user_id.slice(0, 8)}
+                          </td>
+                          <td className="py-2.5 px-3 font-sans font-bold text-slate-900 dark:text-white">
+                            {sub.tasks?.title || "Coding Challenge"}
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <span
+                              className={cn(
+                                "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border",
+                                sub.status === "passed"
+                                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                                  : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                              )}
+                            >
+                              {sub.status}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400">
+                            {sub.passed_cases} / {sub.total_cases}
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-500">
+                            {sub.execution_time_ms ? `${sub.execution_time_ms} ms` : "-"}
+                          </td>
+                          <td className="py-2.5 px-3 text-right font-sans">
+                            <button
+                              onClick={() => setSelectedSubmission(sub)}
+                              className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#1F2327] hover:bg-emerald-500 hover:text-black text-[11px] font-bold transition-colors cursor-pointer"
+                            >
+                              View Code
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* =====================================================================
+            VIEW 2: COURSES & MODULES MANAGEMENT
+        ===================================================================== */}
+        {activeSection === "courses" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column: Track Catalog */}
+            <div className="rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] p-5 space-y-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Tracks Catalog ({courses.length})
+                </h3>
+                <button
+                  onClick={() => setShowCourseModal(true)}
+                  className="p-1.5 rounded-lg bg-emerald-500 text-black hover:bg-emerald-400 cursor-pointer shadow-xs"
+                  title="Add Course"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+
+              {/* Search */}
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={courseSearch}
+                  onChange={(e) => setCourseSearch(e.target.value)}
+                  placeholder="Search tracks..."
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                />
+              </div>
+
+              {/* Courses List */}
+              <div className="space-y-2">
+                {filteredCourses.map((c) => (
+                  <div
+                    key={c.id}
+                    onClick={() => selectCourse(c)}
+                    className={cn(
+                      "p-3.5 rounded-xl border text-xs cursor-pointer transition-all flex items-center justify-between",
+                      selectedCourse?.id === c.id
+                        ? "border-emerald-500/50 bg-emerald-500/5 text-emerald-700 dark:text-[#00F076] font-semibold shadow-xs"
+                        : "border-slate-200 dark:border-[#1F2327] hover:bg-slate-50 dark:hover:bg-[#181B1D] text-slate-700 dark:text-slate-300"
+                    )}
+                  >
+                    <div>
+                      <p className="font-bold text-slate-900 dark:text-white">{c.title}</p>
+                      <p className="text-[10px] text-slate-400 font-mono">/{c.slug}</p>
                     </div>
 
-                    {/* Modules List */}
-                    <div className="space-y-3">
-                      {modules.map((m) => (
-                        <div
-                          key={m.id}
-                          className="p-3.5 rounded-xl border border-slate-200/80 dark:border-[#202425] flex items-center justify-between bg-slate-50/50 dark:bg-[#0C0D0E]"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 rounded-md bg-[#6366F1]/10 text-[#6366F1] font-bold text-xs flex items-center justify-center">
-                              {m.order_index}
-                            </div>
-                            <div>
-                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-                                {m.title}
-                              </span>
-                              {m.about_content && (
-                                <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-[#6366F1]">
-                                  Study Guide Active
-                                </span>
-                              )}
-                              {m.youtube_url && (
-                                <span className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500">
-                                  Video Linked
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {/* Module Pro Tier Toggle ('Free Starter' vs 'Pro ₹49') */}
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                const nextPro = !(m as any).is_pro_only;
-                                try {
-                                  await supabase.from("modules").update({ is_pro_only: nextPro }).eq("id", m.id);
-                                  setModules((prev) =>
-                                    prev.map((item) =>
-                                      item.id === m.id ? ({ ...item, is_pro_only: nextPro } as any) : item
-                                    )
-                                  );
-                                  showToast("success", `Module tier set to ${nextPro ? "Pro (₹49)" : "Starter Free"}`);
-                                } catch (err) {
-                                  showToast("error", "Failed to update module tier");
-                                }
-                              }}
-                              className={cn(
-                                "inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border cursor-pointer",
-                                (m as any).is_pro_only
-                                  ? "bg-amber-500/15 text-amber-500 border-amber-500/30 hover:bg-amber-500/25"
-                                  : "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border-emerald-500/30 hover:bg-emerald-500/25"
-                              )}
-                              title="Toggle Module Access Tier: Free Starter vs Pro ₹49"
-                            >
-                              <Lock size={12} />
-                              <span>{(m as any).is_pro_only ? "Pro (₹49)" : "Starter"}</span>
-                            </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const currentStatus = (c as any).enrollment_status || "open";
+                          const nextStatus = currentStatus === "open" ? "closed" : "open";
+                          try {
+                            await supabase.from("courses").update({ enrollment_status: nextStatus }).eq("id", c.id);
+                            setCourses((prev) =>
+                              prev.map((item) =>
+                                item.id === c.id ? ({ ...item, enrollment_status: nextStatus } as any) : item
+                              )
+                            );
+                            showToast("success", `Track enrollment set to ${nextStatus.toUpperCase()}`);
+                          } catch {
+                            showToast("error", "Failed to update enrollment status");
+                          }
+                        }}
+                        className={cn(
+                          "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase transition-all flex items-center gap-1 cursor-pointer",
+                          ((c as any).enrollment_status || "open") === "open"
+                            ? "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border border-emerald-500/30 hover:bg-emerald-500/25"
+                            : "bg-rose-500/15 text-rose-500 border border-rose-500/30 hover:bg-rose-500/25"
+                        )}
+                        title="Click to toggle Enrollment: Open / Closed"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                        <span>{((c as any).enrollment_status || "open") === "open" ? "Open" : "Closed"}</span>
+                      </button>
 
-                            <button
-                              onClick={() => handleOpenEditModule(m)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 text-[#6366F1] dark:text-indigo-300 hover:bg-[#6366F1] hover:text-white text-xs font-bold transition-all"
-                            >
-                              <BookOpen size={13} />
-                              <span>Study Guide &amp; Video</span>
-                            </button>
-                            <button
-                              onClick={() => handleDeleteModule(m.id)}
-                              className="text-slate-400 hover:text-rose-500 p-1.5 transition-colors"
-                              title="Delete module"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                      <span
+                        className={cn(
+                          "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
+                          c.is_published
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                            : "bg-slate-500/10 text-slate-400"
+                        )}
+                      >
+                        {c.is_published ? "Live" : "Draft"}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCourse(c.id);
+                        }}
+                        className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer"
+                        title="Delete track"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: Modules for Selected Course */}
+            <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] p-6 space-y-6 shadow-xs">
+              {selectedCourse ? (
+                <>
+                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1F2327] pb-4">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                        {selectedCourse.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-[#8A9099]">
+                        Configure chapters and module breakdown for this track
+                      </p>
+                    </div>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] font-bold">
+                      {modules.length} Modules
+                    </span>
+                  </div>
+
+                  {/* Modules List */}
+                  <div className="space-y-3">
+                    {modules.map((m) => (
+                      <div
+                        key={m.id}
+                        className="p-3.5 rounded-xl border border-slate-200 dark:border-[#1F2327] flex items-center justify-between bg-slate-50/50 dark:bg-[#0C0D0E]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] font-bold text-xs flex items-center justify-center font-mono">
+                            {m.order_index}
+                          </div>
+                          <div>
+                            <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                              {m.title}
+                            </span>
+                            {m.about_content && (
+                              <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-[#00F076]">
+                                Study Guide Active
+                              </span>
+                            )}
+                            {m.youtube_url && (
+                              <span className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-500">
+                                Video Linked
+                              </span>
+                            )}
                           </div>
                         </div>
-                      ))}
 
-                      {/* Add Module Inline Form */}
-                      <form onSubmit={handleCreateModule} className="pt-2 flex flex-wrap sm:flex-nowrap gap-2.5 items-center">
-                        <input
-                          type="text"
-                          value={moduleTitle}
-                          onChange={(e) => setModuleTitle(e.target.value)}
-                          placeholder="Add new module title (e.g. 'Binary Search & Tree Traversal')..."
-                          className="flex-1 min-w-[200px] px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setModuleIsProOnly(!moduleIsProOnly)}
-                          className={cn(
-                            "px-3 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer shrink-0 flex items-center gap-1.5",
-                            moduleIsProOnly
-                              ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30"
-                              : "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border-emerald-500/30"
-                          )}
-                          title="Toggle Access Tier: Free Starter vs Pro Tier (₹49)"
-                        >
-                          <Lock size={12} />
-                          <span>{moduleIsProOnly ? "Pro Tier (₹49)" : "Free Starter"}</span>
-                        </button>
-                        <input
-                          type="number"
-                          value={moduleOrder}
-                          onChange={(e) => setModuleOrder(Number(e.target.value))}
-                          className="w-16 px-2 py-2 text-xs text-center rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425]"
-                          title="Order index"
-                        />
-                        <button
-                          type="submit"
-                          className="px-4 py-2 text-xs font-bold rounded-xl bg-[#6366F1] hover:bg-[#4F46E5] text-white transition-colors shrink-0"
-                        >
-                          Add Module
-                        </button>
-                      </form>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center py-20 text-slate-400 text-xs">
-                    Select a learning track from the left to manage modules.
+                        <div className="flex items-center gap-2">
+                          {/* Module Tier Toggle */}
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const nextTier = !m.is_pro_only;
+                              const { error } = await adminService.updateModule(m.id, { is_pro_only: nextTier });
+                              if (!error) {
+                                showToast("success", `Module set to ${nextTier ? "Pro Tier (₹49)" : "Free Starter"}`);
+                                selectCourse(selectedCourse);
+                              }
+                            }}
+                            className={cn(
+                              "px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase transition-all flex items-center gap-1 cursor-pointer",
+                              m.is_pro_only
+                                ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30"
+                                : "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border border-emerald-500/30"
+                            )}
+                            title="Click to toggle Free Starter vs Pro Tier (₹49)"
+                          >
+                            <Lock size={10} />
+                            <span>{m.is_pro_only ? "Pro (₹49)" : "Free"}</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleOpenEditModule(m)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] hover:bg-emerald-500 hover:text-black text-xs font-bold transition-all cursor-pointer"
+                          >
+                            <Edit3 size={12} />
+                            <span>Study Material</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteModule(m.id)}
+                            className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer"
+                            title="Delete module"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </div>
-            </div>
-          )}
 
-          {/* =================================================================
-              VIEW 3: PROBLEM BANK & TASK CREATOR
-          ================================================================= */}
-          {activeSection === "tasks" && (
-            <div className="max-w-7xl mx-auto space-y-6">
-              {/* Task Sub Tabs */}
-              <div className="flex items-center gap-2 border-b border-slate-200/80 dark:border-[#202425] pb-3">
+                  {/* Add Module Inline Form */}
+                  <form onSubmit={handleCreateModule} className="pt-4 border-t border-slate-100 dark:border-[#1F2327] flex flex-wrap gap-2 items-center">
+                    <input
+                      type="text"
+                      value={moduleTitle}
+                      onChange={(e) => setModuleTitle(e.target.value)}
+                      placeholder="Add module (e.g. Binary Search)"
+                      className="flex-1 min-w-[200px] px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <input
+                      type="number"
+                      min={1}
+                      value={moduleOrder}
+                      onChange={(e) => setModuleOrder(Number(e.target.value))}
+                      className="w-16 px-2.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 font-mono text-center focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setModuleIsProOnly(!moduleIsProOnly)}
+                      className={cn(
+                        "px-3 py-2 text-xs font-bold rounded-xl border transition-all flex items-center gap-1 cursor-pointer",
+                        moduleIsProOnly
+                          ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30"
+                          : "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border-emerald-500/30"
+                      )}
+                    >
+                      <Lock size={12} />
+                      <span>{moduleIsProOnly ? "Pro (₹49)" : "Free"}</span>
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 text-xs font-bold rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black transition-colors shrink-0 cursor-pointer shadow-xs"
+                    >
+                      Add Module
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <div className="py-12 text-center text-slate-400">
+                  <BookOpen size={36} className="mx-auto mb-2 opacity-50" />
+                  <p className="text-sm font-semibold">Select a course to view its curriculum modules</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* =====================================================================
+            VIEW 3: PROBLEM BANK & TASK CREATOR
+        ===================================================================== */}
+        {activeSection === "tasks" && (
+          <div className="space-y-6">
+            {/* Sub-Tabs: Catalog vs Create */}
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-[#1F2327] pb-3">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setTasksTab("catalog")}
                   className={cn(
-                    "px-4 py-2 rounded-xl text-xs font-bold transition-all",
+                    "px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer",
                     tasksTab === "catalog"
-                      ? "bg-[#6366F1] text-white shadow-xs"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425]"
+                      ? "bg-emerald-500 text-black shadow-xs font-bold"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#131517]"
                   )}
                 >
-                  Browse Challenges ({allTasks.length})
+                  Problem Bank ({allTasks.length})
                 </button>
                 <button
                   onClick={() => setTasksTab("create")}
                   className={cn(
-                    "flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all",
+                    "px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5",
                     tasksTab === "create"
-                      ? "bg-[#6366F1] text-white shadow-xs"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#202425]"
+                      ? "bg-emerald-500 text-black shadow-xs font-bold"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#131517]"
                   )}
                 >
-                  <Plus size={14} />
-                  <span>Create Problem</span>
+                  <Plus size={13} />
+                  <span>{editingTaskId ? "Edit Challenge" : "Create New Problem"}</span>
                 </button>
               </div>
 
-              {/* Tab 3A: Catalog */}
-              {tasksTab === "catalog" && (
-                <div className="space-y-4">
-                  {/* Filters Bar */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className="relative">
-                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input
-                        type="text"
-                        value={taskSearch}
-                        onChange={(e) => setTaskSearch(e.target.value)}
-                        placeholder="Search problems by title or slug..."
-                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
-                      />
-                    </div>
+              {editingTaskId && (
+                <button
+                  onClick={handleCancelEditTask}
+                  className="text-xs text-rose-500 hover:underline font-semibold cursor-pointer"
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </div>
 
+            {/* TAB: Catalog */}
+            {tasksTab === "catalog" && (
+              <div className="rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] p-5 space-y-4 shadow-xs">
+                {/* Search & Filters */}
+                <div className="flex flex-wrap gap-3 items-center justify-between">
+                  <div className="relative flex-1 min-w-[240px]">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={taskSearch}
+                      onChange={(e) => setTaskSearch(e.target.value)}
+                      placeholder="Search problem title or slug..."
+                      className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2">
                     <select
                       value={taskLanguageFilter}
                       onChange={(e) => setTaskLanguageFilter(e.target.value)}
-                      className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none"
+                      className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-700 dark:text-slate-300"
                     >
                       <option value="all">All Languages</option>
                       <option value="python">Python</option>
-                      <option value="javascript">JavaScript</option>
                       <option value="cpp">C++</option>
                       <option value="java">Java</option>
+                      <option value="javascript">JavaScript</option>
                     </select>
 
                     <select
                       value={taskDifficultyFilter}
                       onChange={(e) => setTaskDifficultyFilter(e.target.value)}
-                      className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none"
+                      className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-700 dark:text-slate-300"
                     >
                       <option value="all">All Difficulties</option>
                       <option value="easy">Easy</option>
@@ -1618,1023 +1491,976 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                       <option value="hard">Hard</option>
                     </select>
                   </div>
-
-                  {/* Tasks Table */}
-                  <div className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] overflow-hidden shadow-xs">
-                    <table className="w-full text-left text-xs">
-                      <thead className="border-b border-slate-100 dark:border-[#202425] text-[10px] uppercase font-bold text-slate-400 bg-slate-50 dark:bg-[#0C0D0E]">
-                        <tr>
-                          <th className="py-3 px-4">Title & Slug</th>
-                          <th className="py-3 px-4">Track / Module</th>
-                          <th className="py-3 px-4">Language</th>
-                          <th className="py-3 px-4">Difficulty</th>
-                          <th className="py-3 px-4">Tier</th>
-                          <th className="py-3 px-4">Points</th>
-                          <th className="py-3 px-4 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-[#202425]/60">
-                        {filteredTasks.map((t) => (
-                          <tr key={t.id} className="hover:bg-slate-50/50 dark:hover:bg-[#202425]/40">
-                            <td className="py-3 px-4">
-                              <p className="font-bold text-slate-900 dark:text-white">{t.title}</p>
-                              <p className="text-[10px] text-slate-400 font-mono">/{t.slug}</p>
-                            </td>
-                            <td className="py-3 px-4 text-slate-600 dark:text-slate-300">
-                              {t.modules?.title || "Independent Challenge"}
-                            </td>
-                            <td className="py-3 px-4 font-mono uppercase font-semibold text-[11px] text-[#6366F1]">
-                              {t.language}
-                            </td>
-                            <td className="py-3 px-4">
-                              <span
-                                className={cn(
-                                  "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
-                                  t.difficulty === "easy"
-                                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                    : t.difficulty === "medium"
-                                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                                    : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                                )}
-                              >
-                                {t.difficulty}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4">
-                              {/* Task is_pro_only toggle */}
-                              <button
-                                type="button"
-                                onClick={async () => {
-                                  const nextPro = !(t as any).is_pro_only;
-                                  try {
-                                    await supabase.from("tasks").update({ is_pro_only: nextPro }).eq("id", t.id);
-                                    setAllTasks((prev) =>
-                                      prev.map((item) =>
-                                        item.id === t.id ? ({ ...item, is_pro_only: nextPro } as any) : item
-                                      )
-                                    );
-                                    showToast("success", `Question tier set to ${nextPro ? "Pro (₹49)" : "Starter Free"}`);
-                                  } catch (err) {
-                                    showToast("error", "Failed to update question tier");
-                                  }
-                                }}
-                                className={cn(
-                                  "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition-all flex items-center gap-1 border cursor-pointer",
-                                  (t as any).is_pro_only
-                                    ? "bg-amber-500/15 text-amber-500 border-amber-500/30 hover:bg-amber-500/25"
-                                    : "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border-emerald-500/30 hover:bg-emerald-500/25"
-                                )}
-                                title="Click to toggle Pro vs Free Starter"
-                              >
-                                <Lock size={10} />
-                                <span>{(t as any).is_pro_only ? "Pro" : "Starter"}</span>
-                              </button>
-                            </td>
-                            <td className="py-3 px-4 font-mono font-bold text-amber-500">
-                              +{t.points || 10} XP
-                            </td>
-                            <td className="py-3 px-4 text-right">
-                              <button
-                                type="button"
-                                onClick={() => handleStartEditTask(t)}
-                                className="p-1.5 text-slate-400 hover:text-[#6366F1] hover:bg-indigo-500/10 rounded-lg transition-colors cursor-pointer mr-1"
-                                title="Edit challenge"
-                              >
-                                <Edit3 size={14} />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteTask(t.id)}
-                                className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
-                                title="Delete task"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
                 </div>
-              )}
 
-              {/* Tab 3B: Task Creator */}
-              {tasksTab === "create" && (
-                <form
-                  onSubmit={handleCreateTask}
-                  className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] p-6 sm:p-8 space-y-6"
-                >
-                  <div className="border-b border-slate-100 dark:border-[#202425] pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                {/* Problems Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="border-b border-slate-200 dark:border-[#1F2327] text-[10px] uppercase font-bold text-slate-400 bg-slate-50/50 dark:bg-[#0C0D0E]/50">
+                      <tr>
+                        <th className="py-2.5 px-4">Title</th>
+                        <th className="py-2.5 px-4">Type</th>
+                        <th className="py-2.5 px-4">Slug</th>
+                        <th className="py-2.5 px-4">Language</th>
+                        <th className="py-2.5 px-4">Difficulty</th>
+                        <th className="py-2.5 px-4">Points</th>
+                        <th className="py-2.5 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-[#1F2327]/60">
+                      {filteredTasks.map((t) => (
+                        <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-[#181B1D]">
+                          <td className="py-3 px-4 font-bold text-slate-900 dark:text-white">
+                            {t.title}
+                          </td>
+                          <td className="py-3 px-4 font-mono text-[11px]">
+                            <span
+                              className={cn(
+                                "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border",
+                                t.task_type === "mcq"
+                                  ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20"
+                                  : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                              )}
+                            >
+                              {t.task_type === "mcq" ? "Diagnostic MCQ" : "Coding"}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-mono text-slate-400 text-[11px]">
+                            /{t.slug}
+                          </td>
+                          <td className="py-3 px-4 font-mono uppercase font-semibold text-[11px] text-emerald-600 dark:text-[#00F076]">
+                            {t.language}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span
+                              className={cn(
+                                "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
+                                t.difficulty === "easy" && "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                                t.difficulty === "medium" && "bg-amber-500/10 text-amber-500",
+                                t.difficulty === "hard" && "bg-rose-500/10 text-rose-500"
+                              )}
+                            >
+                              {t.difficulty}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-mono font-bold text-amber-500">
+                            +{t.points || 15} XP
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <button
+                              onClick={() => handleStartEditTask(t)}
+                              className="p-1.5 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-colors cursor-pointer mr-1"
+                              title="Edit Problem"
+                            >
+                              <Edit3 size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTask(t.id)}
+                              className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                              title="Delete Problem"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: Create / Edit Problem Form */}
+            {tasksTab === "create" && (
+              <form onSubmit={handleCreateTask} className="rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] p-6 space-y-6 shadow-xs">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1F2327] pb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] flex items-center justify-center border border-emerald-500/20">
+                      {editingTaskId ? <Edit3 size={16} /> : <Plus size={16} />}
+                    </div>
                     <div>
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        {editingTaskId ? <Edit3 size={18} className="text-[#6366F1]" /> : <Plus size={18} className="text-[#6366F1]" />}
-                        <span>{editingTaskId ? "Edit Algorithmic Challenge" : "Create Challenge"}</span>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                        {editingTaskId ? "Edit Problem Challenge" : "Author New Algorithmic Challenge"}
                       </h3>
-                      <p className="text-xs text-slate-500">
-                        Configure problem statement, boilerplates, and both public &amp; hidden evaluation benchmarks.
+                      <p className="text-xs text-slate-500 dark:text-[#8A9099]">
+                        Design problem statement, target track module, templates, and evaluation test cases.
                       </p>
                     </div>
-
-                    <div className="flex items-center gap-2">
-                      {editingTaskId && (
-                        <button
-                          type="button"
-                          onClick={handleCancelEditTask}
-                          className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-[#202425] text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#202425] cursor-pointer"
-                        >
-                          Cancel Edit
-                        </button>
-                      )}
-
-                      {/* Problem Type Toggle: Coding vs Diagnostic MCQ */}
-                      <div className="inline-flex p-1 rounded-xl bg-slate-100 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425]">
-                        <button
-                          type="button"
-                          onClick={() => setTaskType("algorithm")}
-                          className={cn(
-                            "px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
-                            taskType === "algorithm"
-                              ? "bg-white dark:bg-[#151718] text-[#6366F1] shadow-xs"
-                              : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-                          )}
-                        >
-                          <Code2 size={13} />
-                          <span>Coding</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setTaskType("mcq")}
-                          className={cn(
-                            "px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
-                            taskType === "mcq"
-                              ? "bg-white dark:bg-[#151718] text-[#6366F1] shadow-xs"
-                              : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-                          )}
-                        >
-                          <Radio size={13} />
-                          <span>Diagnostic MCQ</span>
-                        </button>
-                      </div>
-                    </div>
                   </div>
 
-                  {/* Course & Module Selectors */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        Target Track
-                      </label>
-                      <select
-                        value={taskCourseId}
-                        onChange={(e) => setTaskCourseId(e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
-                        required
-                      >
-                        <option value="">Select track...</option>
-                        {courses.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.title}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        Module / Chapter
-                      </label>
-                      <select
-                        value={taskModuleId}
-                        onChange={(e) => setTaskModuleId(e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
-                        required
-                      >
-                        <option value="">Select module...</option>
-                        {availableModules.map((m) => (
-                          <option key={m.id} value={m.id}>
-                            {m.order_index}. {m.title}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Title & Slug */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="md:col-span-2">
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        Task Title
-                      </label>
-                      <input
-                        type="text"
-                        value={taskTitle}
-                        onChange={(e) => {
-                          setTaskTitle(e.target.value);
-                          if (!taskSlug) {
-                            setTaskSlug(
-                              e.target.value
-                                .toLowerCase()
-                                .replace(/[^a-z0-9]+/g, "-")
-                                .replace(/^-|-$/g, "")
-                            );
-                          }
-                        }}
-                        placeholder="e.g. Valid Palindrome"
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        URL Slug
-                      </label>
-                      <input
-                        type="text"
-                        value={taskSlug}
-                        onChange={(e) => setTaskSlug(e.target.value)}
-                        placeholder="valid-palindrome"
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* Language, Difficulty, Points, Order */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        Language
-                      </label>
-                      <select
-                        value={taskLanguage}
-                        onChange={(e) => setTaskLanguage(e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
-                      >
-                        <option value="python">Python</option>
-                        <option value="javascript">JavaScript</option>
-                        <option value="cpp">C++</option>
-                        <option value="java">Java</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        Difficulty
-                      </label>
-                      <select
-                        value={taskDifficulty}
-                        onChange={(e) => setTaskDifficulty(e.target.value as any)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
-                      >
-                        <option value="easy">Easy</option>
-                        <option value="medium">Medium</option>
-                        <option value="hard">Hard</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        Points (XP)
-                      </label>
-                      <input
-                        type="number"
-                        value={taskPoints}
-                        onChange={(e) => setTaskPoints(Number(e.target.value))}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                        Order Index
-                      </label>
-                      <input
-                        type="number"
-                        value={taskOrderIndex}
-                        onChange={(e) => setTaskOrderIndex(Number(e.target.value))}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Problem Description with Markdown Write & Preview */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        Problem Description (Markdown)
-                      </label>
-                      <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#0C0D0E] p-0.5 rounded-lg border border-slate-200/80 dark:border-[#202425]">
-                        <button
-                          type="button"
-                          onClick={() => setDescTab("write")}
-                          className={cn(
-                            "px-2.5 py-1 text-[11px] font-bold rounded-md transition-all cursor-pointer",
-                            descTab === "write"
-                              ? "bg-white dark:bg-[#151718] text-[#6366F1] shadow-xs"
-                              : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
-                          )}
-                        >
-                          Write
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDescTab("preview")}
-                          className={cn(
-                            "px-2.5 py-1 text-[11px] font-bold rounded-md transition-all cursor-pointer",
-                            descTab === "preview"
-                              ? "bg-white dark:bg-[#151718] text-[#6366F1] shadow-xs"
-                              : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
-                          )}
-                        >
-                          Preview
-                        </button>
-                      </div>
-                    </div>
-
-                    {descTab === "write" ? (
-                      <textarea
-                        value={taskDescription}
-                        onChange={(e) => setTaskDescription(e.target.value)}
-                        rows={5}
-                        placeholder="Describe problem statement, input constraints, and return formats in standard Markdown..."
-                        className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
-                        required
-                      />
-                    ) : (
-                      <div className="w-full min-h-[120px] p-4 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed font-sans">
-                        {taskDescription || <span className="text-slate-400 italic">No description entered yet.</span>}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* MCQ Options Block (Shown only when Diagnostic MCQ is chosen) */}
-                  {taskType === "mcq" && (
-                    <div className="p-4 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50/50 dark:bg-[#0C0D0E] space-y-4">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                          <Radio size={14} className="text-[#6366F1]" />
-                          <span>Multiple Choice Options &amp; Solution Key</span>
-                        </label>
-                        <span className="text-[11px] text-slate-500">
-                          Select the radio button beside the correct answer
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {mcqOptions.map((opt, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718]"
-                          >
-                            <input
-                              type="radio"
-                              name="correct_mcq_answer"
-                              checked={mcqCorrectAnswer === opt}
-                              onChange={() => setMcqCorrectAnswer(opt)}
-                              className="text-[#6366F1] focus:ring-[#6366F1] cursor-pointer"
-                            />
-                            <span className="text-xs font-bold text-slate-400 font-mono">
-                              {String.fromCharCode(65 + idx)}.
-                            </span>
-                            <input
-                              type="text"
-                              value={opt}
-                              onChange={(e) => {
-                                const nextOpts = [...mcqOptions];
-                                nextOpts[idx] = e.target.value;
-                                setMcqOptions(nextOpts);
-                                if (mcqCorrectAnswer === opt) {
-                                  setMcqCorrectAnswer(e.target.value);
-                                }
-                              }}
-                              className="flex-1 px-2 py-1 text-xs bg-transparent border-0 focus:outline-none text-slate-800 dark:text-slate-200 font-medium"
-                              placeholder={`Option ${String.fromCharCode(65 + idx)} text`}
-                              required
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Starter & Reference Solution (Shown only for Coding challenges) */}
-                  {taskType === "algorithm" && (
-                    <>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                            Starter Code (Student Template)
-                          </label>
-                          <textarea
-                            value={taskStarterCode}
-                            onChange={(e) => setTaskStarterCode(e.target.value)}
-                            rows={6}
-                            placeholder="def solution():\n    pass\n"
-                            className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                            Reference Solution (Admin Only)
-                          </label>
-                          <textarea
-                            value={taskSolutionCode}
-                            onChange={(e) => setTaskSolutionCode(e.target.value)}
-                            rows={6}
-                            placeholder="def solution():\n    return 42\n"
-                            className="w-full p-3 text-xs rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Test Cases Builder: Public Sample vs Hidden Benchmarks */}
-                      <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-[#202425]">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                              Evaluation Test Cases ({taskTestCases.length})
-                            </h4>
-                            <p className="text-xs text-slate-500">
-                              Manage public sample test cases for students and hidden edge cases for deterministic evaluation.
-                            </p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={handleAddTestCase}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-[#202425] hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition-colors cursor-pointer"
-                          >
-                            <Plus size={14} />
-                            <span>Add Case</span>
-                          </button>
-                        </div>
-
-                        <div className="space-y-3">
-                          {taskTestCases.map((tc, idx) => (
-                            <div
-                              key={idx}
-                              className="p-4 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50/50 dark:bg-[#0C0D0E] space-y-3"
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 font-mono">
-                                    Case #{idx + 1}
-                                  </span>
-                                  <span
-                                    className={cn(
-                                      "px-2 py-0.5 rounded-md text-[10px] font-mono uppercase font-bold",
-                                      tc.is_hidden
-                                        ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
-                                        : "bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20"
-                                    )}
-                                  >
-                                    {tc.is_hidden ? "Hidden Edge Benchmark" : "Public Sample"}
-                                  </span>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                  <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
-                                    <input
-                                      type="checkbox"
-                                      checked={tc.is_hidden}
-                                      onChange={(e) =>
-                                        handleUpdateTestCase(idx, { is_hidden: e.target.checked })
-                                      }
-                                      className="rounded border-slate-300 text-[#6366F1] focus:ring-[#6366F1]"
-                                    />
-                                    <span>Mark as Hidden</span>
-                                  </label>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemoveTestCase(idx)}
-                                    className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div>
-                                  <span className="text-[11px] font-semibold text-slate-500 block mb-1">
-                                    Stdin:
-                                  </span>
-                                  <textarea
-                                    value={tc.input}
-                                    onChange={(e) => handleUpdateTestCase(idx, { input: e.target.value })}
-                                    rows={2}
-                                    placeholder="Input passed to stdin..."
-                                    className="w-full p-2 text-xs rounded-lg border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] text-slate-800 dark:text-slate-200 font-mono"
-                                  />
-                                </div>
-                                <div>
-                                  <span className="text-[11px] font-semibold text-slate-500 block mb-1">
-                                    Expected Stdout:
-                                  </span>
-                                  <textarea
-                                    value={tc.expected_output}
-                                    onChange={(e) =>
-                                      handleUpdateTestCase(idx, { expected_output: e.target.value })
-                                    }
-                                    rows={2}
-                                    placeholder="Exact stdout match..."
-                                    className="w-full p-2 text-xs rounded-lg border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] text-slate-800 dark:text-slate-200 font-mono"
-                                    required
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Submit */}
-                  <div className="pt-2 flex justify-end">
+                  {/* Problem Type Toggle: Algorithmic Challenge vs Diagnostic MCQ */}
+                  <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327]">
                     <button
-                      type="submit"
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-bold text-xs shadow-md shadow-indigo-500/25 transition-all cursor-pointer"
+                      type="button"
+                      onClick={() => setTaskType("algorithm")}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5",
+                        taskType === "algorithm"
+                          ? "bg-white dark:bg-[#131517] text-emerald-600 dark:text-[#00F076] shadow-xs"
+                          : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                      )}
                     >
-                      {editingTaskId ? "Save & Update Challenge" : "Publish Challenge"}
+                      <Code2 size={13} />
+                      <span>Coding Challenge</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTaskType("mcq")}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5",
+                        taskType === "mcq"
+                          ? "bg-white dark:bg-[#131517] text-purple-600 dark:text-purple-400 shadow-xs"
+                          : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                      )}
+                    >
+                      <Radio size={13} />
+                      <span>Diagnostic MCQ</span>
                     </button>
                   </div>
-                </form>
-              )}
-            </div>
-          )}
+                </div>
 
-          {/* =================================================================
-              VIEW 4: LIVE SUBMISSIONS LOG
-          ================================================================= */}
-          {activeSection === "submissions" && (
-            <div className="max-w-7xl mx-auto space-y-4">
-              {/* Filter bar */}
-              <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-                <div className="relative w-full sm:w-72">
+                {/* Target Course & Module Picker */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Target Course Track *
+                    </label>
+                    <select
+                      value={taskCourseId}
+                      onChange={(e) => setTaskCourseId(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-[#1F2327] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      required
+                    >
+                      <option value="">Select Course Track...</option>
+                      {courses.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Target Module *
+                    </label>
+                    <select
+                      value={taskModuleId}
+                      onChange={(e) => setTaskModuleId(e.target.value)}
+                      disabled={!taskCourseId || availableModules.length === 0}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-[#1F2327] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+                      required
+                    >
+                      <option value="">
+                        {!taskCourseId
+                          ? "Select a course first"
+                          : availableModules.length === 0
+                          ? "No modules available"
+                          : "Select Module..."}
+                      </option>
+                      {availableModules.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.order_index}. {m.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Basic Meta: Title, Slug, Points */}
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                  <div className="sm:col-span-2 space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Problem Title *
+                    </label>
+                    <input
+                      type="text"
+                      value={taskTitle}
+                      onChange={(e) => handleTaskTitleChange(e.target.value)}
+                      placeholder="e.g. Valid Anagram"
+                      className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      URL Slug *
+                    </label>
+                    <input
+                      type="text"
+                      value={taskSlug}
+                      onChange={(e) => setTaskSlug(e.target.value)}
+                      placeholder="valid-anagram"
+                      className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Points (XP)
+                    </label>
+                    <input
+                      type="number"
+                      min={5}
+                      max={100}
+                      value={taskPoints}
+                      onChange={(e) => setTaskPoints(Number(e.target.value))}
+                      className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 font-mono text-center focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Difficulty & Language */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Difficulty Level
+                    </label>
+                    <select
+                      value={taskDifficulty}
+                      onChange={(e) => setTaskDifficulty(e.target.value as any)}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-[#1F2327] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    >
+                      <option value="easy">Easy (Fundamentals)</option>
+                      <option value="medium">Medium (Algorithmic)</option>
+                      <option value="hard">Hard (Advanced / Complex)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Primary Language
+                    </label>
+                    <select
+                      value={taskLanguage}
+                      onChange={(e) => setTaskLanguage(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-[#1F2327] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 uppercase font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    >
+                      <option value="python">Python</option>
+                      <option value="cpp">C++</option>
+                      <option value="java">Java</option>
+                      <option value="javascript">JavaScript</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Order Index
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={taskOrderIndex}
+                      onChange={(e) => setTaskOrderIndex(Number(e.target.value))}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-[#1F2327] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono text-center focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Problem Description with Write / Preview Tabs */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                      Problem Statement &amp; Constraints (Markdown Supported)
+                    </label>
+                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#0C0D0E] p-1 rounded-lg border border-slate-200 dark:border-[#1F2327]">
+                      <button
+                        type="button"
+                        onClick={() => setDescTab("write")}
+                        className={cn(
+                          "px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer",
+                          descTab === "write"
+                            ? "bg-white dark:bg-[#131517] text-emerald-600 dark:text-[#00F076] shadow-xs"
+                            : "text-slate-400"
+                        )}
+                      >
+                        Write
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDescTab("preview")}
+                        className={cn(
+                          "px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer",
+                          descTab === "preview"
+                            ? "bg-white dark:bg-[#131517] text-emerald-600 dark:text-[#00F076] shadow-xs"
+                            : "text-slate-400"
+                        )}
+                      >
+                        Preview
+                      </button>
+                    </div>
+                  </div>
+
+                  {descTab === "write" ? (
+                    <textarea
+                      rows={6}
+                      value={taskDescription}
+                      onChange={(e) => setTaskDescription(e.target.value)}
+                      placeholder="### Problem Statement&#10;Given an array of integers nums...&#10;&#10;### Examples&#10;Input: nums = [2,7,11,15], target = 9&#10;Output: [0,1]&#10;&#10;### Constraints&#10;- 2 <= nums.length <= 10^4&#10;- -10^9 <= nums[i] <= 10^9"
+                      className="w-full p-3.5 text-xs font-mono rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      required
+                    />
+                  ) : (
+                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-xs leading-relaxed text-slate-800 dark:text-slate-200 min-h-[140px] whitespace-pre-wrap font-mono">
+                      {taskDescription || "(No description written yet)"}
+                    </div>
+                  )}
+                </div>
+
+                {/* If MCQ: Options & Correct Key */}
+                {taskType === "mcq" && (
+                  <div className="p-4 rounded-2xl border border-purple-500/20 bg-purple-500/5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Radio size={14} className="text-purple-500" />
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                          Diagnostic MCQ Options &amp; Answer Key
+                        </h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddMcqOption}
+                        className="px-2.5 py-1 text-xs font-bold rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition-colors cursor-pointer"
+                      >
+                        + Add Option
+                      </button>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {mcqOptions.map((opt, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <input
+                            type="radio"
+                            name="mcq_answer_key"
+                            checked={mcqCorrectAnswer === opt}
+                            onChange={() => setMcqCorrectAnswer(opt)}
+                            className="text-emerald-500 focus:ring-emerald-500 cursor-pointer"
+                            title="Select as correct answer key"
+                          />
+                          <input
+                            type="text"
+                            value={opt}
+                            onChange={(e) => handleMcqOptionChange(i, e.target.value)}
+                            placeholder={`Option ${String.fromCharCode(65 + i)}`}
+                            className="flex-1 px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMcqOption(i)}
+                            className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer"
+                            title="Remove option"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* If Coding: Starter & Solution Code */}
+                {taskType === "algorithm" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Starter Code Template ({taskLanguage})
+                      </label>
+                      <textarea
+                        rows={7}
+                        value={taskStarterCode}
+                        onChange={(e) => setTaskStarterCode(e.target.value)}
+                        placeholder="def solution():&#10;    # Write your logic here&#10;    pass"
+                        className="w-full p-3 font-mono text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Official Solution Benchmark ({taskLanguage})
+                      </label>
+                      <textarea
+                        rows={7}
+                        value={taskSolutionCode}
+                        onChange={(e) => setTaskSolutionCode(e.target.value)}
+                        placeholder="def solution():&#10;    # Reference optimal implementation&#10;    return result"
+                        className="w-full p-3 font-mono text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* If Coding: Test Cases Manager */}
+                {taskType === "algorithm" && (
+                  <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-[#1F2327]">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+                          Evaluation Test Cases ({taskTestCases.length})
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          Manage public samples (visible to students) and hidden edge cases.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddTestCase}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] hover:bg-emerald-500 hover:text-black transition-colors cursor-pointer"
+                      >
+                        <Plus size={13} />
+                        <span>Add Test Case</span>
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {taskTestCases.map((tc, index) => (
+                        <div
+                          key={index}
+                          className="p-3.5 rounded-xl border border-slate-200 dark:border-[#1F2327] bg-slate-50/50 dark:bg-[#0C0D0E] space-y-2.5"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-mono font-bold text-slate-600 dark:text-slate-400">
+                              Case #{index + 1}
+                            </span>
+                            <div className="flex items-center gap-3">
+                              <label className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-400 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={tc.is_hidden}
+                                  onChange={(e) =>
+                                    handleTestCaseChange(index, "is_hidden", e.target.checked)
+                                  }
+                                  className="rounded border-slate-300 text-emerald-500 focus:ring-emerald-500"
+                                />
+                                <span>Hidden Edge Case</span>
+                              </label>
+                              {taskTestCases.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveTestCase(index)}
+                                  className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer"
+                                  title="Remove test case"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <span className="text-[10px] uppercase font-bold text-slate-400 font-mono">
+                                Standard Input (stdin)
+                              </span>
+                              <textarea
+                                rows={2}
+                                value={tc.input}
+                                onChange={(e) =>
+                                  handleTestCaseChange(index, "input", e.target.value)
+                                }
+                                placeholder="[1, 2, 3]\n3"
+                                className="w-full p-2 text-xs font-mono rounded-lg bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <span className="text-[10px] uppercase font-bold text-slate-400 font-mono">
+                                Expected Output (stdout)
+                              </span>
+                              <textarea
+                                rows={2}
+                                value={tc.expected_output}
+                                onChange={(e) =>
+                                  handleTestCaseChange(index, "expected_output", e.target.value)
+                                }
+                                placeholder="6"
+                                className="w-full p-2 text-xs font-mono rounded-lg bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Form Submit Footer */}
+                <div className="pt-4 border-t border-slate-100 dark:border-[#1F2327] flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleCancelEditTask();
+                      setTasksTab("catalog");
+                    }}
+                    className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-[#1F2327] text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1F2327] transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs shadow-md shadow-emerald-500/20 transition-all cursor-pointer active:scale-95"
+                  >
+                    {editingTaskId ? "Save Challenge Updates" : "Publish Challenge to Curriculum"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+
+        {/* =====================================================================
+            VIEW 4: LIVE SUBMISSIONS LOG
+        ===================================================================== */}
+        {activeSection === "submissions" && (
+          <div className="rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] p-5 space-y-4 shadow-xs">
+            <div className="flex flex-wrap gap-3 items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Real-Time Evaluation Log
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-[#8A9099]">
+                  Live feed of student executions evaluated by the judge engine
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="relative min-w-[200px]">
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
                     value={subSearch}
                     onChange={(e) => setSubSearch(e.target.value)}
-                    placeholder="Search by student or task..."
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    placeholder="Search student or problem..."
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <select
-                    value={subStatusFilter}
-                    onChange={(e) => setSubStatusFilter(e.target.value)}
-                    className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none"
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="passed">Passed (Accepted)</option>
-                    <option value="failed">Failed (Wrong Answer)</option>
-                    <option value="compile_error">Compile Error</option>
-                    <option value="runtime_error">Runtime Error</option>
-                  </select>
+                <select
+                  value={subStatusFilter}
+                  onChange={(e) => setSubStatusFilter(e.target.value)}
+                  className="px-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-700 dark:text-slate-300"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="passed">Passed</option>
+                  <option value="failed">Failed / Wrong Answer</option>
+                  <option value="running">Running / In-Progress</option>
+                </select>
 
-                  <button
-                    onClick={loadSubmissions}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-[#202425] text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    <RefreshCw size={13} className={loadingSubmissions ? "animate-spin" : ""} />
-                    <span>Refresh</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Submissions Table */}
-              <div className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] overflow-hidden shadow-xs">
-                {loadingSubmissions ? (
-                  <div className="py-20 text-center flex flex-col items-center gap-2 text-slate-400">
-                    <Loader2 size={24} className="animate-spin text-[#6366F1]" />
-                    <span className="text-xs">Fetching real-time logs...</span>
-                  </div>
-                ) : filteredSubmissions.length === 0 ? (
-                  <div className="text-center py-16 text-slate-400 text-xs">
-                    No matching submissions recorded yet.
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                      <thead className="border-b border-slate-100 dark:border-[#202425] text-[10px] uppercase font-bold text-slate-400 bg-slate-50 dark:bg-[#0C0D0E]">
-                        <tr>
-                          <th className="py-3 px-4">Student</th>
-                          <th className="py-3 px-4">Problem</th>
-                          <th className="py-3 px-4">Language</th>
-                          <th className="py-3 px-4">Status</th>
-                          <th className="py-3 px-4">Test Cases</th>
-                          <th className="py-3 px-4">Runtime</th>
-                          <th className="py-3 px-4">Submitted</th>
-                          <th className="py-3 px-4 text-right">Inspect</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-[#202425]/60 font-mono">
-                        {filteredSubmissions.map((sub) => {
-                          const isPassed = sub.status === "passed";
-                          return (
-                            <tr key={sub.id} className="hover:bg-slate-50/50 dark:hover:bg-[#202425]/40">
-                              <td className="py-3 px-4 font-sans font-medium text-slate-800 dark:text-slate-200">
-                                {sub.profiles?.full_name || sub.profiles?.email || sub.user_id.slice(0, 8)}
-                              </td>
-                              <td className="py-3 px-4 font-sans font-bold text-slate-900 dark:text-white">
-                                {sub.tasks?.title || "Coding Challenge"}
-                              </td>
-                              <td className="py-3 px-4 uppercase text-[11px] font-semibold text-[#6366F1]">
-                                {sub.tasks?.language || "python"}
-                              </td>
-                              <td className="py-3 px-4">
-                                <span
-                                  className={cn(
-                                    "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border",
-                                    isPassed
-                                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                                      : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-                                  )}
-                                >
-                                  {sub.status.replace("_", " ")}
-                                </span>
-                              </td>
-                              <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
-                                {sub.passed_cases} / {sub.total_cases}
-                              </td>
-                              <td className="py-3 px-4 text-slate-500">
-                                {sub.execution_time_ms ? `${sub.execution_time_ms} ms` : "-"}
-                              </td>
-                              <td className="py-3 px-4 font-sans text-slate-400 text-[11px]">
-                                {new Date(sub.created_at).toLocaleString()}
-                              </td>
-                              <td className="py-3 px-4 text-right font-sans">
-                                <button
-                                  onClick={() => setSelectedSubmission(sub)}
-                                  className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#202425] hover:bg-[#6366F1] hover:text-white text-[11px] font-bold transition-colors"
-                                >
-                                  Inspect Code
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                <button
+                  onClick={loadSubmissions}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-[#1F2327] hover:bg-slate-100 dark:hover:bg-[#181B1D] text-slate-600 dark:text-slate-300 cursor-pointer"
+                  title="Refresh Log"
+                >
+                  <RefreshCw size={14} className={loadingSubmissions ? "animate-spin" : ""} />
+                </button>
               </div>
             </div>
-          )}
 
-          {/* =================================================================
-              VIEW 5: STUDENTS & ACCESS CONTROL (AARCODE PRO TIER MANAGEMENT)
-          ================================================================= */}
-          {activeSection === "users" && (
-            <div className="max-w-7xl mx-auto space-y-4">
-              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-                <div className="relative w-full sm:w-72">
+            {loadingSubmissions ? (
+              <div className="py-12 flex justify-center">
+                <Loader2 size={24} className="animate-spin text-emerald-500" />
+              </div>
+            ) : filteredSubmissions.length === 0 ? (
+              <p className="text-xs text-slate-400 py-12 text-center">No matching evaluation logs found.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b border-slate-200 dark:border-[#1F2327] text-[10px] uppercase font-bold text-slate-400 bg-slate-50/50 dark:bg-[#0C0D0E]/50">
+                    <tr>
+                      <th className="py-2.5 px-4">Student</th>
+                      <th className="py-2.5 px-4">Challenge</th>
+                      <th className="py-2.5 px-4">Status</th>
+                      <th className="py-2.5 px-4">Passed Cases</th>
+                      <th className="py-2.5 px-4">Language</th>
+                      <th className="py-2.5 px-4">Runtime</th>
+                      <th className="py-2.5 px-4 text-right">Inspect</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#1F2327]/60 font-mono">
+                    {filteredSubmissions.map((s) => (
+                      <tr key={s.id} className="hover:bg-slate-50 dark:hover:bg-[#181B1D]">
+                        <td className="py-3 px-4 font-sans font-medium text-slate-900 dark:text-white">
+                          {s.profiles?.full_name || s.profiles?.email || s.user_id.slice(0, 8)}
+                        </td>
+                        <td className="py-3 px-4 font-sans font-semibold text-slate-800 dark:text-slate-200">
+                          {s.tasks?.title || "Coding Challenge"}
+                        </td>
+                        <td className="py-3 px-4">
+                          <span
+                            className={cn(
+                              "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border",
+                              s.status === "passed"
+                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                                : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                            )}
+                          >
+                            {s.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+                          {s.passed_cases} / {s.total_cases}
+                        </td>
+                        <td className="py-3 px-4 uppercase text-[11px] font-semibold text-emerald-600 dark:text-[#00F076]">
+                          {s.language || "python"}
+                        </td>
+                        <td className="py-3 px-4 text-slate-500">
+                          {s.execution_time_ms ? `${s.execution_time_ms} ms` : "-"}
+                        </td>
+                        <td className="py-3 px-4 text-right font-sans">
+                          <button
+                            onClick={() => setSelectedSubmission(s)}
+                            className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#1F2327] hover:bg-emerald-500 hover:text-black text-[11px] font-bold transition-colors cursor-pointer"
+                          >
+                            Inspect Code
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* =====================================================================
+            VIEW 5: STUDENT ACCESS CONTROL & PRO SUBSCRIPTIONS
+        ===================================================================== */}
+        {activeSection === "users" && (
+          <div className="rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] p-5 space-y-4 shadow-xs">
+            <div className="flex flex-wrap gap-3 items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Student Directory &amp; Subscription Control
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-[#8A9099]">
+                  Inspect student activity telemetry and manage AarCode Pro tier subscriptions (₹49).
+                </p>
+              </div>
+
+              {/* Filters */}
+              <div className="flex items-center gap-2">
+                <div className="relative min-w-[200px]">
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
-                    placeholder="Search students by name or email..."
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    placeholder="Search name or email..."
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
 
-                {/* Subscription Tier Filter Tabs */}
-                <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] overflow-x-auto w-full sm:w-auto">
+                <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327]">
                   <button
+                    type="button"
                     onClick={() => setUserPlanFilter("all")}
                     className={cn(
-                      "px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap",
-                      userPlanFilter === "all"
-                        ? "bg-[#6366F1] text-white shadow-xs"
-                        : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                      "px-2.5 py-1 text-xs font-bold rounded-lg cursor-pointer",
+                      userPlanFilter === "all" ? "bg-emerald-500 text-black shadow-xs" : "text-slate-500"
                     )}
                   >
-                    All Users ({users.length})
+                    All
                   </button>
                   <button
+                    type="button"
                     onClick={() => setUserPlanFilter("pro")}
                     className={cn(
-                      "px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap",
-                      userPlanFilter === "pro"
-                        ? "bg-[#6366F1] text-white shadow-xs"
-                        : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                      "px-2.5 py-1 text-xs font-bold rounded-lg cursor-pointer",
+                      userPlanFilter === "pro" ? "bg-emerald-500 text-black shadow-xs" : "text-slate-500"
                     )}
                   >
-                    Pro Tier (₹49)
+                    Pro Tier
                   </button>
                   <button
+                    type="button"
                     onClick={() => setUserPlanFilter("starter")}
                     className={cn(
-                      "px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap",
-                      userPlanFilter === "starter"
-                        ? "bg-[#6366F1] text-white shadow-xs"
-                        : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                      "px-2.5 py-1 text-xs font-bold rounded-lg cursor-pointer",
+                      userPlanFilter === "starter" ? "bg-emerald-500 text-black shadow-xs" : "text-slate-500"
                     )}
                   >
-                    Free Starter
+                    Free
                   </button>
-                  <button
-                    onClick={() => setUserPlanFilter("admin")}
-                    className={cn(
-                      "px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap",
-                      userPlanFilter === "admin"
-                        ? "bg-[#6366F1] text-white shadow-xs"
-                        : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-                    )}
-                  >
-                    Admins
-                  </button>
-                </div>
-              </div>
-
-              {/* Students & Access Control Table */}
-              <div className="rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] overflow-hidden shadow-xs">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead className="border-b border-slate-100 dark:border-[#202425] text-[10px] uppercase font-bold text-slate-400 bg-slate-50 dark:bg-[#0C0D0E]">
-                      <tr>
-                        <th className="py-3 px-4">Student</th>
-                        <th className="py-3 px-4">Email</th>
-                        <th className="py-3 px-4">Score</th>
-                        <th className="py-3 px-4">Activity Telemetry</th>
-                        <th className="py-3 px-4">AarCode Tier</th>
-                        <th className="py-3 px-4">Manage Plan</th>
-                        <th className="py-3 px-4">System Role</th>
-                        <th className="py-3 px-4 text-right">Role Access</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-[#202425]/60">
-                      {filteredUsers.map((u) => {
-                        const plan = planStorage.getPlan(u.id);
-                        const isProUser = plan === "pro" || u.role === "admin";
-                        const userSubs = submissions.filter((s) => s.user_id === u.id);
-                        const passedSubs = userSubs.filter((s) => s.status === "passed");
-
-                        return (
-                          <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-[#202425]/40">
-                            <td className="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500/20 to-indigo-500/20 text-[#6366F1] font-bold text-xs flex items-center justify-center border border-slate-200/60 dark:border-[#202425]">
-                                {u.full_name ? u.full_name[0].toUpperCase() : "D"}
-                              </div>
-                              <div>
-                                <span className="block font-bold">{u.full_name || "Developer"}</span>
-                                <span className="text-[10px] font-mono text-slate-400 font-normal">
-                                  @{u.email?.split("@")[0]}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="py-3 px-4 text-slate-600 dark:text-slate-300 font-mono text-[11px]">
-                              {u.email}
-                            </td>
-                            <td className="py-3 px-4 font-mono font-bold text-amber-500">
-                              {u.points || 0} XP
-                            </td>
-                            <td className="py-3 px-4 font-mono text-[11px] text-slate-500">
-                              <span className="text-emerald-500 font-bold">{passedSubs.length}</span> passed / {userSubs.length} evals
-                            </td>
-                            <td className="py-3 px-4">
-                              <span
-                                className={cn(
-                                  "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase border",
-                                  isProUser
-                                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/25"
-                                    : "bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border-emerald-500/25"
-                                )}
-                              >
-                                {isProUser ? "Pro Tier (₹49)" : "Free Starter"}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4">
-                              <button
-                                type="button"
-                                onClick={() => handleToggleUserSubscription(u)}
-                                className={cn(
-                                  "px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer flex items-center gap-1",
-                                  isProUser
-                                    ? "bg-slate-100 dark:bg-[#202425] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#2C3133] hover:text-rose-500"
-                                    : "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30 hover:bg-purple-500/25"
-                                )}
-                              >
-                                <Lock size={11} />
-                                <span>{isProUser ? "Downgrade to Starter" : "Grant Pro Tier (₹49)"}</span>
-                              </button>
-                            </td>
-                            <td className="py-3 px-4">
-                              <span
-                                className={cn(
-                                  "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
-                                  u.role === "admin"
-                                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
-                                    : "bg-slate-500/10 text-slate-600 dark:text-slate-400"
-                                )}
-                              >
-                                {u.role}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-right">
-                              <button
-                                onClick={() => handleToggleUserRole(u)}
-                                className="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-[#202425] hover:bg-[#6366F1] hover:text-white transition-colors cursor-pointer"
-                              >
-                                {u.role === "admin" ? "Demote to Student" : "Promote to Admin"}
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
                 </div>
               </div>
             </div>
-          )}
 
-          {/* =================================================================
-              VIEW 6: SYSTEM HEALTH & SITE TOOLS
-          ================================================================= */}
-          {activeSection === "system" && (
-            <div className="max-w-4xl mx-auto space-y-6">
+            {loadingUsers ? (
+              <div className="py-12 flex justify-center">
+                <Loader2 size={24} className="animate-spin text-emerald-500" />
+              </div>
+            ) : filteredUsers.length === 0 ? (
+              <p className="text-xs text-slate-400 py-12 text-center">No students found matching your criteria.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b border-slate-200 dark:border-[#1F2327] text-[10px] uppercase font-bold text-slate-400 bg-slate-50/50 dark:bg-[#0C0D0E]/50">
+                    <tr>
+                      <th className="py-2.5 px-4">Student</th>
+                      <th className="py-2.5 px-4">Email</th>
+                      <th className="py-2.5 px-4">Role</th>
+                      <th className="py-2.5 px-4">Subscription Tier</th>
+                      <th className="py-2.5 px-4">Activity Telemetry</th>
+                      <th className="py-2.5 px-4 text-right">Access Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-[#1F2327]/60">
+                    {filteredUsers.map((u) => {
+                      const userPlan = planStorage.getPlan(u.id);
+                      const isProUser = userPlan === "pro";
+                      const studentSubs = submissions.filter((s) => s.user_id === u.id);
+                      const passedCount = studentSubs.filter((s) => s.status === "passed").length;
+
+                      return (
+                        <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-[#181B1D]">
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-7 h-7 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] font-bold text-xs flex items-center justify-center border border-emerald-500/20">
+                                {u.full_name ? u.full_name[0].toUpperCase() : "U"}
+                              </div>
+                              <span className="font-bold text-slate-900 dark:text-white">
+                                {u.full_name || "Anonymous Solver"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 font-mono text-slate-500 dark:text-[#8A9099]">
+                            {u.email}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span
+                              className={cn(
+                                "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
+                                u.role === "admin"
+                                  ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                                  : "bg-slate-500/10 text-slate-500"
+                              )}
+                            >
+                              {u.role || "student"}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span
+                              className={cn(
+                                "px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border",
+                                isProUser
+                                  ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30"
+                                  : "bg-emerald-500/15 text-emerald-600 dark:text-[#00F076] border-emerald-500/30"
+                              )}
+                            >
+                              {isProUser ? "AarCode Pro (₹49)" : "Free Starter"}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-mono text-slate-500 text-[11px]">
+                            {studentSubs.length} evals • {passedCount} passed
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => handleToggleUserSubscription(u)}
+                                className={cn(
+                                  "px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer",
+                                  isProUser
+                                    ? "bg-slate-100 dark:bg-[#1F2327] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-[#1F2327] hover:bg-slate-200"
+                                    : "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20 hover:bg-purple-500 hover:text-white"
+                                )}
+                              >
+                                {isProUser ? "Downgrade Free" : "Upgrade Pro (₹49)"}
+                              </button>
+
+                              <button
+                                onClick={() => handleToggleUserRole(u)}
+                                className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#1F2327] hover:bg-slate-200 text-slate-600 dark:text-slate-300 text-[11px] font-bold transition-colors cursor-pointer"
+                              >
+                                {u.role === "admin" ? "Demote" : "Make Admin"}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* =====================================================================
+            VIEW 6: SYSTEM HEALTH & JUDGE ENGINE
+        ===================================================================== */}
+        {activeSection === "system" && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Wandbox Judge Engine Health */}
-              <div className="p-6 rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-3">
+              <div className="rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] p-6 space-y-4 shadow-xs">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <Server size={18} className="text-[#6366F1]" />
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                      Judge Engine (Wandbox API)
-                    </h3>
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] flex items-center justify-center border border-emerald-500/20">
+                      <Server size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                        Wandbox Judge Runtime
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-[#8A9099]">Multi-compiler algorithmic execution engine</p>
+                    </div>
                   </div>
-                  <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-bold">
-                    Connected
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-emerald-500/10 text-emerald-600 dark:text-[#00F076] border border-emerald-500/20">
+                    Online
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  The Wandbox compiler container is used to securely compile and execute Java, Python, C++, and JavaScript in an isolated environment for real-time challenge grading.
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Evaluates Python, Java, C++, and JavaScript algorithmic test cases across public sample suites and hidden stress tests in an isolated compiler runtime.
                 </p>
 
-                <div className="flex items-center gap-4 pt-2">
-                  <button
-                    onClick={handleTestWandbox}
-                    disabled={isPingingWandbox}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-[#202425] hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition-all disabled:opacity-50"
-                  >
-                    {isPingingWandbox ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} className="text-[#6366F1]" />}
-                    <span>Run Ping & Execution Benchmark</span>
-                  </button>
-
-                  {wandboxLatency !== null && (
-                    <span className="text-xs font-mono text-emerald-500 font-bold">
-                      Roundtrip Latency: {wandboxLatency} ms
-                    </span>
-                  )}
+                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] flex items-center justify-between">
+                  <span className="text-xs text-slate-500">Last Ping Latency</span>
+                  <span className="text-xs font-mono font-bold text-emerald-600 dark:text-[#00F076]">
+                    {wandboxLatency !== null ? `${wandboxLatency} ms` : "Not checked yet"}
+                  </span>
                 </div>
+
+                <button
+                  onClick={handlePingWandbox}
+                  disabled={isPingingWandbox}
+                  className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold shadow-md shadow-emerald-500/20 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  {isPingingWandbox && <Loader2 size={14} className="animate-spin" />}
+                  <span>Test Judge Engine Connectivity</span>
+                </button>
               </div>
 
-              {/* Database & Seed Automation */}
-              <div className="p-6 rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-3">
+              {/* Database Seeder */}
+              <div className="rounded-2xl border border-slate-200 dark:border-[#1F2327] bg-white dark:bg-[#131517] p-6 space-y-4 shadow-xs">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <Database size={18} className="text-amber-500" />
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                      Database Seeder & Curriculum Sync
-                    </h3>
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center border border-amber-500/20">
+                      <Database size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                        Database Curriculum Seeder
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-[#8A9099]">Populate initial core DSA challenges</p>
+                    </div>
                   </div>
-                  <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-500 font-bold">
-                    Supabase PostgreSQL
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                    Admin Tool
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  If the database lacks seeded courses or problems, click below to populate the standard catalog with Python DSA, Two Sum, Trapping Rain Water, and core benchmarks.
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Injects default curriculum tracks (Arrays, Two Pointers, Stacks, Trees) and pre-configured test cases into the database for immediate student practice.
                 </p>
+
+                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] flex items-center justify-between">
+                  <span className="text-xs text-slate-500">Database Status</span>
+                  <span className="text-xs font-mono font-bold text-emerald-600 dark:text-[#00F076]">
+                    Connected • Supabase PostgREST
+                  </span>
+                </div>
 
                 <button
                   onClick={handleQuickSeed}
                   disabled={isSeeding}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold shadow-md shadow-amber-500/20 transition-all disabled:opacity-50"
+                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold shadow-md shadow-amber-500/20 transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
-                  {isSeeding ? <Loader2 size={14} className="animate-spin" /> : <Database size={14} />}
-                  <span>Seed Default Curriculum</span>
+                  {isSeeding && <Loader2 size={14} className="animate-spin" />}
+                  <span>Seed Default Curriculum &amp; Problems</span>
                 </button>
               </div>
-
-              {/* Platform Spec Summary */}
-              <div className="p-6 rounded-2xl border border-slate-200/80 dark:border-[#202425] bg-white dark:bg-[#151718] space-y-3 text-xs">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                  System Architecture Details
-                </h3>
-                <div className="grid grid-cols-2 gap-2 text-slate-500 font-mono">
-                  <div>Platform: AarCode Enterprise</div>
-                  <div>Build: Vite + React 19 + TypeScript</div>
-                  <div>Editor: Monaco Editor (JetBrains Mono)</div>
-                  <div>Styling: Tailwind CSS (Urbanist Font)</div>
-                </div>
-              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* =====================================================================
-          MODAL 1: CREATE NEW COURSE
+          MODAL: CREATE NEW LEARNING TRACK
       ===================================================================== */}
       {showCourseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-3">
+          <div className="w-full max-w-md rounded-3xl bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1F2327] pb-3">
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                Create New Learning Track
+                Create Learning Track
               </h3>
               <button
                 onClick={() => setShowCourseModal(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleCreateCourse} className="space-y-4 text-xs">
-              <div>
-                <label className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  Track Title
+            <form onSubmit={handleCreateCourse} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Track Title *
                 </label>
                 <input
                   type="text"
                   value={courseTitle}
-                  onChange={(e) => {
-                    setCourseTitle(e.target.value);
-                    if (!courseSlug) {
-                      setCourseSlug(
-                        e.target.value
-                          .toLowerCase()
-                          .replace(/[^a-z0-9]+/g, "-")
-                          .replace(/^-|-$/g, "")
-                      );
-                    }
-                  }}
-                  placeholder="e.g. Advanced Rust System Programming"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
+                  onChange={(e) => handleCourseTitleChange(e.target.value)}
+                  placeholder="e.g. Dynamic Programming & Recursion"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   required
                 />
               </div>
 
-              <div>
-                <label className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">
-                  URL Slug
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  URL Slug *
                 </label>
                 <input
                   type="text"
                   value={courseSlug}
                   onChange={(e) => setCourseSlug(e.target.value)}
-                  placeholder="advanced-rust"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200 font-mono"
+                  placeholder="dynamic-programming-recursion"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   required
                 />
               </div>
 
-              <div>
-                <label className="font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Description
                 </label>
                 <textarea
+                  rows={3}
                   value={courseDescription}
                   onChange={(e) => setCourseDescription(e.target.value)}
-                  rows={3}
-                  placeholder="Summary of student takeaways..."
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50 dark:bg-[#0C0D0E] text-slate-800 dark:text-slate-200"
+                  placeholder="Comprehensive curriculum covering memoization, tabulation, and state transitions..."
+                  className="w-full p-3 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
-              <div className="flex items-center gap-2 pt-1">
+              <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   id="published"
                   checked={courseIsPublished}
                   onChange={(e) => setCourseIsPublished(e.target.checked)}
-                  className="rounded border-slate-300 text-[#6366F1] focus:ring-[#6366F1]"
+                  className="rounded border-slate-300 text-emerald-500 focus:ring-emerald-500"
                 />
-                <label htmlFor="published" className="font-semibold text-slate-700 dark:text-slate-300">
-                  Publish immediately (visible to students)
+                <label htmlFor="published" className="text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
+                  Publish to Student Catalog immediately
                 </label>
               </div>
 
-              <div className="pt-2 flex gap-3">
+              <div className="pt-2 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowCourseModal(false)}
-                  className="flex-1 py-2 rounded-xl bg-slate-100 dark:bg-[#202425] text-slate-700 dark:text-slate-300 font-bold"
+                  className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-[#1F2327] text-slate-700 dark:text-slate-300 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#4F46E5] hover:to-[#6D28D9] text-white font-bold shadow-md shadow-indigo-500/20"
+                  className="px-5 py-2 text-xs font-bold rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black shadow-md shadow-emerald-500/20 cursor-pointer"
                 >
                   Create Track
                 </button>
@@ -2645,62 +2471,49 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
       )}
 
       {/* =====================================================================
-          MODAL 2: INSPECT SUBMITTED CODE
+          MODAL: INSPECT SUBMISSION CODE
       ===================================================================== */}
       {selectedSubmission && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-2xl rounded-2xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-3">
+          <div className="w-full max-w-2xl rounded-3xl bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1F2327] pb-3">
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  Submission Code Inspection
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                  Submission Code Viewer
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Student: {selectedSubmission.profiles?.full_name || selectedSubmission.user_id} • Task: {selectedSubmission.tasks?.title}
+                  {selectedSubmission.tasks?.title} • {selectedSubmission.profiles?.full_name || selectedSubmission.profiles?.email}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedSubmission(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    "px-2.5 py-0.5 rounded-full font-bold uppercase",
-                    selectedSubmission.status === "passed"
-                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                      : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                  )}
-                >
-                  {selectedSubmission.status}
-                </span>
-                <span className="text-slate-500 font-mono">
-                  {selectedSubmission.passed_cases} / {selectedSubmission.total_cases} Passed
-                </span>
-              </div>
-
+            <div className="flex items-center justify-between text-xs font-mono">
+              <span className="text-slate-400 uppercase">
+                Language: <strong className="text-emerald-500">{selectedSubmission.language || "python"}</strong>
+              </span>
               <button
                 onClick={copySubmissionCode}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 dark:bg-[#202425] text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 dark:bg-[#1F2327] text-slate-700 dark:text-slate-300 hover:text-emerald-500 transition-colors cursor-pointer text-xs"
               >
                 {copiedCode ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />}
                 <span>{copiedCode ? "Copied" : "Copy Code"}</span>
               </button>
             </div>
 
-            <pre className="p-4 rounded-xl bg-slate-950 text-slate-100 font-mono text-xs overflow-auto max-h-96 custom-scrollbar whitespace-pre">
-              {selectedSubmission.code}
+            <pre className="flex-1 p-4 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs overflow-y-auto custom-scrollbar border border-slate-800">
+              <code>{selectedSubmission.code || "(No code submitted)"}</code>
             </pre>
 
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setSelectedSubmission(null)}
-                className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-[#202425] text-slate-700 dark:text-slate-300"
+                className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-[#1F2327] text-slate-700 dark:text-slate-300 cursor-pointer"
               >
                 Close
               </button>
@@ -2709,23 +2522,25 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
         </div>
       )}
 
-      {/* Module Study Guide & Video Modal */}
+      {/* =====================================================================
+          MODAL: MODULE STUDY GUIDE & VIDEO LECTURE
+      ===================================================================== */}
       {editingModule && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-3xl rounded-3xl bg-white dark:bg-[#151718] border border-slate-200/80 dark:border-[#202425] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#202425] pb-3">
+          <div className="w-full max-w-3xl rounded-3xl bg-white dark:bg-[#131517] border border-slate-200 dark:border-[#1F2327] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#1F2327] pb-3">
               <div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <BookOpen size={16} className="text-[#6366F1]" />
+                  <BookOpen size={16} className="text-emerald-500" />
                   <span>Configure Study Guide &amp; Video ({editingModule.title})</span>
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Provide rich book-style study material (&quot;What is it, where to use, examples&quot;) and YouTube tutorial for students.
+                <p className="text-xs text-slate-500 dark:text-[#8A9099]">
+                  Provide book-style study material (&quot;What is it, where to use, examples&quot;) and YouTube tutorial for students.
                 </p>
               </div>
               <button
                 onClick={() => setEditingModule(null)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 cursor-pointer"
               >
                 ✕
               </button>
@@ -2745,7 +2560,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                   value={editAboutContent}
                   onChange={(e) => setEditAboutContent(e.target.value)}
                   placeholder="### What is this topic?&#10;&#10;Explain the core intuition...&#10;&#10;### Where Can We Use It?&#10;- Real-world application 1&#10;- Real-world application 2&#10;&#10;### Complexity Analysis&#10;Access: O(1), Search: O(N)..."
-                  className="w-full p-3.5 text-xs font-mono rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                  className="w-full p-3.5 text-xs font-mono rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
@@ -2760,7 +2575,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     value={editYoutubeUrl}
                     onChange={(e) => setEditYoutubeUrl(e.target.value)}
                     placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
 
@@ -2773,7 +2588,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     value={editYoutubeTitle}
                     onChange={(e) => setEditYoutubeTitle(e.target.value)}
                     placeholder="e.g. Data Structures Visualized in 15 Minutes"
-                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -2790,7 +2605,7 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     max={60}
                     value={editReadingTime}
                     onChange={(e) => setEditReadingTime(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
 
@@ -2803,13 +2618,13 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
                     value={editKeyTakeaways}
                     onChange={(e) => setEditKeyTakeaways(e.target.value)}
                     placeholder="Arrays provide O(1) random lookup&#10;Two pointers converge in linear O(N) time&#10;Use hash maps when order does not matter"
-                    className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200/80 dark:border-[#202425] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                    className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-[#0C0D0E] border border-slate-200 dark:border-[#1F2327] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
               </div>
 
               {/* Module Access Tier Selector */}
-              <div className="p-4 rounded-xl border border-slate-200/80 dark:border-[#202425] bg-slate-50/60 dark:bg-[#0C0D0E] flex items-center justify-between">
+              <div className="p-4 rounded-xl border border-slate-200 dark:border-[#1F2327] bg-slate-50/60 dark:bg-[#0C0D0E] flex items-center justify-between">
                 <div>
                   <span className="text-xs font-bold text-slate-900 dark:text-white block">
                     Curriculum Access Tier
@@ -2834,18 +2649,18 @@ export function AdminDashboardPage({ navigate }: AdminDashboardPageProps) {
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3 border-t border-slate-100 dark:border-[#202425] flex items-center justify-end gap-3">
+              <div className="pt-3 border-t border-slate-100 dark:border-[#1F2327] flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setEditingModule(null)}
-                  className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-[#202425] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-[#1F2327] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingModuleContent}
-                  className="px-5 py-2 text-xs font-bold rounded-xl bg-[#6366F1] hover:bg-[#4F46E5] text-white flex items-center gap-1.5 shadow-md shadow-indigo-500/20 disabled:opacity-50 transition-all"
+                  className="px-5 py-2 text-xs font-bold rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black flex items-center gap-1.5 shadow-md shadow-emerald-500/20 disabled:opacity-50 transition-all cursor-pointer"
                 >
                   {savingModuleContent && <Loader2 size={13} className="animate-spin" />}
                   <span>Save Study Material &amp; Video</span>
