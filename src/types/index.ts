@@ -77,7 +77,8 @@ export type Route =
   | "streak"
   | "analytics"
   | "login"
-  | "signup";
+  | "signup"
+  | "profile";
 
 
 export * from "./database.types";

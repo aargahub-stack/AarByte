@@ -98,7 +98,7 @@ export function ProUpgradeModal({
           </div>
           <div className="flex items-center gap-2.5">
             <CheckCircle2 size={16} className="text-[#00F076] shrink-0" />
-            <span>Curated Zoho &amp; TCS Technical Assessment Tracks</span>
+            <span>Advanced Machine Coding &amp; Algorithmic Assessment Tracks</span>
           </div>
           <div className="flex items-center gap-2.5">
             <CheckCircle2 size={16} className="text-[#00F076] shrink-0" />

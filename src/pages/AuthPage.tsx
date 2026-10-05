@@ -234,7 +234,7 @@ export function AuthPage({
           {/* Feature Checkmarks */}
           <ul className="space-y-3">
             {[
-              "Atomic sandbox execution across every language track",
+              "Atomic compiler execution across every language track",
               "Real-time hidden test-case evaluation telemetry",
               "Multi-track DSA & Web Development role-based roadmaps",
             ].map((item) => (
@@ -644,7 +644,7 @@ export function AuthPage({
 
         {/* Bottom Security Footer */}
         <div className="text-center text-[11px] text-[#6B7280] dark:text-[#8A9099] font-medium shrink-0 pt-1">
-          Protected by AarCode Secure Sandbox Authentication
+          Protected by AarCode Secure Authentication
         </div>
       </div>
     </div>

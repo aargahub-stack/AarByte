@@ -12,6 +12,7 @@ import {
   Flame,
   TrendingUp,
   ArrowRight,
+  User,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import type { Route } from "@/types";
@@ -81,12 +82,12 @@ const MEGA_CATEGORIES: MegaCategory[] = [
   },
   {
     id: "career",
-    name: "Career & Placement Paths",
-    subtext: "Zoho, TCS NQT, and company interview packs.",
-    headerTitle: "Career & Placement Paths • Targeted Packs",
+    name: "Algorithmic Interview Mastery",
+    subtext: "Technical assessment & machine coding tracks.",
+    headerTitle: "Algorithmic Interview Mastery • Technical Tracks",
     courses: [
       {
-        title: "Zoho & TCS Technical Assessment Track",
+        title: "Technical Assessment & Machine Coding Track",
         slug: "zoho-tcs-assessment",
         tag: "Placement",
         tagVariant: "emerald",
@@ -570,11 +571,25 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
                           >
                             {isAdmin ? "Admin" : "Student"}
                           </span>
-                          <span className="text-xs text-amber-500 font-bold">
-                            ★ {points} XP
+                          <span className="text-xs text-amber-500 font-bold inline-flex items-center gap-1">
+                            <Zap size={12} className="fill-amber-500/20" />
+                            <span>{points} XP</span>
                           </span>
                         </div>
                       </div>
+
+                      {/* Developer Profile Link */}
+                      <button
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          const username = profile?.username || user.email?.split("@")[0] || "aravindh";
+                          navigate("profile", { username });
+                        }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-[#ECEDEE] hover:bg-slate-100 dark:hover:bg-[#202425] flex items-center gap-2.5 transition-colors font-medium"
+                      >
+                        <User size={16} className="text-emerald-500" />
+                        <span>Developer Profile</span>
+                      </button>
 
                       {isAdmin && (
                         <button
@@ -717,6 +732,23 @@ export function Navbar({ route, navigate, theme, onToggleTheme }: NavbarProps) {
               <span className="flex items-center gap-2.5">
                 <ShieldAlert size={16} />
                 <span>Admin Dashboard</span>
+              </span>
+              <ArrowRight size={15} className="opacity-40" />
+            </button>
+          )}
+
+          {user && (
+            <button
+              onClick={() => {
+                setMobileOpen(false);
+                const username = profile?.username || user.email?.split("@")[0] || "aravindh";
+                navigate("profile", { username });
+              }}
+              className="flex items-center justify-between w-full text-left px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 dark:text-[#ECEDEE] hover:bg-slate-200/60 dark:hover:bg-[#151718] min-h-[44px]"
+            >
+              <span className="flex items-center gap-2.5">
+                <User size={16} className="text-emerald-500" />
+                <span>Developer Profile</span>
               </span>
               <ArrowRight size={15} className="opacity-40" />
             </button>

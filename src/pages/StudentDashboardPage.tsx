@@ -696,10 +696,10 @@ export function StudentDashboardPage({ navigate }: StudentDashboardPageProps) {
         DEMO_COURSES.find((c) => c.slug === "zoho-tcs-assessment");
       return {
         badge: "Curated Interview Track",
-        title: "Zoho & TCS Technical Assessment Track",
+        title: "Algorithmic Interview & Machine Coding Track",
         reason: `Based on your high problem solving benchmark (${solvedTasksCount} challenges solved)`,
         description:
-          "High-frequency machine coding, spiral matrices, pattern challenges, and real technical round questions from Zoho, TCS Digital, and product companies.",
+          "High-frequency machine coding, spiral matrices, pattern challenges, and core algorithmic assessment problems.",
         courseSlug: interviewCourse?.slug || "zoho-tcs-assessment",
       };
     }

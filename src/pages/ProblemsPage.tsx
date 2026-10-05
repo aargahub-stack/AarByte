@@ -473,7 +473,7 @@ export function ProblemsPage({ navigate }: ProblemsPageProps) {
               </h1>
 
               <p className="text-sm sm:text-base text-[#6B7280] dark:text-[#8A9099] font-normal leading-relaxed">
-                Sharpen your problem-solving skills across core data structures, algorithmic paradigms, and interview-proven tasks with isolated browser sandboxing.
+                Sharpen your problem-solving skills across core data structures, algorithmic paradigms, and interview-proven tasks with isolated compiler execution.
               </p>
 
               {/* Action shortcuts */}

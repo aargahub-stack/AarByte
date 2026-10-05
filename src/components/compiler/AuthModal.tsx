@@ -146,7 +146,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
 
             <ul className="space-y-4">
               {[
-                "Atomic sandbox execution across every language track",
+                "Atomic compiler execution across every language track",
                 "Real-time hidden test-case evaluation telemetry",
                 "Multi-track DSA & Web Development role-based roadmaps",
               ].map((item) => (
@@ -373,7 +373,7 @@ export function AuthModal({ open, onClose, mode, onModeChange }: AuthModalProps)
           </div>
 
           <div className="text-center text-xs text-[#6B7280] dark:text-[#8A9099] font-medium">
-            Protected by AarCode Secure Sandbox Authentication
+            Protected by AarCode Secure Authentication
           </div>
         </div>
       </div>

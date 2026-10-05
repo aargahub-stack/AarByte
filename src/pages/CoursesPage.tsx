@@ -361,7 +361,7 @@ export function CoursesPage({ navigate }: CoursesPageProps) {
               </h1>
 
               <p className="text-sm sm:text-base text-[#6B7280] dark:text-[#8A9099] font-normal leading-relaxed">
-                Step-by-step interactive tracks designed to build core algorithmic patterns, data structures, and production-grade architectures with live sandbox evaluation.
+                Step-by-step interactive tracks designed to build core algorithmic patterns, data structures, and production-grade architectures with live execution evaluation.
               </p>
 
               {/* Search input */}

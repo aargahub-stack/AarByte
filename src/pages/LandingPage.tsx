@@ -329,7 +329,7 @@ const METRICS = [
   {
     value: "99.8%",
     label: "Evaluation Accuracy",
-    detail: "Deterministic sandboxed test grading with isolated worker sandboxes.",
+    detail: "Deterministic test grading with isolated compiler worker processes.",
   },
   {
     value: "100+",
@@ -762,12 +762,12 @@ const FAQS: FaqItem[] = [
   {
     question: "What programming languages are currently supported?",
     answer:
-      "AarCode supports execution for Python, Java, C++, JavaScript, TypeScript, and HTML/CSS with isolated sub-second sandboxed evaluation.",
+      "AarCode supports execution for Python, Java, C++, JavaScript, TypeScript, and HTML/CSS with isolated sub-second compiler evaluation.",
   },
   {
     question: "How does the Pro Coder plan at ₹49/month work?",
     answer:
-      "The Pro tier unlocks edge-case diagnostics, complete company-specific interview roadmaps, hidden test case inputs, and performance profiling to help you crack technical rounds faster.",
+      "The Pro tier unlocks edge-case diagnostics, complete advanced algorithmic interview roadmaps, hidden test case inputs, and performance profiling to help you master technical rounds faster.",
   },
   {
     question: "Can colleges and clubs use the Campus tier for exams?",

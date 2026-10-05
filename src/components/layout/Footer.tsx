@@ -28,9 +28,10 @@ export function Footer({ navigate }: FooterProps) {
               </span>
             </button>
             <span className="hidden sm:inline text-[#202425]">|</span>
-            <p className="text-sm text-[#8A9099] font-normal max-w-md">
-              Engineered for serious developers — Master DSA, execute code in real-time, and scale your engineering skills.
-            </p>
+            <div className="flex flex-col text-xs sm:text-sm text-[#8A9099] max-w-md">
+              <span className="font-bold text-[#ECEDEE] tracking-tight">Logic First.</span>
+              <span className="text-xs text-[#5B626A] mt-0.5">An AarGa Hub Software Production.</span>
+            </div>
           </div>
 
           {/* Quick Navigation */}
@@ -69,8 +70,8 @@ export function Footer({ navigate }: FooterProps) {
 
         {/* Bottom Bar: Copyright, Terms, Privacy, Social/GitHub Links */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-6 text-xs sm:text-sm font-normal text-[#5B626A]">
-            <span>© {new Date().getFullYear()} AarCode. All rights reserved.</span>
+          <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm font-normal text-[#5B626A]">
+            <span>© {new Date().getFullYear()} AarCode. Logic First. An AarGa Hub Software Production.</span>
             <button
               onClick={() => navigate("terms")}
               className="hover:text-[#ECEDEE] transition-colors cursor-pointer"

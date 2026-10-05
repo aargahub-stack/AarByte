@@ -60,7 +60,7 @@ export function PlaygroundPage({ navigate }: { navigate: (to: Route) => void }) 
   return (
     <ComingSoonPage
       title="Playground"
-      description="Experiment with HTML, CSS, and JavaScript in a live, interactive sandbox."
+      description="Experiment with HTML, CSS, and JavaScript in a live, interactive workspace."
       icon={<span className="text-2xl font-bold">PL</span>}
       navigate={navigate}
       features={["Live HTML/CSS/JS preview", "Real-time updates", "Shareable playgrounds", "Template gallery"]}

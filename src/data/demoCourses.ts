@@ -2286,9 +2286,9 @@ export const DEMO_COURSES: CourseWithModules[] = [
   },
   {
     "id": "course-zoho-tcs-assessment",
-    "title": "Zoho & TCS Technical Assessment Track",
+    "title": "Algorithmic Interview & Machine Coding Track",
     "slug": "zoho-tcs-assessment",
-    "description": "Curated pattern-matching problems, matrix manipulation, bitwise tricks, and real assessment questions from Zoho, TCS Digital, and product companies.",
+    "description": "Curated pattern-matching problems, matrix manipulation, bitwise tricks, and real algorithmic assessment challenges.",
     "icon": "award",
     "is_published": true,
     "category": "Interview Preparation",
@@ -2298,11 +2298,11 @@ export const DEMO_COURSES: CourseWithModules[] = [
       {
         "id": "mod-zoho-1",
         "course_id": "course-zoho-tcs-assessment",
-        "title": "Module 1: Zoho Round 2 Machine Coding Foundations",
+        "title": "Module 1: Machine Coding & Core Logic Foundations",
         "order_index": 1,
         "is_pro_only": true,
         "reading_time_mins": 6,
-        "about_content": "High-frequency algorithmic challenges tested in Zoho, TCS Digital, and product companies.",
+        "about_content": "High-frequency algorithmic challenges and machine coding patterns.",
         "key_takeaways": [
           "Focus on zero-library standard algorithmic implementations.",
           "Write clean modular code with descriptive variable naming."
