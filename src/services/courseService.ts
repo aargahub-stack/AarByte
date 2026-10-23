@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { DEMO_COURSES } from "@/data/demoCourses";
 import type {
   Course,
   CourseWithModules,
@@ -43,8 +44,8 @@ export const courseService = {
         .eq("is_published", true)
         .order("created_at", { ascending: true });
 
-      if (error) {
-        return { data: null, error: error.message };
+      if (error || !data || data.length === 0) {
+        return { data: DEMO_COURSES, error: null };
       }
 
       // Sort modules and tasks by order_index
@@ -58,9 +59,9 @@ export const courseService = {
           })),
       }));
 
-      return { data: sortedCourses, error: null };
+      return { data: sortedCourses.length > 0 ? sortedCourses : DEMO_COURSES, error: null };
     } catch (err: any) {
-      return { data: null, error: err.message || "Failed to fetch courses" };
+      return { data: DEMO_COURSES, error: null };
     }
   },
 
@@ -105,40 +106,14 @@ export const courseService = {
         query = query.eq("slug", slug);
       }
 
-      let { data, error } = await query.single();
+      const { data, error } = await query.maybeSingle();
 
-      if ((error || !data) && !isUuid) {
-        const fallback = await supabase
-          .from("courses")
-          .select(`
-            *,
-            modules (
-              *,
-              tasks (
-                id,
-                module_id,
-                title,
-                slug,
-                description,
-                task_type,
-                language,
-                difficulty,
-                starter_code,
-                hints,
-                points,
-                order_index,
-                created_at,
-                updated_at
-              )
-            )
-          `)
-          .eq("id", slug)
-          .eq("is_published", true)
-          .single();
-
-        if (fallback.data) {
-          data = fallback.data;
-          error = null;
+      if (!data) {
+        const demoCourse = DEMO_COURSES.find(
+          (c) => c.slug === slug || c.id === slug
+        );
+        if (demoCourse) {
+          return { data: demoCourse, error: null };
         }
       }
 

@@ -9,6 +9,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ToastContainer } from "@/components/ui/ToastContainer";
 import { AuthModal } from "@/components/compiler/AuthModal";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { cn } from "@/utils/cn";
 
 import { LandingPage } from "@/pages/LandingPage";
@@ -175,11 +176,13 @@ function MainApp() {
 
 export function App() {
   return (
-    <ToastProvider>
-      <AuthProvider>
-        <MainApp />
-      </AuthProvider>
-    </ToastProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <AuthProvider>
+          <MainApp />
+        </AuthProvider>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }
 

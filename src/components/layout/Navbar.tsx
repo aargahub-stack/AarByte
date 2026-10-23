@@ -6,6 +6,7 @@ import {
   Sun,
   Trophy,
   ShieldAlert,
+  ShieldCheck,
   LogOut,
   ChevronDown,
   Zap,
