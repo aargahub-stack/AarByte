@@ -2,12 +2,12 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
-    "[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variables. " +
-    "Please set them in your .env or .env.local file."
+if (!supabaseUrl || !supabasePublishableKey) {
+  console.error(
+    "[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY environment variables. " +
+    "Please configure VITE_SUPABASE_PUBLISHABLE_KEY in your .env or .env.local file."
   );
 }
 
@@ -15,7 +15,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 const validUrl = supabaseUrl && supabaseUrl.startsWith("http")
   ? supabaseUrl
   : "https://placeholder-project.supabase.co";
-const validKey = supabaseAnonKey || "placeholder-anon-key";
+const validKey = supabasePublishableKey || "placeholder-publishable-key";
 
 export const supabase = createClient<Database>(validUrl, validKey, {
   auth: {
